@@ -17,9 +17,8 @@ function AdminImport(){
  const {t}=useLocale();const me=useMe();const qc=useQueryClient();
  const [tab,setTab]=useState<'status'|'films'|'books'|'georgian'|'bulk'>('status');
  const admin=me.data?.roles.includes('admin')??false;
- const keys=useQuery({queryKey:['check-keys'],queryFn:()=>useServerFnCheck(),enabled:admin});
  const check=useServerFn(checkKeys);
- async function useServerFnCheck(){return check();}
+ const keys=useQuery({queryKey:['check-keys'],queryFn:()=>check(),enabled:admin});
  if(!me.data)return <Shell><Loading/></Shell>;
  if(!admin)return <Shell><p className="error">{t('Not allowed.')}</p></Shell>;
  const tabs=[['status',t('Status')],['films',t('Films')],['books',t('Books')],['georgian',t('Georgian works')],['bulk',t('Bulk')]] as const;
