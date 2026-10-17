@@ -107,7 +107,6 @@ function LetterboxdImport({ items, uid, logs, onDone }: { items: Item[]; uid: st
   const [rows, setRows] = useState<{ name: string; year: string; rating: number | null; item: Item | undefined; on: boolean }[] | null>(null);
   const [msg, setMsg] = useState("");
   async function onFile(f: File) {
-  const { t, lang: appLang } = useLocale();
     const data = parseCsv(await f.text());
     const head = (data[0] ?? []).map((h) => h.trim().toLowerCase());
     const ni = head.indexOf("name"), yi = head.indexOf("year"), ri = head.indexOf("rating");
@@ -117,11 +116,10 @@ function LetterboxdImport({ items, uid, logs, onDone }: { items: Item[]; uid: st
       const name = r[ni] ?? "", year = r[yi] ?? "";
       const item = items.find((i) => i.media_type === "film" && [i.title_en, i.original_title].some((t) => t && norm(t) === norm(name)) && (!year || String(i.year) === year.trim()));
       const rt = Number(r[ri]);
-      return { name, year, rating: rt >{t('= 0.5 && rt')}<= 5 ? Math.round(rt * 2) / 2 : null, item, on: !!item };
+      return { name, year, rating: rt >= 0.5 && rt<= 5 ? Math.round(rt * 2) / 2 : null, item, on: !!item };
     }));
   }
   async function confirm() {
-  const { t, lang: appLang } = useLocale();
     const pick = rows!.filter((r) => r.on && r.item);
     for (const r of pick) await saveLog(uid, r.item!, logs.find((l) => l.item_id === r.item!.id), { status: "seen", rating: r.rating, review: null });
     setMsg(t("Imported {count} films.", {count:pick.length})); setRows(null); onDone();

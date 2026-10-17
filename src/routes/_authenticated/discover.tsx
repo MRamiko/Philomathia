@@ -59,13 +59,11 @@ function Discover() {
   const lastItem = last && items.data.find((i) => i.id === last.item_id);
 
   async function act(action: "like" | "pass") {
-  const { t, lang: appLang } = useLocale();
     if (!current || busy || !me.data) return;
     setBusy(true); setError(""); setHidden(current.item.id);
     try { await swipe(me.data.uid, current.item, action); await refresh(); setPreviousGenres(g => [...g, current.item.genres[0] ?? ""].slice(-3)); } catch { setError(t("Could not save. Please retry.")); } finally { setHidden(null); setBusy(false); }
   }
   async function undo() {
-  const { t, lang: appLang } = useLocale();
     if (!lastItem || busy) return;
     setBusy(true);
     try { await undoSwipe(lastItem, last.action); await refresh(); setPreviousGenres([]); } catch { setError(t("Could not save. Please retry.")); } finally { setBusy(false); }

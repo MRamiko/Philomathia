@@ -23,10 +23,9 @@ function Onboarding() {
   const genres = useMemo(() => Array.from(new Set((items.data ?? []).flatMap((i) => i.genres))).sort(), [items.data]);
   if (!items.data || !me.data) return <Shell><Loading /></Shell>;
   const toggle = (list: string[], set: (v: string[]) => void, v: string) =>
-    set(list.includes(v) ? list.filter((x) =>{translate('x !== v) : list.length')}< 5 ? [...list, v] : list);
+    set(list.includes(v) ? list.filter((x) =>x !== v) : list.length< 5 ? [...list, v] : list);
 
   async function finish(save: boolean) {
-  const { t: translate, lang: appLang } = useLocale();
     if (save) {
       const picked = items.data!.filter((i) => titles.includes(i.id));
       await bump([...tags, ...picked.flatMap(allTagsOf)], REC.ONBOARD_DELTA);

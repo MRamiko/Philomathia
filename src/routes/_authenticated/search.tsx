@@ -39,7 +39,7 @@ function SearchPage() {
         </div>
         <label className="row small"><input type="checkbox" checked={geo} onChange={(e) => setGeo(e.target.checked)} />{t('Made in Georgia')}</label>
       </div>
-      {!items.data ? <Loading />{t(': results.length === 0 ?')}<p className="muted">{t('No results')}</p> : results.map((i) => <ItemRow key={i.id} item={i} lang={lang} />)}
+      {!items.data ? <Loading />: results.length === 0 ?<p className="muted">{t('No results')}</p> : results.map((i) => <ItemRow key={i.id} item={i} lang={lang} />)}
     </Shell>
   );
 }

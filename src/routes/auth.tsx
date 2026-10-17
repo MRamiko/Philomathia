@@ -26,7 +26,6 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
 
   async function submit(e: React.FormEvent) {
-  const { t, lang: appLang } = useLocale();
     e.preventDefault();
     setBusy(true); setErr(null); setMsg(null);
     if (mode === "in") {

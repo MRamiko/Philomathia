@@ -19,7 +19,6 @@ const BOOK_TIME = { "Under 200 pages": [null, 199], "200 to 400 pages": [200, 40
 const MOODS = Object.keys(ASK_MOODS);
 
 function rulesParse(text: string) {
-  const { t, lang: appLang } = useLocale();
   const t = text.toLowerCase();
   const min = t.match(/(\d{2,3})\s*-?\s*(min|minute)/);
   const media = /\b(film|movie|watch)/.test(t) ? "film" : /\b(book|novel|read)/.test(t) ? "book" : "either";
@@ -48,7 +47,6 @@ function Ask() {
   const lang = appLang;
 
   async function find() {
-  const { t, lang: appLang } = useLocale();
     setBusy(true); setDone({});
     let f = { media_type: media, max_minutes: null as number | null, moods: [] as string[], georgian_only: false, keywords: [] as string[] };
     let ai = false;

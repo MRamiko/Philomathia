@@ -41,7 +41,6 @@ function ItemPage() {
   const footer = item.source === "seed" ? t("Sample data for demo") : `${t("Source")}: ${item.source}`;
 
   async function save() {
-  const { t, lang: appLang } = useLocale();
     await saveLog(me.data!.uid, item!, prev, { status, rating: rating ? Number(rating) : null, review: review || null });
     await refresh();
     setSaved(true);

@@ -28,9 +28,9 @@ export function Shell({ children, footer }: { children: ReactNode; footer?: Reac
       </div>
       <nav className="nav">
         <div className="nav-inner">
-          {TABS.map((t) => (
-            <Link key={t.to} to={t.to} className={path.startsWith(t.to) ? "active" : ""}>
-              {t(t.label)}
+          {TABS.map((tab) => (
+            <Link key={tab.to} to={tab.to} className={path.startsWith(tab.to) ? "active" : ""}>
+              {t(tab.label)}
             </Link>
           ))}
         </div>
@@ -127,7 +127,7 @@ export function SwipeCard({ item, lang, reason, onLike, onPass, onTap, disabled 
   return (
     <div
       className={`card${drag ? " dragging" : ""}`}
-      style={{ transform: `translateX(${dx}px) rotate(${Math.round(dx / 16)}deg)`, borderColor: dx >{t('100 ? "green" : dx')}< -100 ? "red" : undefined }}
+      style={{ transform: `translateX(${dx}px) rotate(${Math.round(dx / 16)}deg)`, borderColor: dx >100 ? "green" : dx< -100 ? "red" : undefined }}
       onPointerDown={(e) => {
         if (disabled || e.clientX < 24 || e.clientX > window.innerWidth - 24) return;
         start.current = { x: e.clientX, y: e.clientY };

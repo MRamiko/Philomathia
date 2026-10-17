@@ -24,19 +24,16 @@ function Profile() {
   const update = async (patch: { preferred_language?: string; avoided_genres?: string[] }) => { await supabase.from("profiles").update(patch).eq("id", me.data!.uid); refresh(); };
 
   async function reset() {
-  const { t, lang: appLang, setLanguage } = useLocale();
     if (!confirm(t("Reset your taste profile? This clears your swipes and taste weights."))) return;
     await tasteAction(null, "reset");
     refresh();
   }
   async function wipe() {
-  const { t, lang: appLang, setLanguage } = useLocale();
     if (!confirm(t("Delete all your data? Swipes, diary, taste weights and profile settings will be removed."))) return;
     await tasteAction(null, "wipe");
     refresh();
   }
   async function signOut() {
-  const { t, lang: appLang, setLanguage } = useLocale();
     await qc.cancelQueries(); qc.clear();
     await supabase.auth.signOut();
     nav({ to: "/auth", replace: true });
