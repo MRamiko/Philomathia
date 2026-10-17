@@ -253,6 +253,8 @@ button.chip.chip-active::before { animation: fade-in var(--motion-standard) var(
 .toggle button, .toggle button.on { background: transparent; }
 .drawer-bg { animation: fade-in var(--motion-standard) var(--ease-enter); }
 .drawer { animation: sheet-in var(--motion-entrance) var(--ease-enter); }
+.drawer-dismiss { position: absolute; inset: 0; }
+.drawer { position: relative; }
 .drawer-bg.exiting { animation: fade-out var(--motion-standard) var(--ease-exit) forwards; }
 .drawer-bg.exiting .drawer { animation: sheet-out var(--motion-standard) var(--ease-exit) forwards; }
 .dialog-motion { animation: card-in var(--motion-standard) var(--ease-enter); }

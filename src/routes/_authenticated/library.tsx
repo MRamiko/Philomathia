@@ -8,6 +8,7 @@ import { ItemRow, Loading, Shell } from "@/components/phi";
 import { supabase } from "@/integrations/supabase/client";
 import { saveLog, undoSwipe, useItems, useMe, useRefresh, type Log } from "@/lib/data";
 import type { Item } from "@/lib/recommend";
+import { motionWait } from '@/components/motion';
 
 export const Route = createFileRoute("/_authenticated/library")({
   head: () => ({ meta: [{ title: "Library · Philomathia" }, { name: "description", content: "Your liked, wanted and finished films and books." }, { property: "og:title", content: "Library · Philomathia" }, { property: "og:description", content: "Your liked, wanted and finished films and books." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -17,6 +18,7 @@ export const Route = createFileRoute("/_authenticated/library")({
 function Library() {
   const { t, lang: appLang } = useLocale();
   const action=useAction(); const [hidden,setHidden]=useState<string[]>([]);
+  const [removing, setRemoving] = useState<string | null>(null);
   const items = useItems();
   const me = useMe();
   const refresh = useRefresh();
@@ -60,7 +62,7 @@ function Library() {
         {logged("seen").map(({ l, i }) => <ItemRow key={i.id} item={i} lang={lang} right={<span className="small">{l.rating ? `${l.rating} / 5` : <span className="muted">{t('No rating')}</span>}</span>} />)}
       </Section>
       <Section title={t('Passed')} empty={t('No passes.')}>
-        {passed.map((i) => <ItemRow key={i.id} item={i} lang={lang} right={<button className="btn btn-sm" disabled={action.busy} onClick={()=>action.run(async()=>{await undoSwipe(i,"pass");await refresh();},()=>setHidden(h=>[...h,i.id]),()=>setHidden(h=>h.filter(id=>id!==i.id)))}>{t('Undo')}</button>} />)}
+        {passed.map((i) => <div key={i.id} className={removing === i.id ? 'row-removing' : ''}><ItemRow item={i} lang={lang} right={<button className="btn btn-sm" disabled={action.busy} onClick={()=>action.run(async()=>{await Promise.all([undoSwipe(i,"pass"),motionWait()]);setHidden(h=>[...h,i.id]);await refresh();setRemoving(null);},()=>setRemoving(i.id),()=>{setRemoving(null);setHidden(h=>h.filter(id=>id!==i.id));})}>{t('Undo')}</button>} /></div>)}
       </Section>
       <LetterboxdImport items={items.data} uid={d.uid} logs={d.logs} onDone={refresh} />
     </Shell>
@@ -75,7 +77,7 @@ function Section({ title, empty, children }: { title: string; empty: string; chi
   return (
     <>
       <div className="h2">{title}</div>
-      {has ? entries.slice((page-1)*REC.PAGE_SIZE,page*REC.PAGE_SIZE) : <p className="muted small">{empty}</p>}
+      {has ? <div key={page} className={`motion-list ${page > 1 ? 'no-stagger' : ''}`}>{entries.slice((page-1)*REC.PAGE_SIZE,page*REC.PAGE_SIZE)}</div> : <p className="muted small">{empty}</p>}
       <Pagination page={page} total={entries.filter(Boolean).length} onChange={setPage}/>
     </>
   );

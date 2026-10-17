@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useRouterState } from '@tanstack/react-router';
+export function motionWait() {
+  const duration = getComputedStyle(document.documentElement).getPropertyValue(window.matchMedia('(prefers-reduced-motion: reduce)').matches ? '--motion-fast' : '--motion-standard');
+  return new Promise<void>(resolve => window.setTimeout(resolve, parseFloat(duration) || 200));
+}
 
 export function ScreenMotion({ children }: { children: ReactNode }) {
   const location = useRouterState({ select: s => s.location });
@@ -7,7 +11,8 @@ export function ScreenMotion({ children }: { children: ReactNode }) {
   const [intro, setIntro] = useState(false);
   const path = location.pathname;
   const from = previous.current;
-  const direction = path === '/login' && from === '/signup' ? 'back' : ['/signup', '/shops'].includes(path) || path.startsWith('/item/') ? 'push' : 'tab';
+  const backward = Number(location.state.__TSR_index ?? 0) < Number(useRef(location.state.__TSR_index ?? 0).current);
+  const direction = backward || path === '/login' && from === '/signup' ? 'back' : ['/signup', '/shops'].includes(path) || path.startsWith('/item/') ? 'push' : 'tab';
   useEffect(() => { previous.current = path; }, [path]);
   useEffect(() => {
     if (sessionStorage.getItem('phi-launched')) return;
