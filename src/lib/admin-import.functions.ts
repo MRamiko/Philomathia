@@ -92,7 +92,7 @@ const WIKIDATA_QUERIES:Record<string,string>={
 export const wikidataSearch=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((d:{kind:'films'|'books'})=>d).handler(async({context,data})=>{
  await requireAdmin(context as unknown as Ctx);
  const {api}=await import('./admin-import.server');
- const result=await api('https://query.wikidata.org/sparql?format=json&query='+encodeURIComponent(WIKIDATA_QUERIES[data.kind]));
+ const result=await api('https://query.wikidata.org/sparql?format=json&query='+encodeURIComponent(WIKIDATA_QUERIES[data.kind]!));
  const seen=new Set<string>();const rows=[];
  for(const b of result.results?.bindings??[]){
   const wikidata=b.work.value.split('/').pop();if(seen.has(wikidata))continue;seen.add(wikidata);
