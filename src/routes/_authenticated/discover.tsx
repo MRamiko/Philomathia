@@ -5,7 +5,7 @@ import { swipe, undoSwipe, useItems, useMe, useRefresh } from "@/lib/data";
 import { recommend } from "@/lib/recommend";
 
 export const Route = createFileRoute("/_authenticated/discover")({
-  validateSearch: (s: Record<string, unknown>) => ({ tag: typeof s.tag === "string" ? s.tag : undefined }),
+  validateSearch: (s: Record<string, unknown>) => ({ tag: typeof s['tag'] === "string" ? (s['tag'] as string) : undefined }),
   head: () => ({ meta: [{ title: "Discover · Philomathia" }, { name: "description", content: "Swipe through films and books picked for your taste." }] }),
   component: Discover,
 });

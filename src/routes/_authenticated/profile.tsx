@@ -18,7 +18,7 @@ function Profile() {
   if (!me.data || !items.data) return <Shell><Loading /></Shell>;
   const p = me.data.profile;
   const genres = Array.from(new Set(items.data.flatMap((i) => i.genres))).sort();
-  const update = async (patch: Record<string, unknown>) => { await supabase.from("profiles").update(patch).eq("id", me.data!.uid); refresh(); };
+  const update = async (patch: { preferred_language?: string; avoided_genres?: string[] }) => { await supabase.from("profiles").update(patch).eq("id", me.data!.uid); refresh(); };
 
   async function reset() {
     if (!confirm("Reset your taste profile? This clears your swipes and taste weights.")) return;

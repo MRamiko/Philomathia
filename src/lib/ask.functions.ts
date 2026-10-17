@@ -6,7 +6,7 @@ const MOODS = ["thought-provoking", "comforting", "melancholic", "mysterious", "
 export type Filters = { media_type: "film" | "book" | "either"; max_minutes: number | null; moods: string[]; georgian_only: boolean; keywords: string[] };
 
 async function chat(system: string, user: string): Promise<any | null> {
-  const key = process.env.LOVABLE_API_KEY;
+  const key = process.env['LOVABLE_API_KEY'];
   if (!key) return null;
   try {
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {

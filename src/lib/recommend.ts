@@ -14,15 +14,15 @@ export type RecInput = {
   excludedIds: Set<string>; // swiped or seen
   likedIds: Set<string>;
   avoidedGenres: string[];
-  mediaType?: "film" | "book" | "either";
-  georgianOnly?: boolean;
-  moods?: string[]; // stored mood_tags
-  keywords?: string[];
-  minMinutes?: number;
-  maxMinutes?: number;
-  minPages?: number;
-  maxPages?: number;
-  tagFilter?: string;
+  mediaType?: "film" | "book" | "either" | undefined;
+  georgianOnly?: boolean | undefined;
+  moods?: string[] | undefined; // stored mood_tags
+  keywords?: string[] | undefined;
+  minMinutes?: number | undefined;
+  maxMinutes?: number | undefined;
+  minPages?: number | undefined;
+  maxPages?: number | undefined;
+  tagFilter?: string | undefined;
 };
 
 export type Rec = { item: Item; score: number; reason: string; matched: string[]; exploratory: boolean };
@@ -132,7 +132,7 @@ function varied(items: Item[], georgianFirst: boolean): Item[] {
   const out: Item[] = [];
   let k = 0;
   while (out.length < items.length) {
-    for (const l of lists) if (l[k]) out.push(l[k]);
+    for (const l of lists) { const v = l[k]; if (v) out.push(v); }
     k++;
   }
   if (georgianFirst) out.sort((a, b) => Number(b.is_georgian) - Number(a.is_georgian));

@@ -99,11 +99,11 @@ function parseCsv(text: string): string[][] {
 }
 
 function LetterboxdImport({ items, uid, logs, onDone }: { items: Item[]; uid: string; logs: Log[]; onDone: () => void }) {
-  const [rows, setRows] = useState<{ name: string; year: string; rating: number | null; item?: Item; on: boolean }[] | null>(null);
+  const [rows, setRows] = useState<{ name: string; year: string; rating: number | null; item: Item | undefined; on: boolean }[] | null>(null);
   const [msg, setMsg] = useState("");
   async function onFile(f: File) {
     const data = parseCsv(await f.text());
-    const head = data[0].map((h) => h.trim().toLowerCase());
+    const head = (data[0] ?? []).map((h) => h.trim().toLowerCase());
     const ni = head.indexOf("name"), yi = head.indexOf("year"), ri = head.indexOf("rating");
     if (ni < 0) { setMsg("This file has no Name column."); return; }
     const norm = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");

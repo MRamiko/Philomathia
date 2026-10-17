@@ -20,7 +20,7 @@ function rulesParse(text: string) {
   const t = text.toLowerCase();
   const min = t.match(/(\d{2,3})\s*-?\s*(min|minute)/);
   const media = /\b(film|movie|watch)/.test(t) ? "film" : /\b(book|novel|read)/.test(t) ? "book" : "either";
-  const moods = MOODS.filter((m) => t.includes(m) || t.includes(m.split(" ")[0]));
+  const moods = MOODS.filter((m) => t.includes(m) || t.includes(m.split(" ")[0] ?? m));
   if (/thrill|tense/.test(t) && !moods.includes("suspenseful")) moods.push("suspenseful");
   const words = ["thriller", "mystery", "comedy", "romance", "drama", "science fiction", "fantasy", "war", "poetry", "magical realism", "horror", "animation"];
   return { media_type: media as "film" | "book" | "either", max_minutes: min ? Number(min[1]) : null, moods, georgian_only: /georgia|ქართ/.test(t), keywords: words.filter((w) => t.includes(w)) };
@@ -76,7 +76,7 @@ function Ask() {
     }
     if (ai && recs.length) {
       const rr = await rewrite({ data: { lang, items: recs.map((r) => ({ title: r.item.title_en, reason: r.reason })) } }).catch(() => null);
-      if (rr) recs = recs.map((r, k) => ({ ...r, reason: rr[k] }));
+      if (rr) recs = recs.map((r, k) => ({ ...r, reason: rr[k] ?? r.reason }));
     }
     setRes({ recs, ai, note });
     setBusy(false);
