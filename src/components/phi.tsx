@@ -6,6 +6,7 @@ import { rememberTab } from "@/lib/pwa";
 import { useRef, useState, useEffect, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SHOW_IMAGES } from "@/lib/config";
+import { imageUrl } from '@/lib/images';
 import { similar, type Item } from "@/lib/recommend";
 import { descOf, lengthOf, titleOf, twoSentences, yearOf } from "@/lib/data";
 import { Presence, MotionList } from '@/components/motion';
@@ -51,11 +52,15 @@ export function Shell({ children, footer }: { children: ReactNode; footer?: Reac
   );
 }
 
-export function Poster({ item, size }: { item: Item; size: "sm" | "lg" }) {
+export function Poster({ item, size, eager = false }: { item: Item; size: "sm" | "lg"; eager?: boolean }) {
   const { t, lang: appLang } = useLocale();
+  const url=SHOW_IMAGES?imageUrl(item,size):null;
+  const [loaded,setLoaded]=useState<string|null>(null);
+  const [failed,setFailed]=useState<string|null>(null);
   return (
     <div className={`poster poster-${size}`}>
-      {SHOW_IMAGES && item.poster_url ? <img src={item.poster_url} alt={item.title_en} /> : <span>{t(item.media_type === "book" ? "Book" : "Film")}</span>}
+      {loaded!==url || !url || failed===url ? <span>{t(item.media_type === "book" ? "Book" : "Film")}</span>:null}
+      {url && failed!==url && <img key={url} src={url} alt={titleOf(item,appLang)} width={size==='sm'?100:200} height={size==='sm'?150:300} loading={eager?'eager':'lazy'} decoding="async" className={loaded===url?'loaded':'pending'} onLoad={()=>setLoaded(url)} onError={()=>setFailed(url)}/>}
     </div>
   );
 }
@@ -172,7 +177,7 @@ export function SwipeCard({ item, lang, reason, onLike, onPass, onTap, disabled,
       {dx <= -40 && <span className="stamp stamp-pass" style={{ opacity: Math.min(1, (-dx - 20) / 80) }}>{t("PASS")}</span>}
       <div className={arrival ? `swipe-undo-${arrival === 'like' ? 'right' : 'left'}` : 'swipe-arrival'}>
       <div className="stack">
-      <Poster item={item} size="lg" />
+      <Poster item={item} size="lg" eager />
       <h2 className="clamp2">{titleOf(item, lang)}</h2>
       <div className="muted small">
         {yearOf(item.year)} · {item.creator} · {lengthOf(item, appLang)}
