@@ -21,6 +21,7 @@ import { Route as AuthenticatedLibraryRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedSearchRouteImport } from './routes/_authenticated/search'
+import { Route as AuthenticatedShopStockRouteImport } from './routes/_authenticated/shop-stock'
 import { Route as AuthenticatedShopsRouteImport } from './routes/_authenticated/shops'
 import { Route as AuthenticatedItemIdRouteImport } from './routes/_authenticated/item.$id'
 
@@ -84,6 +85,11 @@ const AuthenticatedSearchRoute = AuthenticatedSearchRouteImport.update({
   path: '/search',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedShopStockRoute = AuthenticatedShopStockRouteImport.update({
+  id: '/shop-stock',
+  path: '/shop-stock',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedShopsRoute = AuthenticatedShopsRouteImport.update({
   id: '/shops',
   path: '/shops',
@@ -107,6 +113,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/search': typeof AuthenticatedSearchRoute
+  '/shop-stock': typeof AuthenticatedShopStockRoute
   '/shops': typeof AuthenticatedShopsRoute
   '/item/$id': typeof AuthenticatedItemIdRoute
 }
@@ -122,6 +129,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/search': typeof AuthenticatedSearchRoute
+  '/shop-stock': typeof AuthenticatedShopStockRoute
   '/shops': typeof AuthenticatedShopsRoute
   '/item/$id': typeof AuthenticatedItemIdRoute
 }
@@ -139,6 +147,7 @@ export interface FileRoutesById {
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/search': typeof AuthenticatedSearchRoute
+  '/_authenticated/shop-stock': typeof AuthenticatedShopStockRoute
   '/_authenticated/shops': typeof AuthenticatedShopsRoute
   '/_authenticated/item/$id': typeof AuthenticatedItemIdRoute
 }
@@ -156,6 +165,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/profile'
     | '/search'
+    | '/shop-stock'
     | '/shops'
     | '/item/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -171,6 +181,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/profile'
     | '/search'
+    | '/shop-stock'
     | '/shops'
     | '/item/$id'
   id:
@@ -187,6 +198,7 @@ export interface FileRouteTypes {
     | '/_authenticated/onboarding'
     | '/_authenticated/profile'
     | '/_authenticated/search'
+    | '/_authenticated/shop-stock'
     | '/_authenticated/shops'
     | '/_authenticated/item/$id'
   fileRoutesById: FileRoutesById
@@ -285,6 +297,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSearchRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/shop-stock': {
+      id: '/_authenticated/shop-stock'
+      path: '/shop-stock'
+      fullPath: '/shop-stock'
+      preLoaderRoute: typeof AuthenticatedShopStockRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/shops': {
       id: '/_authenticated/shops'
       path: '/shops'
@@ -310,6 +329,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedSearchRoute: typeof AuthenticatedSearchRoute
+  AuthenticatedShopStockRoute: typeof AuthenticatedShopStockRoute
   AuthenticatedShopsRoute: typeof AuthenticatedShopsRoute
   AuthenticatedItemIdRoute: typeof AuthenticatedItemIdRoute
 }
@@ -322,6 +342,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedSearchRoute: AuthenticatedSearchRoute,
+  AuthenticatedShopStockRoute: AuthenticatedShopStockRoute,
   AuthenticatedShopsRoute: AuthenticatedShopsRoute,
   AuthenticatedItemIdRoute: AuthenticatedItemIdRoute,
 }

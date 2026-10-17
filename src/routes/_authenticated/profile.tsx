@@ -95,6 +95,7 @@ function Profile() {
       </div>}
       <div className="stack" style={{ marginTop: 16 }}>
         <Link to="/shops" className="btn" style={{ textAlign: "center", textDecoration: "none" }}>{t('Bookshops')}</Link>
+        {(me.data.roles.includes('shop')||me.data.roles.includes('admin'))&&<Link to="/shop-stock" className="btn" style={{ textAlign: "center", textDecoration: "none" }}>{t('Shop stock')}</Link>}
         <button className="btn" disabled={action.busy} onClick={()=>setConfirmation("reset")}>{t('Reset my taste profile')}</button>
         <button className="btn" disabled={action.busy} onClick={()=>setConfirmation("wipe")}>{t('Delete my data')}</button>
         <button className="btn" disabled={action.busy} onClick={()=>action.run(signOut)}>{t('Sign out')}</button>

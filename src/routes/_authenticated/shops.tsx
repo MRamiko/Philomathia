@@ -16,7 +16,7 @@ function Shops() {
   const q = useQuery({
     queryKey: ["shops"],
     queryFn: async () => {
-      const { data,error } = await supabase.from("shops").select("id,name,address,city,shop_stock(id,price_gel,quantity,items(id,title_en,title_ka))").order("name");
+      const { data,error } = await supabase.from("shops").select("id,name,address,city,is_sample,shop_stock(id,price_gel,quantity,updated_at,items(id,title_en,title_ka))").order("name");
       if(error)throw error;
       return data ?? [];
     },
