@@ -16,7 +16,11 @@ function Login() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
   const [attempt, setAttempt] = useState(0);
+  const [resetNotice, setResetNotice] = useState(false);
   const nav = useNavigate();
+  useEffect(() => {
+    if (sessionStorage.getItem('phi-pw-reset') === '1') { sessionStorage.removeItem('phi-pw-reset'); setResetNotice(true); }
+  }, []);
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (busy) return;
