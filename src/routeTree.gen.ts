@@ -12,9 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedAskRouteImport } from './routes/_authenticated/ask'
 import { Route as AuthenticatedDiscoverRouteImport } from './routes/_authenticated/discover'
+import { Route as AuthenticatedLibraryRouteImport } from './routes/_authenticated/library'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedSearchRouteImport } from './routes/_authenticated/search'
+import { Route as AuthenticatedShopsRouteImport } from './routes/_authenticated/shops'
 import { Route as AuthenticatedItemIdRouteImport } from './routes/_authenticated/item.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -31,9 +35,19 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAskRoute = AuthenticatedAskRouteImport.update({
+  id: '/ask',
+  path: '/ask',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDiscoverRoute = AuthenticatedDiscoverRouteImport.update({
   id: '/discover',
   path: '/discover',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedLibraryRoute = AuthenticatedLibraryRouteImport.update({
+  id: '/library',
+  path: '/library',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
@@ -41,9 +55,19 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSearchRoute = AuthenticatedSearchRouteImport.update({
   id: '/search',
   path: '/search',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedShopsRoute = AuthenticatedShopsRouteImport.update({
+  id: '/shops',
+  path: '/shops',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedItemIdRoute = AuthenticatedItemIdRouteImport.update({
@@ -55,17 +79,25 @@ const AuthenticatedItemIdRoute = AuthenticatedItemIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/ask': typeof AuthenticatedAskRoute
   '/discover': typeof AuthenticatedDiscoverRoute
+  '/library': typeof AuthenticatedLibraryRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/profile': typeof AuthenticatedProfileRoute
   '/search': typeof AuthenticatedSearchRoute
+  '/shops': typeof AuthenticatedShopsRoute
   '/item/$id': typeof AuthenticatedItemIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/ask': typeof AuthenticatedAskRoute
   '/discover': typeof AuthenticatedDiscoverRoute
+  '/library': typeof AuthenticatedLibraryRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/profile': typeof AuthenticatedProfileRoute
   '/search': typeof AuthenticatedSearchRoute
+  '/shops': typeof AuthenticatedShopsRoute
   '/item/$id': typeof AuthenticatedItemIdRoute
 }
 export interface FileRoutesById {
@@ -73,25 +105,52 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/ask': typeof AuthenticatedAskRoute
   '/_authenticated/discover': typeof AuthenticatedDiscoverRoute
+  '/_authenticated/library': typeof AuthenticatedLibraryRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/search': typeof AuthenticatedSearchRoute
+  '/_authenticated/shops': typeof AuthenticatedShopsRoute
   '/_authenticated/item/$id': typeof AuthenticatedItemIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/discover' | '/onboarding' | '/search' | '/item/$id'
+    | '/'
+    | '/auth'
+    | '/ask'
+    | '/discover'
+    | '/library'
+    | '/onboarding'
+    | '/profile'
+    | '/search'
+    | '/shops'
+    | '/item/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/discover' | '/onboarding' | '/search' | '/item/$id'
+  to:
+    | '/'
+    | '/auth'
+    | '/ask'
+    | '/discover'
+    | '/library'
+    | '/onboarding'
+    | '/profile'
+    | '/search'
+    | '/shops'
+    | '/item/$id'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/ask'
     | '/_authenticated/discover'
+    | '/_authenticated/library'
     | '/_authenticated/onboarding'
+    | '/_authenticated/profile'
     | '/_authenticated/search'
+    | '/_authenticated/shops'
     | '/_authenticated/item/$id'
   fileRoutesById: FileRoutesById
 }
@@ -124,11 +183,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/ask': {
+      id: '/_authenticated/ask'
+      path: '/ask'
+      fullPath: '/ask'
+      preLoaderRoute: typeof AuthenticatedAskRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/discover': {
       id: '/_authenticated/discover'
       path: '/discover'
       fullPath: '/discover'
       preLoaderRoute: typeof AuthenticatedDiscoverRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/library': {
+      id: '/_authenticated/library'
+      path: '/library'
+      fullPath: '/library'
+      preLoaderRoute: typeof AuthenticatedLibraryRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/onboarding': {
@@ -138,11 +211,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/search': {
       id: '/_authenticated/search'
       path: '/search'
       fullPath: '/search'
       preLoaderRoute: typeof AuthenticatedSearchRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/shops': {
+      id: '/_authenticated/shops'
+      path: '/shops'
+      fullPath: '/shops'
+      preLoaderRoute: typeof AuthenticatedShopsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/item/$id': {
@@ -156,16 +243,24 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAskRoute: typeof AuthenticatedAskRoute
   AuthenticatedDiscoverRoute: typeof AuthenticatedDiscoverRoute
+  AuthenticatedLibraryRoute: typeof AuthenticatedLibraryRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedSearchRoute: typeof AuthenticatedSearchRoute
+  AuthenticatedShopsRoute: typeof AuthenticatedShopsRoute
   AuthenticatedItemIdRoute: typeof AuthenticatedItemIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAskRoute: AuthenticatedAskRoute,
   AuthenticatedDiscoverRoute: AuthenticatedDiscoverRoute,
+  AuthenticatedLibraryRoute: AuthenticatedLibraryRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedSearchRoute: AuthenticatedSearchRoute,
+  AuthenticatedShopsRoute: AuthenticatedShopsRoute,
   AuthenticatedItemIdRoute: AuthenticatedItemIdRoute,
 }
 
