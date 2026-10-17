@@ -52,8 +52,11 @@ function Profile() {
     refresh();
   }
   async function wipe() {
-    await tasteAction(null, "wipe");
-    refresh();
+    const { deleteAccount } = await import('@/lib/account.functions');
+    await deleteAccount();
+    await qc.cancelQueries(); qc.clear();
+    await supabase.auth.signOut();
+    nav({ to: "/login", replace: true });
   }
   async function signOut() {
     await qc.cancelQueries(); qc.clear();
