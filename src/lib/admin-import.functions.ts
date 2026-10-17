@@ -25,7 +25,7 @@ export const filmSearch=createServerFn({method:'POST'}).middleware([requireSupab
  if(data.mode==='search'){if(!data.query?.trim())throw new Error('Enter a title');result=await api(tmdbUrl('/search/movie',key,{query:data.query.trim(),include_adult:'false',page:String(page),...(data.year?{year:String(data.year)}:{})}));}
  else if(data.mode==='georgian')result=await api(tmdbUrl('/discover/movie',key,{with_origin_country:'GE',include_adult:'false',page:String(page)}));
  else result=await api(tmdbUrl('/discover/movie',key,{'vote_count.gte':'1000','vote_average.gte':'6.5',include_adult:'false',sort_by:'vote_count.desc',page:String(page)}));
- const rows=(result.results??[])map((r:any)=>({tmdb_id:r.id,title:r.title??r.original_title??'',year:Number(String(r.release_date??'').slice(0,4))||null,language:r.original_language??'',rating:r.vote_average??0,poster_path:r.poster_path??null}));
+ const rows=(result.results??[]).map((r:any)=>({tmdb_id:r.id,title:r.title??r.original_title??'',year:Number(String(r.release_date??'').slice(0,4))||null,language:r.original_language??'',rating:r.vote_average??0,poster_path:r.poster_path??null}));
  const existing=await existingByTmdbIds(context.supabase,rows.map((r:any)=>r.tmdb_id));
  return {rows:rows.map((r:any)=>({...r,existing:existing.get(r.tmdb_id)??null})),page,totalPages:Math.min(result.total_pages??1,500)};
 });

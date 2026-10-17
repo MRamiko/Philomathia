@@ -32,12 +32,12 @@ export function parseStockCsv(text:string,maxRows=1000):{rows:ParsedRow[];error?
   if(!isbn)return {row,status:'error',reason:'invalid ISBN'};
   if(!(price>0)||!/^\d+(\.\d{1,2})?$/.test(c[cp]??''))return {row,status:'error',reason:'invalid price'};
   if(!Number.isInteger(quantity)||quantity<0)return {row,status:'error',reason:'invalid quantity'};
-  const dup=seen.has(isbn);seen.set(isbn,1);
-  return {row,status:'valid',duplicate:dup};
+  seen.set(isbn,1);
+  return {row,status:'valid'};
  });
- // Last row wins for duplicate ISBNs: mark earlier duplicates as skipped.
+ // Last row wins for duplicate ISBNs: mark every earlier occurrence as a duplicate.
  const lastIndex=new Map<string,number>();rows.forEach((r,i)=>{if(r.status==='valid')lastIndex.set(r.row.isbn,i);});
- rows.forEach((r,i)=>{if(r.status==='valid'&&r.duplicate===undefined&&lastIndex.get(r.row.isbn)!==i){r.duplicate=true;}});
+ rows.forEach((r,i)=>{if(r.status==='valid'&&lastIndex.get(r.row.isbn)!==i){r.duplicate=true;}});
  return {rows};
 }
 export const STOCK_TEMPLATE='isbn,price_gel,quantity,title,author\n9789941031299,24.00,3,Example title,Example author\n';
