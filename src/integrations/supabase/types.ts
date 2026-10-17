@@ -258,6 +258,7 @@ export type Database = {
           address: string
           city: string
           id: string
+          is_sample: boolean
           lat: number | null
           lng: number | null
           name: string
@@ -266,6 +267,7 @@ export type Database = {
           address: string
           city: string
           id?: string
+          is_sample?: boolean
           lat?: number | null
           lng?: number | null
           name: string
@@ -274,6 +276,7 @@ export type Database = {
           address?: string
           city?: string
           id?: string
+          is_sample?: boolean
           lat?: number | null
           lng?: number | null
           name?: string

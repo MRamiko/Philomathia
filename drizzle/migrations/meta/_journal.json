@@ -43,6 +43,13 @@
       "when": 1792271697192,
       "tag": "0005_catalog_images_import_jobs_and_queries",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792274173940,
+      "tag": "0006_shop_sample_flag_and_stock_unique",
+      "breakpoints": true
     }
   ]
 }
