@@ -19,6 +19,7 @@ export const ka: Record<string,string> = {
 'This product uses the TMDB API but is not endorsed or certified by TMDB.':'ეს პროდუქტი იყენებს TMDB API-ს, თუმცა TMDB-ის მიერ არ არის მხარდაჭერილი ან სერტიფიცირებული.'
 };
 export const en: Record<string,string> = Object.fromEntries(Object.keys(ka).map(k=>[k,k]));
+en['Every like adds points to the genres, moods, keywords and creator of that title, and every pass takes some away. Each new title is scored mostly by how well its tags match those points, plus its creator, your chosen mood and a little novelty. About one card in five is a deliberate step outside your usual taste, and every reason shown is built from the tags that actually matched.']='Likes add weight and passes subtract it. Earlier choices gradually fade, while recent choices blend equally with your long-term taste. Ratings also contribute. Recommendations balance tags, creators, your explicitly selected mood and novelty. About every fifth pick explores a related new direction. Reasons only name actual matches.';
 export const dictionaries = {en,ka};
 export function translate(lang:Locale,key:string,vars:Record<string,string|number>={}){
  let value=dictionaries[lang][key];

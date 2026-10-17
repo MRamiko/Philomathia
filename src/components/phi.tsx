@@ -1,5 +1,5 @@
 import { useLocale } from "@/lib/locale";
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { formatPrice } from "@/lib/strings";
 import { useQuery } from "@tanstack/react-query";
 import { rememberTab } from "@/lib/pwa";
@@ -19,10 +19,16 @@ const TABS = [
 
 export function Shell({ children, footer }: { children: ReactNode; footer?: ReactNode }) {
   const { t, lang: appLang } = useLocale();
+  const nav=useNavigate();
   const [offline,setOffline]=useState(false);
   useEffect(()=>{const update=()=>setOffline(!navigator.onLine);update();window.addEventListener("online",update);window.addEventListener("offline",update);return()=>{window.removeEventListener("online",update);window.removeEventListener("offline",update);};},[]);
   const path = useRouterState({ select: (s) => s.location.pathname });
   useEffect(()=>{rememberTab(path);},[path]);
+  useEffect(()=>{
+   if(path==='/discover'||!['/search','/library','/ask','/profile'].includes(path))return;
+   // A cold launch on another tab must retain Discover beneath it in history.
+   if(window.history.length<=2){history.replaceState({...history.state},'', '/discover');history.pushState({...history.state},'',path);}
+  },[path]);
   return (
     <>
       <div className="app">
