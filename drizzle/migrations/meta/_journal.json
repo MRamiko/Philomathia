@@ -57,6 +57,13 @@
       "when": 1792274669499,
       "tag": "0007_shop_stock_admin_write",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792276571068,
+      "tag": "0008_taste_functions_security_definer",
+      "breakpoints": true
     }
   ]
 }
