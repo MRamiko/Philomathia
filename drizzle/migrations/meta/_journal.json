@@ -15,6 +15,13 @@
       "when": 1792244687022,
       "tag": "0001_seed_catalog",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792259977506,
+      "tag": "0002_atomic_taste_interactions",
+      "breakpoints": true
     }
   ]
 }

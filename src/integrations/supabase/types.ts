@@ -138,6 +138,7 @@ export type Database = {
           id: string
           onboarded: boolean
           preferred_language: string
+          taste_baseline: Json | null
         }
         Insert: {
           avoided_genres?: string[]
@@ -146,6 +147,7 @@ export type Database = {
           id: string
           onboarded?: boolean
           preferred_language?: string
+          taste_baseline?: Json | null
         }
         Update: {
           avoided_genres?: string[]
@@ -154,6 +156,7 @@ export type Database = {
           id?: string
           onboarded?: boolean
           preferred_language?: string
+          taste_baseline?: Json | null
         }
         Relationships: []
       }
@@ -282,6 +285,50 @@ export type Database = {
         }
         Relationships: []
       }
+      taste_events: {
+        Row: {
+          active: boolean
+          created_at: string
+          decay: number
+          delta: number
+          id: string
+          item_id: string | null
+          kind: string
+          tags: string[]
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          decay?: number
+          delta?: number
+          id?: string
+          item_id?: string | null
+          kind: string
+          tags?: string[]
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          decay?: number
+          delta?: number
+          id?: string
+          item_id?: string | null
+          kind?: string
+          tags?: string[]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "taste_events_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -317,6 +364,11 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      replay_taste: { Args: never; Returns: undefined }
+      taste_action: {
+        Args: { _item: string; _kind: string; _rules: Json; _value: Json }
         Returns: boolean
       }
     }
