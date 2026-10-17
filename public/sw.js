@@ -1,4 +1,4 @@
-const CACHE='phi-shell-v2';
+const CACHE='phi-shell-v3';
 const SHELL=['/offline.html','/palette.css','/manifest.webmanifest','/icons/phi-192.png','/icons/phi-512.png','/icons/phi-maskable.png'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
