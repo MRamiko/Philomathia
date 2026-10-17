@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      import_jobs: {
+        Row: {
+          cursor: Json
+          id: string
+          imported_count: number
+          last_error: string | null
+          params: Json
+          pass_name: string
+          provider: string
+          skipped_count: number
+          skipped_reasons: Json
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          cursor?: Json
+          id?: string
+          imported_count?: number
+          last_error?: string | null
+          params?: Json
+          pass_name: string
+          provider: string
+          skipped_count?: number
+          skipped_reasons?: Json
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          cursor?: Json
+          id?: string
+          imported_count?: number
+          last_error?: string | null
+          params?: Json
+          pass_name?: string
+          provider?: string
+          skipped_count?: number
+          skipped_reasons?: Json
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       items: {
         Row: {
           created_at: string
@@ -22,6 +64,8 @@ export type Database = {
           description_ka: string | null
           genres: string[]
           id: string
+          image_ref: string | null
+          image_source: string | null
           is_georgian: boolean
           isbn: string | null
           keywords: string[]
@@ -30,6 +74,7 @@ export type Database = {
           openlibrary_key: string | null
           original_title: string | null
           page_count: number | null
+          popularity: number | null
           poster_url: string | null
           runtime_minutes: number | null
           source: string
@@ -47,6 +92,8 @@ export type Database = {
           description_ka?: string | null
           genres?: string[]
           id?: string
+          image_ref?: string | null
+          image_source?: string | null
           is_georgian?: boolean
           isbn?: string | null
           keywords?: string[]
@@ -55,6 +102,7 @@ export type Database = {
           openlibrary_key?: string | null
           original_title?: string | null
           page_count?: number | null
+          popularity?: number | null
           poster_url?: string | null
           runtime_minutes?: number | null
           source?: string
@@ -72,6 +120,8 @@ export type Database = {
           description_ka?: string | null
           genres?: string[]
           id?: string
+          image_ref?: string | null
+          image_source?: string | null
           is_georgian?: boolean
           isbn?: string | null
           keywords?: string[]
@@ -80,6 +130,7 @@ export type Database = {
           openlibrary_key?: string | null
           original_title?: string | null
           page_count?: number | null
+          popularity?: number | null
           poster_url?: string | null
           runtime_minutes?: number | null
           source?: string
@@ -359,6 +410,61 @@ export type Database = {
         Args: { _delta: number; _tags: string[] }
         Returns: undefined
       }
+      catalog_candidates: {
+        Args: {
+          _avoid?: string[]
+          _cold?: boolean
+          _geo?: boolean
+          _max_minutes?: number
+          _max_pages?: number
+          _media?: string
+          _min_minutes?: number
+          _min_pages?: number
+        }
+        Returns: {
+          created_at: string
+          creator: string
+          description_en: string
+          description_ka: string | null
+          genres: string[]
+          id: string
+          image_ref: string | null
+          image_source: string | null
+          is_georgian: boolean
+          isbn: string | null
+          keywords: string[]
+          media_type: string
+          mood_tags: string[]
+          openlibrary_key: string | null
+          original_title: string | null
+          page_count: number | null
+          popularity: number | null
+          poster_url: string | null
+          runtime_minutes: number | null
+          source: string
+          title_en: string
+          title_ka: string | null
+          tmdb_id: number | null
+          trailer_key: string | null
+          wikidata_id: string | null
+          year: number | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "items"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      catalog_search: {
+        Args: {
+          _geo?: boolean
+          _media?: string
+          _page?: number
+          _query?: string
+        }
+        Returns: Json
+      }
       clean_display_name: { Args: { value: string }; Returns: string }
       has_role: {
         Args: {
@@ -368,6 +474,8 @@ export type Database = {
         Returns: boolean
       }
       replay_taste: { Args: never; Returns: undefined }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
       taste_action: {
         Args: { _item: string; _kind: string; _rules: Json; _value: Json }
         Returns: boolean
