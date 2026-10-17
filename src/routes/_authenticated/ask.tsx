@@ -1,3 +1,4 @@
+import { MotionList } from '@/components/motion';
 import { useAction } from "@/lib/use-action";
 import { rulesParse } from "@/lib/ask-parser";
 import { useLocale } from "@/lib/locale";
@@ -101,7 +102,7 @@ function Ask() {
           <span className="chip muted">{res.ai ? t('AI used') : t('Rules only')}</span>
           {res.note && <p className="muted small">{res.note}</p>}
           {res.recs.length === 0 && <p className="muted">{t('No matches. Try fewer filters.')}</p>}
-          <div key={res.recs.map(r=>r.item.id).join('-')} className="motion-list">{res.recs.map((r) => (
+          <MotionList scope="ask-results" setKey={res.recs.map(r=>r.item.id).join('-')}>{res.recs.map((r) => (
             <div key={r.item.id}>
               <ItemRow item={r.item} lang={lang} right={done[r.item.id] ? <span className="small ok">{done[r.item.id]}</span> : (
                 <>
@@ -111,7 +112,7 @@ function Ask() {
               )} />
               <p className="small ok" style={{ margin: "8px 0" }}>{localizedReason(r, appLang)}</p>
             </div>
-          ))}</div>
+          ))}</MotionList>
         </div>
       )}
     </Shell>

@@ -1,4 +1,8 @@
 # Corrective update
+- [ ] Latest palette, icon and contrast corrections
+- [ ] Shared overlay exits/focus and list transitions/FLIP
+- [ ] Metadata signup name, own-profile repair/edit/security and tests
+- [ ] Verify latest update in both languages and three phone widths; report limits
 - [x] Separate Login and Sign-up presentation, bilingual validation, retained email, autofill attributes and 360px browser checks
 - [x] CSS-only screen/control/list/swipe/sheet/teaser motion and reduced-motion fallback implemented; 25 regression tests passed
 - [ ] Complete authenticated motion verification (swipe, tabs, diary, sheets, lists, teaser) — blocked by no authorized signed-in test account

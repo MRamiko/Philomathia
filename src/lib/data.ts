@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { REC } from "./config";
 import { translate, type Locale } from "./strings";
 import { allTagsOf, type Item } from "./recommend";
+import { cleanDisplayName, displayName, validDisplayName } from './display-name';
 
 export type Log = { id: string; item_id: string; status: string; rating: number | null; review: string | null; logged_at: string };
 export type Swipe = { item_id: string; action: string; created_at: string };
@@ -34,12 +35,22 @@ export function useMe() {
         supabase.from("user_roles").select("role,shop_id"),
       ]);
       for (const result of [p,s,l,t,r]) if (result.error) throw result.error;
+      let profile = p.data;
+      if (!profile) {
+        const metadataName = cleanDisplayName(String(u.user?.user_metadata?.['display_name'] ?? ''));
+        const name = validDisplayName(metadataName) ? metadataName : Array.from(displayName(null, u.user?.email ?? '')).slice(0,40).join('');
+        const repaired = await supabase.from('profiles').upsert({ id: uid, display_name: name, preferred_language: 'en' }, { onConflict: 'id', ignoreDuplicates: true });
+        if (repaired.error) throw repaired.error;
+        const saved = await supabase.from('profiles').select('*').eq('id',uid).single();
+        if (saved.error) throw saved.error;
+        profile = saved.data;
+      }
       const weights: Record<string, number> = {};
       for (const row of t.data ?? []) weights[row.tag] = Number(row.weight);
       return {
         uid,
         email: u.user?.email ?? "",
-        profile: p.data ?? { id: uid, display_name: null, preferred_language: "en", avoided_genres: [] as string[], onboarded: false },
+        profile,
         swipes: (s.data ?? []) as Swipe[],
         logs: ((l.data ?? []) as any[]).map((x) => ({ ...x, rating: x.rating == null ? null : Number(x.rating) })) as Log[],
         weights,
