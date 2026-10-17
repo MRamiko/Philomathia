@@ -1,3 +1,6 @@
+import { useLocale } from "@/lib/locale";
+import { LocaleProvider } from "@/lib/locale";
+import { supabase } from "@/integrations/supabase/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -14,11 +17,12 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
+  const { t, lang: appLang } = useLocale();
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
+        <h2 className="mt-4 text-xl font-semibold text-foreground">{t('Page not found')}</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           The page you're looking for doesn't exist or has been moved.
         </p>
@@ -36,6 +40,7 @@ function NotFoundComponent() {
 }
 
 function ErrorComponent({ error, reset }: ErrorComponentProps) {
+  const { t, lang: appLang } = useLocale();
   console.error(error);
   const router = useRouter();
   useEffect(() => {
@@ -102,6 +107,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
+  const { t, lang: appLang } = useLocale();
   return (
     <html lang="en">
       <head>
@@ -116,12 +122,15 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 function RootComponent() {
+  const { t, lang: appLang } = useLocale();
   const { queryClient } = Route.useRouteContext();
 
+  const router = useRouter();
+  useEffect(() => { const { data } = supabase.auth.onAuthStateChange((event) => { if (!["SIGNED_IN","SIGNED_OUT","USER_UPDATED"].includes(event)) return; router.invalidate(); if(event!=="SIGNED_OUT") queryClient.invalidateQueries(); }); return () => data.subscription.unsubscribe(); }, [router,queryClient]);
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <LocaleProvider><Outlet /></LocaleProvider>
     </QueryClientProvider>
   );
 }

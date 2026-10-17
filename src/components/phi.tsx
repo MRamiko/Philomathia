@@ -1,4 +1,6 @@
+import { useLocale } from "@/lib/locale";
 import { Link, useRouterState } from "@tanstack/react-router";
+import { formatPrice } from "@/lib/strings";
 import { useQuery } from "@tanstack/react-query";
 import { useRef, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,19 +17,20 @@ const TABS = [
 ] as const;
 
 export function Shell({ children, footer }: { children: ReactNode; footer?: ReactNode }) {
+  const { t, lang: appLang } = useLocale();
   const path = useRouterState({ select: (s) => s.location.pathname });
   return (
     <>
       <div className="app">
         <div className="brand">Φ</div>
         {children}
-        <div className="footer">{footer ?? "Sample data for demo"}</div>
+        <div className="footer">{footer ?? t("Sample data for demo")}</div>
       </div>
       <nav className="nav">
         <div className="nav-inner">
           {TABS.map((t) => (
             <Link key={t.to} to={t.to} className={path.startsWith(t.to) ? "active" : ""}>
-              {t.label}
+              {t(t.label)}
             </Link>
           ))}
         </div>
@@ -37,6 +40,7 @@ export function Shell({ children, footer }: { children: ReactNode; footer?: Reac
 }
 
 export function Poster({ item, size }: { item: Item; size: "sm" | "lg" }) {
+  const { t, lang: appLang } = useLocale();
   return (
     <div className={`poster poster-${size}`}>
       {SHOW_IMAGES && item.poster_url ? <img src={item.poster_url} alt={item.title_en} /> : null}
@@ -45,6 +49,7 @@ export function Poster({ item, size }: { item: Item; size: "sm" | "lg" }) {
 }
 
 export function ItemRow({ item, lang, right }: { item: Item; lang: string; right?: ReactNode }) {
+  const { t, lang: appLang } = useLocale();
   return (
     <div className="list-item">
       <Link to="/item/$id" params={{ id: item.id }} style={{ display: "flex", gap: 16, color: "white", textDecoration: "none", flex: 1 }}>
@@ -52,8 +57,8 @@ export function ItemRow({ item, lang, right }: { item: Item; lang: string; right
         <div className="stack">
           <strong>{titleOf(item, lang)}</strong>
           <span className="muted small">
-            {yearOf(item.year)} · {item.creator} · {item.media_type}
-            {item.is_georgian ? " · Georgia" : ""}
+            {yearOf(item.year)} · {item.creator} · {t(item.media_type)}
+            {item.is_georgian ? ` · ${t("Georgia")}` : ""}
           </span>
           <span className="muted small">{lengthOf(item)}</span>
         </div>
@@ -64,6 +69,7 @@ export function ItemRow({ item, lang, right }: { item: Item; lang: string; right
 }
 
 export function WhereToBuy({ itemId }: { itemId: string }) {
+  const { t, lang: appLang } = useLocale();
   const q = useQuery({
     queryKey: ["stock", itemId],
     queryFn: async () => {
@@ -76,13 +82,13 @@ export function WhereToBuy({ itemId }: { itemId: string }) {
   return (
     <div className="box">
       <div className="between">
-        <strong>Where to buy</strong>
-        <span className="muted small">Sample data</span>
+        <strong>{t('Where to buy')}</strong>
+        <span className="muted small">{t('Sample data')}</span>
       </div>
-      {!rows.length && <p className="muted small">No shop lists this book yet.</p>}
+      {!rows.length && <p className="muted small">{t('No shop lists this book yet.')}</p>}
       {cheapest && (
         <p className="ok small">
-          Cheapest in stock: {(cheapest as any).shops.name}, {(cheapest as any).shops.city} · {(cheapest as any).price_gel} GEL
+          {t("Cheapest in stock")}: {(cheapest as any).shops.name}, {(cheapest as any).shops.city} · {formatPrice((cheapest as any).price_gel, appLang)}
         </p>
       )}
       {rows.map((r: any, k) => (
@@ -92,7 +98,7 @@ export function WhereToBuy({ itemId }: { itemId: string }) {
             <br />
             <span className="muted">{r.shops.address}, {r.shops.city}</span>
           </span>
-          <span>{r.quantity > 0 ? `${r.price_gel} GEL · ${r.quantity} left` : <span className="muted">Out of stock</span>}</span>
+          <span>{r.quantity > 0 ? `${formatPrice(r.price_gel, appLang)} · ${t("{count} left", {count:r.quantity})}` : <span className="muted">{t('Out of stock')}</span>}</span>
         </div>
       ))}
     </div>
@@ -100,10 +106,11 @@ export function WhereToBuy({ itemId }: { itemId: string }) {
 }
 
 export function Chips({ tags }: { tags: string[] }) {
+  const { t: translateTag } = useLocale();
   return (
     <div className="row">
       {tags.map((t) => (
-        <span key={t} className="chip">{t}</span>
+        <span key={t} className="chip">{translateTag(t)}</span>
       ))}
     </div>
   );
@@ -112,6 +119,7 @@ export function Chips({ tags }: { tags: string[] }) {
 export function SwipeCard({ item, lang, reason, onLike, onPass, onTap, disabled }: {
   disabled?: boolean; item: Item; lang: string; reason: string; onLike: () => void; onPass: () => void; onTap: () => void;
 }) {
+  const { t, lang: appLang } = useLocale();
   const [dx, setDx] = useState(0);
   const [drag, setDrag] = useState(false);
   const start = useRef<{ x: number; y: number } | null>(null);
@@ -119,7 +127,7 @@ export function SwipeCard({ item, lang, reason, onLike, onPass, onTap, disabled 
   return (
     <div
       className={`card${drag ? " dragging" : ""}`}
-      style={{ transform: `translateX(${dx}px) rotate(${Math.round(dx / 16)}deg)`, borderColor: dx > 100 ? "green" : dx < -100 ? "red" : undefined }}
+      style={{ transform: `translateX(${dx}px) rotate(${Math.round(dx / 16)}deg)`, borderColor: dx >{t('100 ? "green" : dx')}< -100 ? "red" : undefined }}
       onPointerDown={(e) => {
         if (disabled || e.clientX < 24 || e.clientX > window.innerWidth - 24) return;
         start.current = { x: e.clientX, y: e.clientY };
@@ -151,31 +159,33 @@ export function SwipeCard({ item, lang, reason, onLike, onPass, onTap, disabled 
       </div>
       <div style={{ margin: "8px 0" }}><Chips tags={item.genres} /></div>
       <p className="small">{twoSentences(descOf(item, lang))}</p>
-      <p className="small ok">Why you're seeing this: {reason}</p>
+      <p className="small ok">{t("Why you’re seeing this")}: {reason}</p>
     </div>
   );
 }
 
 export function ItemDrawer({ item, items, lang, reason, onClose }: { item: Item; items: Item[]; lang: string; reason: string; onClose: () => void }) {
+  const { t, lang: appLang } = useLocale();
   return (
     <div className="drawer-bg">
       <div className="drawer stack">
         <div className="between">
           <strong>{titleOf(item, lang)}</strong>
-          <button className="btn btn-sm" onClick={onClose}>Close</button>
+          <button className="btn btn-sm" onClick={onClose}>{t('Close')}</button>
         </div>
         <p>{descOf(item, lang)}</p>
         <Chips tags={item.mood_tags} />
-        <p className="small ok">Why you're seeing this: {reason}</p>
-        <div className="h2">Similar titles</div>
+        <p className="small ok">{t("Why you’re seeing this")}: {reason}</p>
+        <div className="h2">{t('Similar titles')}</div>
         {similar(item, items).map((s) => <ItemRow key={s.id} item={s} lang={lang} />)}
         {item.media_type === "book" && <WhereToBuy itemId={item.id} />}
-        <Link to="/item/$id" params={{ id: item.id }} className="btn" style={{ textAlign: "center", textDecoration: "none" }}>Open full page</Link>
+        <Link to="/item/$id" params={{ id: item.id }} className="btn" style={{ textAlign: "center", textDecoration: "none" }}>{t('Open full page')}</Link>
       </div>
     </div>
   );
 }
 
 export function Loading() {
-  return <p className="muted">Loading…</p>;
+  const { t, lang: appLang } = useLocale();
+  return <p className="muted">{t('Loading…')}</p>;
 }

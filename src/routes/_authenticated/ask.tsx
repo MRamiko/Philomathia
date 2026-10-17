@@ -1,3 +1,4 @@
+import { useLocale } from "@/lib/locale";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -5,6 +6,7 @@ import { ItemRow, Loading, Shell } from "@/components/phi";
 import { ASK_MOODS } from "@/lib/config";
 import { parseQuery, rewriteReasons } from "@/lib/ask.functions";
 import { swipe, useItems, useMe, useRefresh } from "@/lib/data";
+import { localizedReason } from "@/lib/reasons";
 import { recommend, type Rec } from "@/lib/recommend";
 
 export const Route = createFileRoute("/_authenticated/ask")({
@@ -17,6 +19,7 @@ const BOOK_TIME = { "Under 200 pages": [null, 199], "200 to 400 pages": [200, 40
 const MOODS = Object.keys(ASK_MOODS);
 
 function rulesParse(text: string) {
+  const { t, lang: appLang } = useLocale();
   const t = text.toLowerCase();
   const min = t.match(/(\d{2,3})\s*-?\s*(min|minute)/);
   const media = /\b(film|movie|watch)/.test(t) ? "film" : /\b(book|novel|read)/.test(t) ? "book" : "either";
@@ -27,6 +30,7 @@ function rulesParse(text: string) {
 }
 
 function Ask() {
+  const { t, lang: appLang } = useLocale();
   const items = useItems();
   const me = useMe();
   const refresh = useRefresh();
@@ -41,9 +45,10 @@ function Ask() {
   const [done, setDone] = useState<Record<string, string>>({});
 
   if (!items.data || !me.data) return <Shell><Loading /></Shell>;
-  const lang = me.data.profile.preferred_language;
+  const lang = appLang;
 
   async function find() {
+  const { t, lang: appLang } = useLocale();
     setBusy(true); setDone({});
     let f = { media_type: media, max_minutes: null as number | null, moods: [] as string[], georgian_only: false, keywords: [] as string[] };
     let ai = false;
@@ -70,50 +75,51 @@ function Ask() {
     let recs = recommend({ ...base, minMinutes: minM, maxMinutes: maxM, minPages: minP, maxPages: maxP }, 5);
     let note = "";
     if (ai && recs.length) {
-      const rr = await rewrite({ data: { lang, items: recs.map((r) => ({ title: r.item.title_en, reason: r.reason })) } }).catch(() => null);
+      const rr = await rewrite({ data: { lang, items: recs.map((r) => ({ title: r.item.title_en, reason: localizedReason(r, lang) })) } }).catch(() => null);
       if (rr) recs = recs.map((r, k) => ({ ...r, reason: rr[k] ?? r.reason }));
     }
     setRes({ recs, ai, note });
     setBusy(false);
   }
 
+  const translateTime = t;
   const timeOpts = media === "book" ? Object.keys(BOOK_TIME) : media === "film" ? Object.keys(FILM_TIME) : [];
   return (
     <Shell>
-      <h1 className="h1">Ask Phi</h1>
+      <h1 className="h1">{t('Ask Phi')}</h1>
       <div className="stack">
         <div className="toggle">
           {(["film", "book", "either"] as const).map((m) => (
-            <button key={m} className={media === m ? "on" : ""} onClick={() => { setMedia(m); setTime(""); }}>{m === "film" ? "Film" : m === "book" ? "Book" : "Either"}</button>
+            <button key={m} className={media === m ? "on" : ""} onClick={() => { setMedia(m); setTime(""); }}>{m === "film" ? t('Film') : m === "book" ? t('Book') : t('Either')}</button>
           ))}
         </div>
         <div className="row">
           {MOODS.map((m) => (
-            <button key={m} className={`chip ${moods.includes(m) ? "chip-active" : ""}`} onClick={() => setMoods(moods.includes(m) ? moods.filter((x) => x !== m) : [...moods, m])}>{m}</button>
+            <button key={m} className={`chip ${moods.includes(m) ? "chip-active" : ""}`} onClick={() => setMoods(moods.includes(m) ? moods.filter((x) => x !== m) : [...moods, m])}>{t(m)}</button>
           ))}
         </div>
         {timeOpts.length > 0 && (
           <div className="row">
-            {timeOpts.map((t) => <button key={t} className={`chip ${time === t ? "chip-active" : ""}`} onClick={() => setTime(time === t ? "" : t)}>{t}</button>)}
+            {timeOpts.map((t) => <button key={t} className={`chip ${time === t ? "chip-active" : ""}`} onClick={() => setTime(time === t ? "" : t)}>{translateTime(t)}</button>)}
           </div>
         )}
-        <input className="input" placeholder="a 90-minute thriller for a rainy evening" value={text} onChange={(e) => setText(e.target.value)} />
-        <button className="btn btn-primary" disabled={busy} onClick={find}>{busy ? "Finding…" : "Find"}</button>
+        <input className="input" placeholder={t('a 90-minute thriller for a rainy evening')} value={text} onChange={(e) => setText(e.target.value)} />
+        <button className="btn btn-primary" disabled={busy} onClick={find}>{busy ? t('Finding…') : t('Find')}</button>
       </div>
       {res && (
         <div style={{ marginTop: 16 }}>
-          <span className="chip muted">{res.ai ? "AI used" : "Rules only"}</span>
+          <span className="chip muted">{res.ai ? t('AI used') : t('Rules only')}</span>
           {res.note && <p className="muted small">{res.note}</p>}
-          {res.recs.length === 0 && <p className="muted">No matches. Try fewer filters.</p>}
+          {res.recs.length === 0 && <p className="muted">{t('No matches. Try fewer filters.')}</p>}
           {res.recs.map((r) => (
             <div key={r.item.id}>
               <ItemRow item={r.item} lang={lang} right={done[r.item.id] ? <span className="small ok">{done[r.item.id]}</span> : (
                 <>
-                  <button className="btn btn-sm btn-primary" onClick={async () => { await swipe(me.data!.uid, r.item, "like"); setDone({ ...done, [r.item.id]: "Liked" }); refresh(); }}>Like</button>
-                  <button className="btn btn-sm" onClick={async () => { await swipe(me.data!.uid, r.item, "pass"); setDone({ ...done, [r.item.id]: "Passed" }); refresh(); }}>Pass</button>
+                  <button className="btn btn-sm btn-primary" onClick={async () => { await swipe(me.data!.uid, r.item, "like"); setDone({ ...done, [r.item.id]: t('Liked') }); refresh(); }}>{t('Like')}</button>
+                  <button className="btn btn-sm" onClick={async () => { await swipe(me.data!.uid, r.item, "pass"); setDone({ ...done, [r.item.id]: t('Passed') }); refresh(); }}>{t('Pass')}</button>
                 </>
               )} />
-              <p className="small ok" style={{ margin: "8px 0" }}>{r.reason}</p>
+              <p className="small ok" style={{ margin: "8px 0" }}>{localizedReason(r, appLang)}</p>
             </div>
           ))}
         </div>

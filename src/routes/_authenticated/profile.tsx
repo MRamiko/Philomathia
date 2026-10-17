@@ -1,3 +1,4 @@
+import { useLocale } from "@/lib/locale";
 import { recommend } from "@/lib/recommend";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
@@ -11,6 +12,7 @@ export const Route = createFileRoute("/_authenticated/profile")({
 });
 
 function Profile() {
+  const { t, lang: appLang, setLanguage } = useLocale();
   const me = useMe();
   const items = useItems();
   const refresh = useRefresh();
@@ -22,16 +24,19 @@ function Profile() {
   const update = async (patch: { preferred_language?: string; avoided_genres?: string[] }) => { await supabase.from("profiles").update(patch).eq("id", me.data!.uid); refresh(); };
 
   async function reset() {
-    if (!confirm("Reset your taste profile? This clears your swipes and taste weights.")) return;
+  const { t, lang: appLang, setLanguage } = useLocale();
+    if (!confirm(t("Reset your taste profile? This clears your swipes and taste weights."))) return;
     await tasteAction(null, "reset");
     refresh();
   }
   async function wipe() {
-    if (!confirm("Delete all your data? Swipes, diary, taste weights and profile settings will be removed.")) return;
+  const { t, lang: appLang, setLanguage } = useLocale();
+    if (!confirm(t("Delete all your data? Swipes, diary, taste weights and profile settings will be removed."))) return;
     await tasteAction(null, "wipe");
     refresh();
   }
   async function signOut() {
+  const { t, lang: appLang, setLanguage } = useLocale();
     await qc.cancelQueries(); qc.clear();
     await supabase.auth.signOut();
     nav({ to: "/auth", replace: true });
@@ -39,34 +44,34 @@ function Profile() {
 
   return (
     <Shell>
-      <h1 className="h1">Profile</h1>
+      <h1 className="h1">{t('Profile')}</h1>
       <p className="muted small">{me.data.email}</p>
-      <div className="h2">Language</div>
+      <div className="h2">{t('App language')}</div>
       <div className="toggle">
-        <button className={p.preferred_language === "en" ? "on" : ""} onClick={() => update({ preferred_language: "en" })}>English</button>
-        <button className={p.preferred_language === "ka" ? "on" : ""} onClick={() => update({ preferred_language: "ka" })}>ქართული</button>
+        <button className={appLang === "en" ? "on" : ""} onClick={() => setLanguage("en")}>{t('English')}</button>
+        <button className={appLang === "ka" ? "on" : ""} onClick={() => setLanguage("ka")}>ქართული</button>
       </div>
-      <div className="h2">Avoided genres</div>
+      <div className="h2">{t('Avoided genres')}</div>
       <div className="row">
         {genres.map((g) => {
           const on = p.avoided_genres.includes(g);
-          return <button key={g} className={`chip ${on ? "chip-active" : ""}`} onClick={() => update({ avoided_genres: on ? p.avoided_genres.filter((x) => x !== g) : [...p.avoided_genres, g] })}>{g}</button>;
+          return <button key={g} className={`chip ${on ? "chip-active" : ""}`} onClick={() => update({ avoided_genres: on ? p.avoided_genres.filter((x) => x !== g) : [...p.avoided_genres, g] })>{t(g)}</button>;
         })}
       </div>
-      <div className="h2">How recommendations work</div>
-      <p className="small">Every like adds points to the genres, moods, keywords and creator of that title, and every pass takes some away. Each new title is scored mostly by how well its tags match those points, plus its creator, your chosen mood and a little novelty. About one card in five is a deliberate step outside your usual taste, and every reason shown is built from the tags that actually matched.</p>
+      <div className="h2">{t('How recommendations work')}</div>
+      <p className="small">{t('Every like adds points to the genres, moods, keywords and creator of that title, and every pass takes some away. Each new title is scored mostly by how well its tags match those points, plus its creator, your chosen mood and a little novelty. About one card in five is a deliberate step outside your usual taste, and every reason shown is built from the tags that actually matched.')}</p>
       {me.data.roles.includes("admin") && <div className="stack">
-        <h2 className="h2">Taste debug</h2>
+        <h2 className="h2">{t('Taste debug')}</h2>
         {Object.entries(me.data.weights).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([tag,weight])=><span key={tag}>{tag}: {weight.toFixed(3)}</span>)}
-        <strong>Recent likes</strong>
+        <strong>{t('Recent likes')}</strong>
         {me.data.swipes.filter(s=>s.action==="like").slice(0,5).map(s=><span key={s.item_id}>{items.data?.find(i=>i.id===s.item_id)?.title_en}</span>)}
         <pre>{JSON.stringify(recommend({items:items.data,weights:me.data.weights,swipes:me.data.swipes,excludedIds:new Set([...me.data.swipes.map(s=>s.item_id),...me.data.logs.filter(l=>l.status==="seen").map(l=>l.item_id)]),likedIds:new Set(me.data.swipes.filter(s=>s.action==="like").map(s=>s.item_id)),avoidedGenres:p.avoided_genres,mediaType:"film"},1)[0]?.parts,null,2)}</pre>
       </div>}
       <div className="stack" style={{ marginTop: 16 }}>
-        <Link to="/shops" className="btn" style={{ textAlign: "center", textDecoration: "none" }}>Bookshops</Link>
-        <button className="btn" onClick={reset}>Reset my taste profile</button>
-        <button className="btn" onClick={wipe}>Delete my data</button>
-        <button className="btn" onClick={signOut}>Sign out</button>
+        <Link to="/shops" className="btn" style={{ textAlign: "center", textDecoration: "none" }}>{t('Bookshops')}</Link>
+        <button className="btn" onClick={reset}>{t('Reset my taste profile')}</button>
+        <button className="btn" onClick={wipe}>{t('Delete my data')}</button>
+        <button className="btn" onClick={signOut}>{t('Sign out')}</button>
       </div>
     </Shell>
   );

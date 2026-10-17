@@ -1,3 +1,4 @@
+import { useLocale } from "@/lib/locale";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { ItemRow, Loading, Shell } from "@/components/phi";
@@ -9,6 +10,7 @@ export const Route = createFileRoute("/_authenticated/search")({
 });
 
 function SearchPage() {
+  const { t, lang: appLang } = useLocale();
   const items = useItems();
   const me = useMe();
   const [q, setQ] = useState("");
@@ -24,19 +26,20 @@ function SearchPage() {
       return hay.includes(s);
     });
   }, [items.data, q, type, geo]);
-  const lang = me.data?.profile.preferred_language ?? "en";
+  const lang = appLang;
+  const translateType = t;
   return (
     <Shell>
       <div className="stack">
-        <input className="input" placeholder="Title, creator, genre… (English or ქართული)" value={q} onChange={(e) => setQ(e.target.value)} />
+        <input className="input" placeholder={t('Title, creator, genre… (English or ქართული)')} value={q} onChange={(e) => setQ(e.target.value)} />
         <div className="toggle">
           {(["all", "film", "book"] as const).map((t) => (
-            <button key={t} className={type === t ? "on" : ""} onClick={() => setType(t)}>{t === "all" ? "All" : t === "film" ? "Films" : "Books"}</button>
+            <button key={t} className={type === t ? "on" : ""} onClick={() => setType(t)}>{translateType(t === "all" ? "All" : t === "film" ? "Films" : "Books")}</button>
           ))}
         </div>
-        <label className="row small"><input type="checkbox" checked={geo} onChange={(e) => setGeo(e.target.checked)} /> Made in Georgia</label>
+        <label className="row small"><input type="checkbox" checked={geo} onChange={(e) => setGeo(e.target.checked)} />{t('Made in Georgia')}</label>
       </div>
-      {!items.data ? <Loading /> : results.length === 0 ? <p className="muted">No results</p> : results.map((i) => <ItemRow key={i.id} item={i} lang={lang} />)}
+      {!items.data ? <Loading />{t(': results.length === 0 ?')}<p className="muted">{t('No results')}</p> : results.map((i) => <ItemRow key={i.id} item={i} lang={lang} />)}
     </Shell>
   );
 }

@@ -1,7 +1,9 @@
+import { useLocale } from "@/lib/locale";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState, useEffect } from "react";
 import { ItemDrawer, Loading, Shell, SwipeCard } from "@/components/phi";
 import { swipe, undoSwipe, useItems, useMe, useRefresh } from "@/lib/data";
+import { localizedReason } from "@/lib/reasons";
 import { recommend } from "@/lib/recommend";
 
 export const Route = createFileRoute("/_authenticated/discover")({
@@ -11,6 +13,7 @@ export const Route = createFileRoute("/_authenticated/discover")({
 });
 
 function Discover() {
+  const { t, lang: appLang } = useLocale();
   const { tag } = Route.useSearch();
   const nav = useNavigate();
   const items = useItems();
@@ -36,34 +39,36 @@ function Discover() {
     }, 5);
   }, [items.data, me.data, media, geo, tag, previousGenres]);
 
-  if (items.error || me.error) return <Shell><p className="error">Could not load. <button className="btn" onClick={() => { items.refetch(); me.refetch(); }}>Retry</button></p></Shell>;
+  if (items.error || me.error) return <Shell><p className="error">{t('Could not load.')}<button className="btn" onClick={() => { items.refetch(); me.refetch(); }}>{t('Retry')}</button></p></Shell>;
   if (!items.data || !me.data) return <Shell><Loading /></Shell>;
   if (!me.data.profile.onboarded && me.data.swipes.length === 0) {
     return (
       <Shell>
         <div className="box stack">
-          <strong>Welcome to Philomathia</strong>
-          <p className="small muted">Tell us a few things you like to get better first picks. Optional.</p>
-          <Link to="/onboarding" className="btn btn-primary" style={{ textAlign: "center", textDecoration: "none" }}>Set up my taste</Link>
+          <strong>{t('Welcome to Philomathia')}</strong>
+          <p className="small muted">{t('Tell us a few things you like to get better first picks. Optional.')}</p>
+          <Link to="/onboarding" className="btn btn-primary" style={{ textAlign: "center", textDecoration: "none" }}>{t('Set up my taste')}</Link>
           <OnboardSkip />
         </div>
       </Shell>
     );
   }
-  const lang = me.data.profile.preferred_language;
+  const lang = appLang;
   const current = recs.find(r => r.item.id !== hidden);
   const last = me.data.swipes[0];
   const lastItem = last && items.data.find((i) => i.id === last.item_id);
 
   async function act(action: "like" | "pass") {
+  const { t, lang: appLang } = useLocale();
     if (!current || busy || !me.data) return;
     setBusy(true); setError(""); setHidden(current.item.id);
-    try { await swipe(me.data.uid, current.item, action); await refresh(); setPreviousGenres(g => [...g, current.item.genres[0] ?? ""].slice(-3)); } catch { setError("Could not save. Please retry."); } finally { setHidden(null); setBusy(false); }
+    try { await swipe(me.data.uid, current.item, action); await refresh(); setPreviousGenres(g => [...g, current.item.genres[0] ?? ""].slice(-3)); } catch { setError(t("Could not save. Please retry.")); } finally { setHidden(null); setBusy(false); }
   }
   async function undo() {
+  const { t, lang: appLang } = useLocale();
     if (!lastItem || busy) return;
     setBusy(true);
-    try { await undoSwipe(lastItem, last.action); await refresh(); setPreviousGenres([]); } catch { setError("Could not save. Please retry."); } finally { setBusy(false); }
+    try { await undoSwipe(lastItem, last.action); await refresh(); setPreviousGenres([]); } catch { setError(t("Could not save. Please retry.")); } finally { setBusy(false); }
   }
 
   return (
@@ -71,31 +76,32 @@ function Discover() {
       <div className="stack">
         {error && <p role="alert" className="error">{error}</p>}
         <div className="toggle">
-          <button className={media === "film" ? "on" : ""} onClick={() => setMedia("film")}>Films</button>
-          <button className={media === "book" ? "on" : ""} onClick={() => setMedia("book")}>Books</button>
+          <button className={media === "film" ? "on" : ""} onClick={() => setMedia("film")}>{t('Films')}</button>
+          <button className={media === "book" ? "on" : ""} onClick={() => setMedia("book")}>{t('Books')}</button>
         </div>
         <div className="between">
-          <label className="row small"><input type="checkbox" checked={geo} onChange={(e) => setGeo(e.target.checked)} /> Georgian only</label>
+          <label className="row small"><input type="checkbox" checked={geo} onChange={(e) => setGeo(e.target.checked)} />{t('Georgian only')}</label>
           {tag && <button className="chip chip-active" onClick={() => nav({ to: "/discover", search: { tag: undefined } })}>{tag} ✕</button>}
         </div>
         {current ? (
-          <SwipeCard key={current.item.id} item={current.item} lang={lang} reason={current.reason} onLike={() => act("like")} disabled={busy} onPass={() => act("pass")} onTap={() => setOpen(true)} />
+          <SwipeCard key={current.item.id} item={current.item} lang={lang} reason={localizedReason(current, appLang)} onLike={() => act("like")} disabled={busy} onPass={() => act("pass")} onTap={() => setOpen(true)} />
         ) : (
-          <div className="box"><p>No more picks here. Try the other tab, untick Georgian only, or undo a swipe.</p></div>
+          <div className="box"><p>{t('No more picks here. Try the other tab, untick Georgian only, or undo a swipe.')}</p></div>
         )}
         <div className="row" style={{ justifyContent: "space-between" }}>
-          <button className="btn" disabled={!current || busy} onClick={() => act("pass")}>Pass</button>
-          <button className="btn" disabled={!current} onClick={() => setOpen(true)}>Info</button>
-          <button className="btn btn-primary" disabled={!current || busy} onClick={() => act("like")}>Like</button>
+          <button className="btn" disabled={!current || busy} onClick={() => act("pass")}>{t('Pass')}</button>
+          <button className="btn" disabled={!current} onClick={() => setOpen(true)}>{t('Info')}</button>
+          <button className="btn btn-primary" disabled={!current || busy} onClick={() => act("like")}>{t('Like')}</button>
         </div>
-        <button className="btn" disabled={!lastItem || busy} onClick={undo}>Undo last swipe{lastItem ? ` (${lastItem.title_en})` : ""}</button>
+        <button className="btn" disabled={!lastItem || busy} onClick={undo}>{t("Undo last swipe")}{lastItem ? ` (${lastItem.title_en})` : ""}</button>
       </div>
-      {open && current && <ItemDrawer item={current.item} items={items.data} lang={lang} reason={current.reason} onClose={() => setOpen(false)} />}
+      {open && current && <ItemDrawer item={current.item} items={items.data} lang={lang} reason={localizedReason(current, appLang)} onClose={() => setOpen(false)} />}
     </Shell>
   );
 }
 
 function OnboardSkip() {
+  const { t, lang: appLang } = useLocale();
   const refresh = useRefresh();
   const me = useMe();
   return (
@@ -103,6 +109,6 @@ function OnboardSkip() {
       const { supabase } = await import("@/integrations/supabase/client");
       await supabase.from("profiles").update({ onboarded: true }).eq("id", me.data?.uid ?? "");
       refresh();
-    }}>Skip</button>
+    }}>{t('Skip')}</button>
   );
 }
