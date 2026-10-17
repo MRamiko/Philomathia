@@ -59,8 +59,7 @@ export const bookSearch=createServerFn({method:'POST'}).middleware([requireSupab
   totalPages=Math.min(Math.ceil((result.totalItems??0)/20),50);
   rows=(result.items??[]).map((r:any)=>{const v=r.volumeInfo??{};return {key:'gb:'+r.id,title:v.title??'',author:(v.authors??[]).join(', '),year:Number(String(v.publishedDate??'').slice(0,4))||null,pages:v.pageCount??null,cover:v.imageLinks?.thumbnail?.replace(/^http:/,'https:')??null};});
  }
- const titles=rows.map(r=>normalizeTitle(r.title));
- const found=new Set<string>();for(let n=0;n<titles.length;n+=50){const r=await context.supabase.from('items').select('title_en,year,creator').eq('media_type','book').range(0,999);if(r.error)throw r.error;for(const i of r.data??[])found.add(normalizeTitle(i.title_en)+'|'+i.year+'|'+normalizeTitle(i.creator));break;}
+ const found=new Set<string>();for(let n=0;;n+=1000){const r=await context.supabase.from('items').select('title_en,year,creator').eq('media_type','book').range(n,n+999);if(r.error)throw r.error;for(const i of r.data??[])found.add(normalizeTitle(i.title_en)+'|'+i.year+'|'+normalizeTitle(i.creator));if(r.data.length<1000)break;}
  return {rows:rows.map(r=>({...r,exists:found.has(normalizeTitle(r.title)+'|'+r.year+'|'+normalizeTitle(r.author))})),page,totalPages};
 });
 export const bookCommit=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((d:{rows:{key:string;title:string;author:string;year:number|null;pages:number|null;cover:string|null}[]})=>{if(!Array.isArray(d.rows)||!d.rows.length||d.rows.length>40)throw new Error('Pick 1 to 40 books');return d;}).handler(async({context,data})=>{
