@@ -1,13 +1,17 @@
 # Corrective update
+- [x] Latest palette, icon and contrast corrections; old palette/unauthorized hex scan clean
+- [x] Shared overlay exits/focus, router Back handling and list transitions/FLIP implemented
+- [x] Metadata signup name, own-profile repair/edit/security and Unicode tests
+- [x] English/Georgian Search at 360/390/430, real name edit/refresh, profile access isolation, dialogs/import/teaser exits, reduced motion and Search replay checks; 33 tests passed
 - [x] Separate Login and Sign-up presentation, bilingual validation, retained email, autofill attributes and 360px browser checks
 - [x] CSS-only screen/control/list/swipe/sheet/teaser motion and reduced-motion fallback implemented; 25 regression tests passed
-- [ ] Complete authenticated motion verification (swipe, tabs, diary, sheets, lists, teaser) — blocked by no authorized signed-in test account
-- [ ] Display-name saving and bookshop checkbox — no existing signup handling; changing account behavior requires user approval
-- [ ] Native confirmation-dialog motion and list-reflow motion — existing native dialogs and immediate list layout do not expose these presentation states
+- [ ] Physical Android full motion/performance, swipe drag, all insertion/removal/FLIP scenarios and HTTPS install — no physical device; Discover displayed onboarding, so swipe was not exercised
+- [ ] New-account Georgian name lifecycle with email confirmation both enabled/disabled and missing-profile repair — requires disposable accounts and confirmation settings; not tested by changing live settings
+- [ ] Bookshop checkbox — no existing supported bookshop-registration flow
 - [x] Adaptive scorer, atomic event saves/undo, bounded queue, admin debug and unit tests implemented
 - [x] Central dictionaries, global profile language, content fallback and bilingual parser implemented
 - [x] Android sizing, install assets, explicit offline cache, drawer history and remembered choices implemented
 - [x] All unverified demo ISBNs cleared, duplicate guard, sample labels, pagination and error recovery implemented
-- [ ] Signed-in full journey, exact-once Undo, rating saves, imports and language persistence verification — blocked by no authorized signed-in test account
+- [ ] Destructive data reset/delete and import submission regression — not exercised against the user's existing data; preview and cancel paths checked
 - [ ] Real Android back/keyboard and HTTPS PWA installation verification — blocked by unpublished site and no physical Android device
 - [ ] Replace demo stock with verified ISBN-matched stock — blocked by no verified inventory source

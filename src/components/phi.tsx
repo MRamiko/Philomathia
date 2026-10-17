@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { SHOW_IMAGES } from "@/lib/config";
 import { similar, type Item } from "@/lib/recommend";
 import { descOf, lengthOf, titleOf, twoSentences, yearOf } from "@/lib/data";
-import { Presence } from '@/components/motion';
+import { Presence, MotionList } from '@/components/motion';
 
 const TABS = [
   { to: "/discover", label: "Discover" },
@@ -85,7 +85,7 @@ export function WhereToBuy({ itemId }: { itemId: string }) {
   const q = useQuery({
     queryKey: ["stock", itemId],
     queryFn: async () => {
-      const { data,error } = await supabase.from("shop_stock").select("price_gel,quantity,shops(name,address,city)").eq("item_id", itemId);
+      const { data,error } = await supabase.from("shop_stock").select("id,price_gel,quantity,shops(name,address,city)").eq("item_id", itemId);
       if(error)throw error;
       return (data ?? []).sort((a: any, b: any) => (b.quantity > 0 ? 1 : 0) - (a.quantity > 0 ? 1 : 0) || a.price_gel - b.price_gel);
     },
@@ -106,16 +106,16 @@ export function WhereToBuy({ itemId }: { itemId: string }) {
           {t("Cheapest in stock")}: {(cheapest as any).shops.name}, {(cheapest as any).shops.city} · {formatPrice((cheapest as any).price_gel, appLang)}
         </p>
       )}
-      {rows.map((r: any, k) => (
-        <div key={k} className="between small" style={{ padding: "8px 0" }}>
+      <MotionList scope={`stock-${itemId}`}>{rows.map((r: any) => (
+        <div key={r.id} className="between small" style={{ padding: "8px 0" }}>
           <span>
             {r.shops.name}
             <br />
             <span className="muted">{r.shops.address}, {r.shops.city}</span>
           </span>
-          <span>{r.quantity > 0 ? `${formatPrice(r.price_gel, appLang)} · ${t("{count} left", {count:r.quantity})}` : <span className="muted">{t('Out of stock')}</span>}</span>
+          <span>{r.quantity > 0 ? `${formatPrice(r.price_gel, appLang)} · ${t("{count} left", {count:r.quantity})}` : <span className="stock-out">{t('Out of stock')}</span>}</span>
         </div>
-      ))}
+      ))}</MotionList>
     </div>
   );
 }
@@ -188,15 +188,10 @@ export function SwipeCard({ item, lang, reason, onLike, onPass, onTap, disabled,
 
 export function ItemDrawer({ item, items, lang, reason, onClose }: { item: Item; items: Item[]; lang: string; reason: string; onClose: () => void }) {
   const { t, lang: appLang } = useLocale();
-  useEffect(()=>{
-    history.pushState({...history.state,phiDrawer:true},'');
-    const close=()=>onClose();window.addEventListener('popstate',close);
-    return()=>{window.removeEventListener('popstate',close);if(history.state?.phiDrawer)history.back();};
-  },[]);
   return (
-    <Presence className="drawer-bg" onExit={onClose}>{close => <>
+    <Presence historyEntry className="drawer-bg" onExit={onClose}>{close => <>
       <div className="drawer-dismiss" onClick={close} />
-      <div className="drawer stack" role="dialog" aria-label={titleOf(item, lang)}>
+      <div className="drawer stack" role="dialog" aria-modal="true" aria-label={titleOf(item, lang)}>
         <div className="handle" />
         <div className="between">
           <strong className="h2 clamp2" style={{ flex: 1 }}>{titleOf(item, lang)}</strong>
@@ -206,7 +201,7 @@ export function ItemDrawer({ item, items, lang, reason, onClose }: { item: Item;
         <Chips tags={item.mood_tags} />
         <p className="reason">{t("Why you’re seeing this")}: <b>{reason}</b></p>
         <div className="h2">{t('Similar titles')}</div>
-        {similar(item, items).map((s) => <ItemRow key={s.id} item={s} lang={lang} />)}
+        <MotionList scope={`similar-${item.id}`}>{similar(item, items).map((s) => <ItemRow key={s.id} item={s} lang={lang} />)}</MotionList>
         {item.media_type === "book" && <WhereToBuy itemId={item.id} />}
         <Link to="/item/$id" params={{ id: item.id }} className="btn btn-block">{t('Open full page')}</Link>
       </div>

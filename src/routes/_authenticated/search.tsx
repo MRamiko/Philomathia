@@ -1,3 +1,4 @@
+import { MotionList } from '@/components/motion';
 import { Pagination } from "@/components/pagination";
 import { REC } from "@/lib/config";
 import { useLocale } from "@/lib/locale";
@@ -42,7 +43,7 @@ function SearchPage() {
         </div>
         <label className="row small"><input type="checkbox" checked={geo} onChange={(e) => {setGeo(e.target.checked);setPage(1);}} />{t('Made in Georgia')}</label>
       </div>
-      {items.error ? <p className="error">{t("Could not load.")}<button className="btn" onClick={()=>items.refetch()}>{t("Retry")}</button></p> : !items.data ? <Loading />: results.length === 0 ?<p className="muted">{t('No results')}</p> : <div key={`${q}-${type}-${geo}-${page}`} className={`motion-list ${page > 1 ? 'no-stagger' : ''}`}>{results.slice((page-1)*REC.PAGE_SIZE,page*REC.PAGE_SIZE).map((i) => <ItemRow key={i.id} item={i} lang={lang} />)}</div>}
+      {items.error ? <p className="error">{t("Could not load.")}<button className="btn" onClick={()=>items.refetch()}>{t("Retry")}</button></p> : !items.data ? <Loading /> : <MotionList scope="search" setKey={`${q}-${type}-${geo}-${page}`} stagger={page === 1} empty={<p className="muted">{t('No results')}</p>}>{results.slice((page-1)*REC.PAGE_SIZE,page*REC.PAGE_SIZE).map((i) => <ItemRow key={i.id} item={i} lang={lang} />)}</MotionList>}
       <Pagination page={page} total={results.length} onChange={setPage}/>
     </Shell>
   );

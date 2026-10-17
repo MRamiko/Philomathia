@@ -1,0 +1,10 @@
+CREATE OR REPLACE FUNCTION public.clean_display_name(value text) RETURNS text LANGUAGE sql IMMUTABLE SET search_path=public AS $$ SELECT btrim(regexp_replace(coalesce(value,''), '[[:cntrl:]]', '', 'g')); $$;
+CREATE OR REPLACE FUNCTION public.handle_new_user() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ DECLARE n text; BEGIN n:=public.clean_display_name(NEW.raw_user_meta_data->>'display_name'); IF char_length(n)<1 OR char_length(n)>40 OR n !~ '^[[:alnum:][:space:][:punct:]]+$' THEN n:=left(split_part(coalesce(NEW.email,''),'@',1),40); END IF; INSERT INTO public.profiles(id,display_name,preferred_language) VALUES(NEW.id,n,'en') ON CONFLICT(id) DO NOTHING; INSERT INTO public.user_roles(user_id,role) VALUES(NEW.id,'user') ON CONFLICT DO NOTHING; RETURN NEW; END $$;
+CREATE OR REPLACE FUNCTION public.validate_profile_name() RETURNS trigger LANGUAGE plpgsql SET search_path=public AS $$ BEGIN IF NEW.display_name IS DISTINCT FROM OLD.display_name OR TG_OP='INSERT' THEN NEW.display_name:=public.clean_display_name(NEW.display_name); IF char_length(NEW.display_name)<1 OR char_length(NEW.display_name)>40 OR NEW.display_name !~ '^[[:alnum:][:space:][:punct:]]+$' THEN RAISE EXCEPTION 'Display name must contain 1 to 40 characters'; END IF; END IF; RETURN NEW; END $$;
+CREATE TRIGGER validate_profile_display_name BEFORE INSERT OR UPDATE ON public.profiles FOR EACH ROW EXECUTE FUNCTION public.validate_profile_name();
+REVOKE ALL ON public.profiles FROM anon;
+REVOKE INSERT,UPDATE ON public.profiles FROM authenticated;
+GRANT SELECT,DELETE ON public.profiles TO authenticated;
+GRANT INSERT(id,display_name,preferred_language) ON public.profiles TO authenticated;
+GRANT UPDATE(display_name,preferred_language,avoided_genres,onboarded) ON public.profiles TO authenticated;
+GRANT ALL ON public.profiles TO service_role;

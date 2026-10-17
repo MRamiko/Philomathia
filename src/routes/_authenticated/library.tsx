@@ -8,7 +8,7 @@ import { ItemRow, Loading, Shell } from "@/components/phi";
 import { supabase } from "@/integrations/supabase/client";
 import { saveLog, undoSwipe, useItems, useMe, useRefresh, type Log } from "@/lib/data";
 import type { Item } from "@/lib/recommend";
-import { motionWait } from '@/components/motion';
+import { motionWait, MotionList, Presence } from '@/components/motion';
 
 export const Route = createFileRoute("/_authenticated/library")({
   head: () => ({ meta: [{ title: "Library · Philomathia" }, { name: "description", content: "Your liked, wanted and finished films and books." }, { property: "og:title", content: "Library · Philomathia" }, { property: "og:description", content: "Your liked, wanted and finished films and books." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -42,13 +42,13 @@ function Library() {
       <div className="box">
         <strong>{t('Taste Cloud')}</strong>
         {cloud.length === 0 ? <p className="muted small">{t('Like a few titles to grow your taste cloud.')}</p> : (
-          <p className="tag-cloud">
+          <MotionList scope="taste-cloud" className="tag-cloud">
             {cloud.map(([tag, w]) => (
               <Link key={tag} to="/discover" search={{ tag }}>
                 {tag.startsWith("creator:") ? tag.slice(8) : t(tag)} <span className="muted">{Math.round((w / total) * 100)}%</span>
               </Link>
             ))}
-          </p>
+          </MotionList>
         )}
       </div>
 
@@ -77,7 +77,7 @@ function Section({ title, empty, children }: { title: string; empty: string; chi
   return (
     <>
       <div className="h2">{title}</div>
-      {has ? <div key={page} className={`motion-list ${page > 1 ? 'no-stagger' : ''}`}>{entries.slice((page-1)*REC.PAGE_SIZE,page*REC.PAGE_SIZE)}</div> : <p className="muted small">{empty}</p>}
+      {<MotionList scope={`library-${title}`} setKey={String(page)} stagger={page === 1} empty={<p className="muted small">{empty}</p>}>{entries.slice((page-1)*REC.PAGE_SIZE,page*REC.PAGE_SIZE)}</MotionList>}
       <Pagination page={page} total={entries.filter(Boolean).length} onChange={setPage}/>
     </>
   );
@@ -117,8 +117,9 @@ function parseCsv(text: string): string[][] {
 function LetterboxdImport({ items, uid, logs, onDone }: { items: Item[]; uid: string; logs: Log[]; onDone: () => void }) {
   const { t, lang: appLang } = useLocale();
   const action=useAction();
-  const [rows, setRows] = useState<{ name: string; year: string; rating: number | null; item: Item | undefined; on: boolean }[] | null>(null);
+  const [rows, setRows] = useState<{ id: string; name: string; year: string; rating: number | null; item: Item | undefined; on: boolean }[] | null>(null);
   const [msg, setMsg] = useState("");
+  const [openImport, setOpenImport] = useState(false);
   async function onFile(f: File) {
     const data = parseCsv(await f.text());
     const head = (data[0] ?? []).map((h) => h.trim().toLowerCase());
@@ -129,7 +130,7 @@ function LetterboxdImport({ items, uid, logs, onDone }: { items: Item[]; uid: st
       const name = r[ni] ?? "", year = r[yi] ?? "";
       const item = items.find((i) => i.media_type === "film" && [i.title_en, i.original_title].some((t) => t && norm(t) === norm(name)) && (!year || String(i.year) === year.trim()));
       const rt = Number(r[ri]);
-      return { name, year, rating: rt >= 0.5 && rt<= 5 ? Math.round(rt * 2) / 2 : null, item, on: !!item };
+      return { id: crypto.randomUUID(), name, year, rating: rt >= 0.5 && rt<= 5 ? Math.round(rt * 2) / 2 : null, item, on: !!item };
     }));
   }
   async function confirm() {
@@ -138,29 +139,27 @@ function LetterboxdImport({ items, uid, logs, onDone }: { items: Item[]; uid: st
     setMsg(t("Imported {count} films.", {count:pick.length})); setRows(null); onDone();
   }
   return (
-    <div className="box stack" style={{ marginTop: 24 }}>
+    <>
+    <button className="btn" onClick={() => setOpenImport(true)}>{t('Import from Letterboxd')}</button>
+    {openImport && <Presence historyEntry className="drawer-bg" onExit={() => setOpenImport(false)}>{close => <>
+    <div className="drawer-dismiss" onClick={close}/>
+    <div className="drawer stack" role="dialog" aria-modal="true" aria-label={t('Import from Letterboxd')}>
+    <button className="btn icon-btn" aria-label={t('Close')} onClick={close}>✕</button>
       <strong>{t('Import from Letterboxd')}</strong>
       <span className="muted small">{t('Upload ratings.csv (Name, Year, Rating).')}</span>
       <input type="file" accept=".csv" onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])} />
       {rows && (
         <>
-          <div className="table-scroll"><table className="t">
-            <thead><tr><th></th><th>{t('Name')}</th><th>{t('Year')}</th><th>{t('Rating')}</th><th>{t('Match')}</th></tr></thead>
-            <tbody>
-              {rows.map((r, k) => (
-                <tr key={k}>
-                  <td><input type="checkbox" disabled={!r.item} checked={r.on} onChange={(e) => setRows(rows.map((x, j) => (j === k ? { ...x, on: e.target.checked } : x)))} /></td>
-                  <td>{r.name}</td><td>{r.year}</td><td>{r.rating ?? ""}</td>
-                  <td>{r.item ? <span className="ok">{t('Matched')}</span> : <span className="muted">{t('Unmatched')}</span>}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table></div>
-          <button className="btn btn-primary" disabled={action.busy} onClick={()=>action.run(confirm)}>{t('Confirm')}</button>
+          <MotionList scope="import-preview" setKey={rows.map(r=>r.id).join(',')}>
+              {rows.map(r => <label key={r.id} className="list-item row"><input type="checkbox" disabled={!r.item} checked={r.on} onChange={e => setRows(rows.map(x => x.id === r.id ? { ...x, on: e.target.checked } : x))}/><span className="stack"><strong>{r.name}</strong><span>{r.year} · {t('Rating')}: {r.rating ?? t('No rating')}</span>{r.item ? <span className="ok">✓ {t('Matched')}</span> : <span className="error">{t('Unmatched')}</span>}</span></label>)}
+          </MotionList>
+          <button className="btn btn-primary" disabled={action.busy} onClick={()=>action.run(async()=>{await confirm();close();})}>{t('Confirm')}</button>
         </>
       )}
       {action.error&&<p className="error">{action.error}</p>}
       {msg && <span className="small ok">{msg}</span>}
     </div>
+    </>}</Presence>}
+    </>
   );
 }

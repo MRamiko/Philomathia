@@ -359,6 +359,7 @@ export type Database = {
         Args: { _delta: number; _tags: string[] }
         Returns: undefined
       }
+      clean_display_name: { Args: { value: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

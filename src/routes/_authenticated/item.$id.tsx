@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Chips, Loading, Poster, Shell, WhereToBuy } from "@/components/phi";
 import { deleteLog, descOf, titleOf, lengthOf, saveLog, useItems, useMe, useRefresh, yearOf } from "@/lib/data";
 import type { Item } from "@/lib/recommend";
+import { Presence } from '@/components/motion';
 
 export const Route = createFileRoute("/_authenticated/item/$id")({
   head: () => ({ meta: [{ title: "Title · Philomathia" }, { name: "description", content: "Details, your diary entry and where to buy." }, { property: "og:title", content: "Title · Philomathia" }, { property: "og:description", content: "Details, your diary entry and where to buy." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -48,7 +49,6 @@ function ItemPage() {
     await saveLog(me.data.uid, item, prev, { status, rating: rating ? Number(rating) : null, review: review || null });
     await refresh();
     setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
   }
 
   return (
@@ -85,9 +85,9 @@ function ItemPage() {
           {rating && <span key={rating} className="rating-selected" aria-hidden="true">★ {rating} / 5</span>}
           <textarea className="input" rows={3} placeholder={t('Review (optional)')} value={review} onChange={(e) => setReview(e.target.value)} />
           <div className="row">
-            <button className="btn btn-primary" disabled={action.busy} onClick={()=>action.run(save,()=>setSaved(true),()=>setSaved(false))}>{t('Save')}</button>
+            <button className="btn btn-primary" disabled={action.busy} onClick={()=>action.run(save,undefined,()=>setSaved(false))}>{t('Save')}</button>
             {prev && <button className="btn" disabled={action.busy} onClick={()=>action.run(async()=>{await deleteLog(item,prev);await refresh();})}>{t('Remove')}</button>}
-            {saved && <span className="ok small saved-notice" role="status">{t('Saved ✓')}</span>}
+            {saved && <Presence className="snackbar" autoClose={2000} onExit={() => setSaved(false)}>{() => <span role="status">{t('Saved ✓')}</span>}</Presence>}
           </div>
         </div>
         {item.media_type === "book" && <WhereToBuy itemId={item.id} />}
@@ -115,7 +115,10 @@ function Teaser({ item, weights }: { item: Item; weights: Record<string, number>
   ];
   if (frame < 0) return <button className="btn" onClick={() => setFrame(0)}>{t('Teaser')}</button>;
   return (
-    <div className="stack">
+    <Presence historyEntry className="drawer-bg" onExit={() => setFrame(-1)}>{close => <>
+    <div className="drawer-dismiss" onClick={close}/>
+    <div className="drawer stack" role="dialog" aria-modal="true" aria-label={t('Teaser')}>
+    <button className="btn icon-btn" aria-label={t('Close')} onClick={close}>✕</button>
       <div className={`teaser-progress ${paused ? 'paused' : ''}`} aria-hidden="true">{[0,1,2,3].map(n=><div key={n} className={`teaser-segment ${n < frame ? 'complete' : n === frame ? 'current' : ''}`}><span/></div>)}</div>
       <div className="teaser">
         {frame <= 3 ? <div key={frame} className={paused ? "" : "fade"}>{frames[frame]}</div> : <span className="muted">{t('The end')}</span>}
@@ -126,5 +129,6 @@ function Teaser({ item, weights }: { item: Item; weights: Record<string, number>
       </div>
       <span className="muted small">{t('Generated summary, not an official trailer')}</span>
     </div>
+    </>}</Presence>
   );
 }
