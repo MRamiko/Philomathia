@@ -1,5 +1,5 @@
 import { useLocale } from "@/lib/locale";
-import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { formatPrice } from "@/lib/strings";
 import { useQuery } from "@tanstack/react-query";
 import { rememberTab } from "@/lib/pwa";
@@ -19,7 +19,6 @@ const TABS = [
 
 export function Shell({ children, footer }: { children: ReactNode; footer?: ReactNode }) {
   const { t, lang: appLang } = useLocale();
-  const nav=useNavigate();
   const [offline,setOffline]=useState(false);
   useEffect(()=>{const update=()=>setOffline(!navigator.onLine);update();window.addEventListener("online",update);window.addEventListener("offline",update);return()=>{window.removeEventListener("online",update);window.removeEventListener("offline",update);};},[]);
   const path = useRouterState({ select: (s) => s.location.pathname });
