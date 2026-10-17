@@ -322,3 +322,5 @@ button.chip.chip-active::before { animation: fade-in var(--motion-standard) var(
  .list-enter, .list-fade, .list-empty, .dialog, .drawer, .snackbar { animation: fade-in var(--motion-fast) linear !important; }
  .exiting, .exiting .dialog, .exiting .drawer, .row-removing, .list-switching { animation: fade-out var(--motion-fast) linear forwards !important; }
 }
+.hidden-input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.linklike { background: none; border: none; color: var(--c-text); text-decoration: underline; font: inherit; font-size: var(--t-small); cursor: pointer; min-height: var(--tap); }
