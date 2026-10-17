@@ -42,19 +42,19 @@ function AuthPage() {
 
   return (
     <div className="app">
-      <div className="brand" style={{ fontSize: 100, textAlign: "center" }}>Φ</div>
-      <h1 className="h1" style={{ textAlign: "center" }}>{t('Philomathia')}</h1>
-      <p className="muted small" style={{ textAlign: "center" }}>{t('A film and book diary, made for Georgia.')}</p>
-      <div className="toggle" style={{ margin: "16px 0" }}>
-        <button className={mode === "in" ? "on" : ""} onClick={() => setMode("in")}>{t('Sign in')}</button>
-        <button className={mode === "up" ? "on" : ""} onClick={() => setMode("up")}>{t('Sign up')}</button>
+      <div className="brand-hero" aria-hidden="true">Φ</div>
+      <div className="stack center">
+        <h1 className="h1">{t('Philomathia')}</h1>
+        <p className="lede">{t('Find your next great story.')}</p>
+        <p className="small muted">{t('A film and book diary, made for Georgia.')}</p>
       </div>
       <form className="stack" onSubmit={submit}>
-        <input className="input" type="email" placeholder={t('Email')} required value={email} onChange={(e) => setEmail(e.target.value)} />
-        <input className="input" type="password" placeholder={t('Password')} required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} />
-        <button className="btn btn-primary" disabled={busy}>{mode === "in" ? t('Sign in') : t('Create account')}</button>
+        <label className="field">{t('Email')}<input className="input" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></label>
+        <label className="field">{t('Password')}<input className="input" type="password" aria-invalid={!!err} required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} /></label>
+        {err && <p className="error small" role="alert">{err}</p>}
+        <button className="btn btn-primary" disabled={busy}>{busy ? t('Loading…') : mode === "in" ? t('Sign in') : t('Create account')}</button>
       </form>
-      {err && <p className="error small">{err}</p>}
+      <button className="btn btn-text" onClick={() => { setMode(mode === "in" ? "up" : "in"); setErr(null); setMsg(null); }}>{mode === "in" ? t('New here? Create an account') : t('Already have an account? Sign in')}</button>
       {msg && <p className="ok small">{msg}</p>}
       <div className="footer">{t('Sample data for demo')}</div>
     </div>

@@ -32,7 +32,7 @@ export function Shell({ children, footer }: { children: ReactNode; footer?: Reac
     <>
       <div className="app">
         {offline && <p role="alert" className="offline">{t("You are offline")}</p>}
-        <div className="brand">Φ</div>
+        <header className="topbar"><span className="brand" aria-hidden="true">Φ</span></header>
         {children}
         <div className="footer">{footer ?? t("Sample data for demo")}</div>
       </div>
@@ -53,7 +53,7 @@ export function Poster({ item, size }: { item: Item; size: "sm" | "lg" }) {
   const { t, lang: appLang } = useLocale();
   return (
     <div className={`poster poster-${size}`}>
-      {SHOW_IMAGES && item.poster_url ? <img src={item.poster_url} alt={item.title_en} /> : null}
+      {SHOW_IMAGES && item.poster_url ? <img src={item.poster_url} alt={item.title_en} /> : <span>{t(item.media_type === "book" ? "Book" : "Film")}</span>}
     </div>
   );
 }
@@ -62,14 +62,14 @@ export function ItemRow({ item, lang, right }: { item: Item; lang: string; right
   const { t, lang: appLang } = useLocale();
   return (
     <div className="list-item">
-      <Link to="/item/$id" params={{ id: item.id }} style={{ display: "flex", gap: 16, color: "white", textDecoration: "none", flex: 1 }}>
+      <Link to="/item/$id" params={{ id: item.id }} style={{ display: "flex", gap: 16, color: "inherit", textDecoration: "none", flex: 1, minWidth: 0 }}>
         <Poster item={item} size="sm" />
         <div className="stack">
-          <strong>{titleOf(item, lang)}</strong>
+          <strong className="clamp2">{titleOf(item, lang)}</strong>
           <span className="muted small">
             {yearOf(item.year)} · {item.creator} · {t(item.media_type)}
-            {item.is_georgian ? ` · ${t("Georgia")}` : ""}
           </span>
+          <div className="row"><Chips tags={item.genres.slice(0, 2)} />{item.is_georgian && <span className="chip chip-geo">{t("Made in Georgia")}</span>}</div>
           <span className="muted small">{lengthOf(item, appLang)}</span>
         </div>
       </Link>
@@ -140,7 +140,7 @@ export function SwipeCard({ item, lang, reason, onLike, onPass, onTap, disabled 
   return (
     <div
       className={`card${drag ? " dragging" : ""}`}
-      style={{ transform: `translateX(${dx}px) rotate(${Math.round(dx / 16)}deg)`, borderColor: dx >100 ? "green" : dx< -100 ? "red" : undefined }}
+      style={{ transform: `translateX(${dx}px) rotate(${Math.max(-8, Math.min(8, Math.round(dx / 16)))}deg)`, borderColor: dx >= 40 ? "limegreen" : dx <= -40 ? "red" : undefined }}
       onPointerDown={(e) => {
         if (disabled || e.clientX < 24 || e.clientX > window.innerWidth - 24) return;
         start.current = { x: e.clientX, y: e.clientY };
@@ -165,14 +165,16 @@ export function SwipeCard({ item, lang, reason, onLike, onPass, onTap, disabled 
       }}
       onPointerCancel={() => { setDrag(false); setDx(0); start.current = null; }}
     >
+      {dx >= 40 && <span className="stamp stamp-like" style={{ opacity: Math.min(1, (dx - 20) / 80) }}>{t("LIKE")}</span>}
+      {dx <= -40 && <span className="stamp stamp-pass" style={{ opacity: Math.min(1, (-dx - 20) / 80) }}>{t("PASS")}</span>}
       <Poster item={item} size="lg" />
-      <h2 className="h2">{titleOf(item, lang)}</h2>
+      <h2 className="clamp2">{titleOf(item, lang)}</h2>
       <div className="muted small">
         {yearOf(item.year)} · {item.creator} · {lengthOf(item, appLang)}
       </div>
-      <div style={{ margin: "8px 0" }}><Chips tags={item.genres} /></div>
-      <p className="small">{twoSentences(descOf(item, lang))||t("No description available.")}</p>
-      <p className="small ok">{t("Why you’re seeing this")}: {reason}</p>
+      <Chips tags={item.genres.slice(0, 3)} />
+      <p>{twoSentences(descOf(item, lang))||t("No description available.")}</p>
+      <p className="reason">{t("Why you’re seeing this")}: <b>{reason}</b></p>
     </div>
   );
 }
@@ -185,19 +187,20 @@ export function ItemDrawer({ item, items, lang, reason, onClose }: { item: Item;
     return()=>{window.removeEventListener('popstate',close);if(history.state?.phiDrawer)history.back();};
   },[]);
   return (
-    <div className="drawer-bg">
-      <div className="drawer stack">
+    <div className="drawer-bg" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="drawer stack" role="dialog" aria-label={titleOf(item, lang)}>
+        <div className="handle" />
         <div className="between">
-          <strong>{titleOf(item, lang)}</strong>
-          <button className="btn btn-sm" onClick={onClose}>{t('Close')}</button>
+          <strong className="h2 clamp2" style={{ flex: 1 }}>{titleOf(item, lang)}</strong>
+          <button className="btn icon-btn" aria-label={t('Close')} onClick={onClose}>✕</button>
         </div>
         <p>{descOf(item, lang)||t("No description available.")}</p>
         <Chips tags={item.mood_tags} />
-        <p className="small ok">{t("Why you’re seeing this")}: {reason}</p>
+        <p className="reason">{t("Why you’re seeing this")}: <b>{reason}</b></p>
         <div className="h2">{t('Similar titles')}</div>
         {similar(item, items).map((s) => <ItemRow key={s.id} item={s} lang={lang} />)}
         {item.media_type === "book" && <WhereToBuy itemId={item.id} />}
-        <Link to="/item/$id" params={{ id: item.id }} className="btn" style={{ textAlign: "center", textDecoration: "none" }}>{t('Open full page')}</Link>
+        <Link to="/item/$id" params={{ id: item.id }} className="btn btn-block">{t('Open full page')}</Link>
       </div>
     </div>
   );
@@ -205,5 +208,5 @@ export function ItemDrawer({ item, items, lang, reason, onClose }: { item: Item;
 
 export function Loading() {
   const { t, lang: appLang } = useLocale();
-  return <p className="muted">{t('Loading…')}</p>;
+  return <p className="muted center" role="status">{t('Loading…')}</p>;
 }
