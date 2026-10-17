@@ -41,9 +41,11 @@ function Login() {
       <form className="stack auth-fields" noValidate onSubmit={submit} aria-busy={busy}>
         <div key={`email-${attempt}`} className={`field stack${error ? ' field-error' : ''}`}><label htmlFor="login-email">{t('Email')}</label><input id="login-email" className="input" name="email" type="email" inputMode="email" autoComplete="email" required value={email} onChange={e => setEmail(e.target.value)} aria-invalid={error} aria-describedby={error ? 'login-error' : undefined} /></div>
         <PasswordField key={`password-${attempt}`} id="login-password" name="password" label={t('Password')} autoComplete="current-password" required value={password} onChange={e => setPassword(e.target.value)} visibleToggle aria-describedby={error ? 'login-error' : undefined} />
+        <Link className="btn btn-text" to="/forgot-password">{t('Forgot password?')}</Link>
         <Button className="btn-primary" type="submit" disabled={busy}>{t(busy ? 'Loading…' : 'Sign in')}</Button>
       </form>
       {error && <p id="login-error" className="error small error-prefixed" role="alert">{t('Error: email or password is incorrect.')}</p>}
+      {resetNotice && <Presence autoClose={4000} className="snackbar" onExit={() => setResetNotice(false)}>{() => <span role="status">{t('Password updated. Sign in with your new password.')}</span>}</Presence>}
       <Link className="btn btn-text auth-switch" to="/signup">{t('New here? Create an account')}</Link>
     </div>
   </main>;
