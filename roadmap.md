@@ -1,4 +1,5 @@
 # Corrective update
+- [x] Administrator/TMDB access verified through a real import; commands queue instead of being discarded, paused progress survived refresh; 10 targeted tests passed
 - [ ] Night background, forest surfaces and install branding
 - [ ] Catalog image/popularity fields, indexes and admin-only resumable import jobs
 - [ ] Official API bulk imports, reconciliation, coverage and optional mood refinement
