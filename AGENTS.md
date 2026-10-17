@@ -12,3 +12,6 @@
 - Locale state comes from the profile through `LocaleProvider`, with dictionaries and translations centralized in `src/lib/strings.ts`; this separates interface language from content filters.
 - PWA caching is limited to an explicit static-shell allowlist; navigation only falls back to an offline document so private HTML and API data never enter caches.
 - AI calls run in `src/lib/ask.functions.ts` server functions; output is validated and falls back to rule parsing.
+- Catalog imports use authenticated admin-checked server functions, durable import jobs and official-provider batches; rule normalization is shared and IDs are preserved on reconciliation.
+- Search and candidate selection run through indexed SQL RPCs; scoring receives sampled candidates and separate interaction context so sampling cannot erase learned history.
+- Cover URLs are built only by `src/lib/images.ts` from provider references; shared Poster handles fixed-size loading/error placeholders and the global image kill switch.
