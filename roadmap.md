@@ -1,6 +1,9 @@
 # Corrective update
-- [ ] Separate Login and Sign-up presentation, bilingual validation and retained email
-- [ ] CSS-only app motion, reduced-motion fallback and presentation verification
+- [x] Separate Login and Sign-up presentation, bilingual validation, retained email, autofill attributes and 360px browser checks
+- [x] CSS-only screen/control/list/swipe/sheet/teaser motion and reduced-motion fallback implemented; 25 regression tests passed
+- [ ] Complete authenticated motion verification (swipe, tabs, diary, sheets, lists, teaser) — blocked by no authorized signed-in test account
+- [ ] Display-name saving and bookshop checkbox — no existing signup handling; changing account behavior requires user approval
+- [ ] Native confirmation-dialog motion and list-reflow motion — existing native dialogs and immediate list layout do not expose these presentation states
 - [x] Adaptive scorer, atomic event saves/undo, bounded queue, admin debug and unit tests implemented
 - [x] Central dictionaries, global profile language, content fallback and bilingual parser implemented
 - [x] Android sizing, install assets, explicit offline cache, drawer history and remembered choices implemented

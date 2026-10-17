@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useRouterState } from '@tanstack/react-router';
 export function motionWait() {
   const duration = getComputedStyle(document.documentElement).getPropertyValue(window.matchMedia('(prefers-reduced-motion: reduce)').matches ? '--motion-fast' : '--motion-standard');
-  return new Promise<void>(resolve => window.setTimeout(resolve, parseFloat(duration) || 200));
+  return new Promise<void>(resolve => window.setTimeout(resolve, parseFloat(duration)));
 }
 
 export function ScreenMotion({ children }: { children: ReactNode }) {
