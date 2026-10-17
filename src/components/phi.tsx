@@ -23,6 +23,11 @@ export function Shell({ children, footer }: { children: ReactNode; footer?: Reac
   useEffect(()=>{const update=()=>setOffline(!navigator.onLine);update();window.addEventListener("online",update);window.addEventListener("offline",update);return()=>{window.removeEventListener("online",update);window.removeEventListener("offline",update);};},[]);
   const path = useRouterState({ select: (s) => s.location.pathname });
   useEffect(()=>{rememberTab(path);},[path]);
+  useEffect(()=>{
+   if(path==='/discover'||!['/search','/library','/ask','/profile'].includes(path))return;
+   // A cold launch on another tab must retain Discover beneath it in history.
+   if(window.history.length<=2){history.replaceState({...history.state},'', '/discover');history.pushState({...history.state},'',path);}
+  },[path]);
   return (
     <>
       <div className="app">

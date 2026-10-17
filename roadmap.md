@@ -1,6 +1,8 @@
 # Corrective update
-- [ ] 1. Adaptive recommendations, atomic saves/undo, debug, recommendation tests
-- [ ] 2. Centralized English/Georgian interface and content fallback
-- [ ] 3. Android layout, gestures/back handling, installable shell-only PWA
-- [ ] 4. Demo-data integrity, pagination, errors and action reliability
-- [ ] 5. Regression tests and honest verification summary
+- [x] Adaptive scorer, atomic event saves/undo, bounded queue, admin debug and unit tests implemented
+- [x] Central dictionaries, global profile language, content fallback and bilingual parser implemented
+- [x] Android sizing, install assets, explicit offline cache, drawer history and remembered choices implemented
+- [x] All unverified demo ISBNs cleared, duplicate guard, sample labels, pagination and error recovery implemented
+- [ ] Signed-in full journey, exact-once Undo, rating saves, imports and language persistence verification — blocked by no authorized signed-in test account
+- [ ] Real Android back/keyboard and HTTPS PWA installation verification — blocked by unpublished site and no physical Android device
+- [ ] Replace demo stock with verified ISBN-matched stock — blocked by no verified inventory source
