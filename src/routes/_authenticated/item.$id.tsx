@@ -85,7 +85,7 @@ function ItemPage() {
           {rating && <span key={rating} className="rating-selected" aria-hidden="true">★ {rating} / 5</span>}
           <textarea className="input" rows={3} placeholder={t('Review (optional)')} value={review} onChange={(e) => setReview(e.target.value)} />
           <div className="row">
-            <button className="btn btn-primary" disabled={action.busy} onClick={()=>action.run(save,()=>setSaved(true),()=>setSaved(false))}>{t('Save')}</button>
+            <button className="btn btn-primary" disabled={action.busy} onClick={()=>action.run(save,undefined,()=>setSaved(false))}>{t('Save')}</button>
             {prev && <button className="btn" disabled={action.busy} onClick={()=>action.run(async()=>{await deleteLog(item,prev);await refresh();})}>{t('Remove')}</button>}
             {saved && <Presence className="snackbar" autoClose={2000} onExit={() => setSaved(false)}>{() => <span role="status">{t('Saved ✓')}</span>}</Presence>}
           </div>

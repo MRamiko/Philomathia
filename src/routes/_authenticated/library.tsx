@@ -150,18 +150,9 @@ function LetterboxdImport({ items, uid, logs, onDone }: { items: Item[]; uid: st
       <input type="file" accept=".csv" onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])} />
       {rows && (
         <>
-          <div className="table-scroll"><table className="t">
-            <thead><tr><th></th><th>{t('Name')}</th><th>{t('Year')}</th><th>{t('Rating')}</th><th>{t('Match')}</th></tr></thead>
-            <tbody>
-              {rows.map((r, k) => (
-                <tr key={r.id}>
-                  <td><input type="checkbox" disabled={!r.item} checked={r.on} onChange={(e) => setRows(rows.map((x, j) => (j === k ? { ...x, on: e.target.checked } : x)))} /></td>
-                  <td>{r.name}</td><td>{r.year}</td><td>{r.rating ?? ""}</td>
-                  <td>{r.item ? <span className="ok">{t('Matched')}</span> : <span className="error">{t('Unmatched')}</span>}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table></div>
+          <MotionList scope="import-preview" setKey={rows.map(r=>r.id).join(',')}>
+              {rows.map(r => <label key={r.id} className="list-item row"><input type="checkbox" disabled={!r.item} checked={r.on} onChange={e => setRows(rows.map(x => x.id === r.id ? { ...x, on: e.target.checked } : x))}/><span className="stack"><strong>{r.name}</strong><span>{r.year} · {t('Rating')}: {r.rating ?? t('No rating')}</span>{r.item ? <span className="ok">✓ {t('Matched')}</span> : <span className="error">{t('Unmatched')}</span>}</span></label>)}
+          </MotionList>
           <button className="btn btn-primary" disabled={action.busy} onClick={()=>action.run(async()=>{await confirm();close();})}>{t('Confirm')}</button>
         </>
       )}
