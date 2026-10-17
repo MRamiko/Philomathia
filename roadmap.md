@@ -1,4 +1,5 @@
 # Corrective update
+- [ ] Recheck administrator/TMDB access and repair discarded administrator commands without resetting imported data
 - [ ] Night background, forest surfaces and install branding
 - [ ] Catalog image/popularity fields, indexes and admin-only resumable import jobs
 - [ ] Official API bulk imports, reconciliation, coverage and optional mood refinement
