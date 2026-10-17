@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as AuthenticatedAdminImportRouteImport } from './routes/_authenticated/admin-import'
 import { Route as AuthenticatedAskRouteImport } from './routes/_authenticated/ask'
 import { Route as AuthenticatedDiscoverRouteImport } from './routes/_authenticated/discover'
 import { Route as AuthenticatedLibraryRouteImport } from './routes/_authenticated/library'
@@ -47,6 +48,12 @@ const SignupRoute = SignupRouteImport.update({
   path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminImportRoute =
+  AuthenticatedAdminImportRouteImport.update({
+    id: '/admin-import',
+    path: '/admin-import',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAskRoute = AuthenticatedAskRouteImport.update({
   id: '/ask',
   path: '/ask',
@@ -93,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/admin-import': typeof AuthenticatedAdminImportRoute
   '/ask': typeof AuthenticatedAskRoute
   '/discover': typeof AuthenticatedDiscoverRoute
   '/library': typeof AuthenticatedLibraryRoute
@@ -107,6 +115,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/admin-import': typeof AuthenticatedAdminImportRoute
   '/ask': typeof AuthenticatedAskRoute
   '/discover': typeof AuthenticatedDiscoverRoute
   '/library': typeof AuthenticatedLibraryRoute
@@ -123,6 +132,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/_authenticated/admin-import': typeof AuthenticatedAdminImportRoute
   '/_authenticated/ask': typeof AuthenticatedAskRoute
   '/_authenticated/discover': typeof AuthenticatedDiscoverRoute
   '/_authenticated/library': typeof AuthenticatedLibraryRoute
@@ -139,6 +149,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/login'
     | '/signup'
+    | '/admin-import'
     | '/ask'
     | '/discover'
     | '/library'
@@ -153,6 +164,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/login'
     | '/signup'
+    | '/admin-import'
     | '/ask'
     | '/discover'
     | '/library'
@@ -168,6 +180,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/login'
     | '/signup'
+    | '/_authenticated/admin-import'
     | '/_authenticated/ask'
     | '/_authenticated/discover'
     | '/_authenticated/library'
@@ -222,6 +235,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin-import': {
+      id: '/_authenticated/admin-import'
+      path: '/admin-import'
+      fullPath: '/admin-import'
+      preLoaderRoute: typeof AuthenticatedAdminImportRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/ask': {
       id: '/_authenticated/ask'
@@ -283,6 +303,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminImportRoute: typeof AuthenticatedAdminImportRoute
   AuthenticatedAskRoute: typeof AuthenticatedAskRoute
   AuthenticatedDiscoverRoute: typeof AuthenticatedDiscoverRoute
   AuthenticatedLibraryRoute: typeof AuthenticatedLibraryRoute
@@ -294,6 +315,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminImportRoute: AuthenticatedAdminImportRoute,
   AuthenticatedAskRoute: AuthenticatedAskRoute,
   AuthenticatedDiscoverRoute: AuthenticatedDiscoverRoute,
   AuthenticatedLibraryRoute: AuthenticatedLibraryRoute,
