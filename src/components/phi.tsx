@@ -2,7 +2,8 @@ import { useLocale } from "@/lib/locale";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { formatPrice } from "@/lib/strings";
 import { useQuery } from "@tanstack/react-query";
-import { useRef, useState, type ReactNode } from "react";
+import { rememberTab } from "@/lib/pwa";
+import { useRef, useState, useEffect, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SHOW_IMAGES } from "@/lib/config";
 import { similar, type Item } from "@/lib/recommend";
@@ -18,10 +19,14 @@ const TABS = [
 
 export function Shell({ children, footer }: { children: ReactNode; footer?: ReactNode }) {
   const { t, lang: appLang } = useLocale();
+  const [offline,setOffline]=useState(false);
+  useEffect(()=>{const update=()=>setOffline(!navigator.onLine);update();window.addEventListener("online",update);window.addEventListener("offline",update);return()=>{window.removeEventListener("online",update);window.removeEventListener("offline",update);};},[]);
   const path = useRouterState({ select: (s) => s.location.pathname });
+  useEffect(()=>{rememberTab(path);},[path]);
   return (
     <>
       <div className="app">
+        {offline && <p role="alert" className="offline">{t("You are offline")}</p>}
         <div className="brand">Φ</div>
         {children}
         <div className="footer">{footer ?? t("Sample data for demo")}</div>
@@ -166,6 +171,11 @@ export function SwipeCard({ item, lang, reason, onLike, onPass, onTap, disabled 
 
 export function ItemDrawer({ item, items, lang, reason, onClose }: { item: Item; items: Item[]; lang: string; reason: string; onClose: () => void }) {
   const { t, lang: appLang } = useLocale();
+  useEffect(()=>{
+    history.pushState({...history.state,phiDrawer:true},'');
+    const close=()=>onClose();window.addEventListener('popstate',close);
+    return()=>{window.removeEventListener('popstate',close);if(history.state?.phiDrawer)history.back();};
+  },[]);
   return (
     <div className="drawer-bg">
       <div className="drawer stack">

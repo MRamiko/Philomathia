@@ -26,7 +26,7 @@ function Discover() {
   const [error, setError] = useState("");
   const [hidden, setHidden] = useState<string | null>(null);
   const [previousGenres, setPreviousGenres] = useState<string[]>([]);
-  useEffect(() => { refresh(); }, []);
+  useEffect(() => { refresh(); const saved=localStorage.getItem("phi-media"); if(saved==="film"||saved==="book")setMedia(saved); }, []);
 
   const recs = useMemo(() => {
     if (!items.data || !me.data) return [];
@@ -74,8 +74,8 @@ function Discover() {
       <div className="stack">
         {error && <p role="alert" className="error">{error}</p>}
         <div className="toggle">
-          <button className={media === "film" ? "on" : ""} onClick={() => setMedia("film")}>{t('Films')}</button>
-          <button className={media === "book" ? "on" : ""} onClick={() => setMedia("book")}>{t('Books')}</button>
+          <button className={media === "film" ? "on" : ""} onClick={() => {setMedia("film");localStorage.setItem("phi-media","film");}}>{t('Films')}</button>
+          <button className={media === "book" ? "on" : ""} onClick={() => {setMedia("book");localStorage.setItem("phi-media","book");}}>{t('Books')}</button>
         </div>
         <div className="between">
           <label className="row small"><input type="checkbox" checked={geo} onChange={(e) => setGeo(e.target.checked)} />{t('Georgian only')}</label>
