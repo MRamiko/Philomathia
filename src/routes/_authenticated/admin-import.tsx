@@ -31,7 +31,7 @@ function AdminImport(){
  {tab==='bulk'&&<BulkTab t={t} qc={qc}/>}
  <p className="small muted">{t('This product uses the TMDB API but is not endorsed or certified by TMDB.')}</p></Shell>;
 }
-function StatusTab({t,keys}:{t:(k:string)=>string;keys:any}){
+function StatusTab({t,keys}:{t:(k:string,params?:Record<string,unknown>)=>string;keys:any}){
  const progress=useServerFn(importProgress);
  const state=useQuery({queryKey:['import-progress'],queryFn:()=>progress()});
  return <div className="stack">
@@ -45,13 +45,13 @@ function StatusTab({t,keys}:{t:(k:string)=>string;keys:any}){
  <p>{t('Duplicates')}: {state.data.duplicates}</p></>}
  </div>;
 }
-function SummaryView({t,summary,onRetry,onBack}:{t:(k:string)=>string;summary:Summary;onRetry:()=>void;onBack:()=>void}){
+function SummaryView({t,summary,onRetry,onBack}:{t:(k:string,params?:Record<string,unknown>)=>string;summary:Summary;onRetry:()=>void;onBack:()=>void}){
  return <div className="box stack"><h2 className="h2">{t('Summary')}</h2>
  <span>{t('Imported')}: {summary.imported} · {t('Updated')}: {summary.updated} · {t('Skipped')}: {summary.skipped} · {t('Failed')}: {summary.failed.length}</span>
  {summary.failed.map((f,i)=><span key={i} className="error small">{f.label}: {f.reason}</span>)}
  <div className="row">{summary.failed.length>0&&<Button onClick={onRetry}>{t('Retry failed')}</Button>}<Button onClick={onBack}>{t('Back to search')}</Button></div></div>;
 }
-function FilmsTab({t,tmdbOk}:{t:(k:string)=>string;tmdbOk:boolean}){
+function FilmsTab({t,tmdbOk}:{t:(k:string,params?:Record<string,unknown>)=>string;tmdbOk:boolean}){
  const search=useServerFn(filmSearch);const commit=useServerFn(filmCommit);
  const [query,setQuery]=useState('');const [year,setYear]=useState('');const [mode,setMode]=useState<'search'|'georgian'|'top'>('search');
  const [result,setResult]=useState<any>(null);const [selected,setSelected]=useState<Set<number>>(new Set());
@@ -80,7 +80,7 @@ function FilmsTab({t,tmdbOk}:{t:(k:string)=>string;tmdbOk:boolean}){
  </>}
  </div>;
 }
-function BooksTab({t}:{t:(k:string)=>string}){
+function BooksTab({t}:{t:(k:string,params?:Record<string,unknown>)=>string}){
  const search=useServerFn(bookSearch);const commit=useServerFn(bookCommit);
  const [query,setQuery]=useState('');const [provider,setProvider]=useState<'openlibrary'|'google'>('openlibrary');const [georgian,setGeorgian]=useState(false);
  const [result,setResult]=useState<any>(null);const [selected,setSelected]=useState<Set<string>>(new Set());
@@ -110,7 +110,7 @@ function BooksTab({t}:{t:(k:string)=>string}){
  </>}
  </div>;
 }
-function GeorgianTab({t}:{t:(k:string)=>string}){
+function GeorgianTab({t}:{t:(k:string,params?:Record<string,unknown>)=>string}){
  const search=useServerFn(wikidataSearch);const commit=useServerFn(wikidataCommit);
  const [kind,setKind]=useState<'films'|'books'|null>(null);const [result,setResult]=useState<any>(null);const [selected,setSelected]=useState<Set<string>>(new Set());
  const [confirming,setConfirming]=useState(false);const [summary,setSummary]=useState<Summary|null>(null);const [lastRows,setLastRows]=useState<any[]>([]);
@@ -134,7 +134,7 @@ function GeorgianTab({t}:{t:(k:string)=>string}){
  </div>;
 }
 const PASS_ORDER=['C','E','A','B','D'];
-function BulkTab({t,qc}:{t:(k:string)=>string;qc:ReturnType<typeof useQueryClient>}){
+function BulkTab({t,qc}:{t:(k:string,params?:Record<string,unknown>)=>string;qc:ReturnType<typeof useQueryClient>}){
  const progress=useServerFn(importProgress);const batch=useServerFn(importBatch);
  const busy=useRef(false);const stopped=useRef(false);const queued=useRef<ImportCommand[]>([]);const runAll=useRef(false);
  const [error,setError]=useState('');

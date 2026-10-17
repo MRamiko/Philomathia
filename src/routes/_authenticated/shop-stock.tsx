@@ -23,7 +23,7 @@ function ShopStock(){
  if(!me.data)return <Shell><Loading/></Shell>;
  const canManage=(me.data.roles.includes('shop')||me.data.roles.includes('admin'));
  if(!canManage)return <Shell><p className="error">{t('Not allowed.')}</p></Shell>;
- const shop=shops.data?.shops.find(s=>s.id===shopId)??shops.data?.shops[0];
+ const shop=shops.data?.shops.find((s:any)=>s.id===shopId)??shops.data?.shops[0];
  async function onFile(file:File){
   setParseError('');setError('');setSummary(null);
   if(!file.name.toLowerCase().endsWith('.csv')){setParseError(t('Choose a .csv file.'));return;}
@@ -57,7 +57,7 @@ function ShopStock(){
  const counts=rows?{valid:rows.filter(r=>r.matchStatus==='valid').length,update:rows.filter(r=>r.matchStatus==='will_update').length,notFound:rows.filter(r=>r.matchStatus==='not_found').length,error:rows.filter(r=>r.matchStatus==='error').length,dup:rows.filter(r=>r.matchStatus==='duplicate').length}:null;
  return <Shell><h1 className="h1">{t('Shop stock')}</h1>
  {shops.isPending?<Loading/>:shops.error?<p className="error">{t('Could not load.')}<Button onClick={()=>shops.refetch()}>{t('Retry')}</Button></p>:<>
- {(shops.data?.shops.length??0)>1&&<div className="row">{shops.data!.shops.map(s=><button key={s.id} className={`chip ${(shop?.id)===s.id?'chip-active':''}`} onClick={()=>setShopId(s.id)}>{s.name}</button>)}</div>}
+ {(shops.data?.shops.length??0)>1&&<div className="row">{shops.data!.shops.map((s:any)=><button key={s.id} className={`chip ${(shop?.id)===s.id?'chip-active':''}`} onClick={()=>setShopId(s.id)}>{s.name}</button>)}</div>}
  {summary?<div className="box stack"><h2 className="h2">{t('Summary')}</h2>
   <span>{t('Added')}: {summary.added} · {t('Updated')}: {summary.updated} · {t('Set out of stock')}: {summary.zeroed} · {t('Failed')}: {summary.failed.length}</span>
   <div className="row">{rows?.some(r=>r.matchStatus==='error'||r.matchStatus==='not_found')&&<Button onClick={downloadErrors}>{t('Download errors')}</Button>}<Button onClick={()=>{setSummary(null);setRows(null);}}>{t('Upload another file')}</Button></div></div>:<>
