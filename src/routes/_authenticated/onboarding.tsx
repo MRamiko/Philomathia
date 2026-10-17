@@ -42,13 +42,13 @@ function Onboarding() {
     <Shell>
       {action.error&&<p role="alert" className="error">{action.error}</p>}
       <h1 className="h1">{translate('What do you like?')}</h1>
-      <div className="h2">{translate("Up to 5 genres or moods")} ({tags.length}/5)</div>
+      <div className="h2">{translate("Up to 5 genres or moods")} <span key={tags.length} className="counter-motion">({tags.length} / 5)</span></div>
       <div className="row">
         {[...genres, ...MOOD_TAGS].map((t) => (
           <button key={t} className={`chip ${tags.includes(t) ? "chip-active" : ""}`} onClick={() => toggle(tags, setTags, t)}>{translate(t)}</button>
         ))}
       </div>
-      <div className="h2">{translate("Up to 5 titles you like")} ({titles.length}/5)</div>
+      <div className="h2">{translate("Up to 5 titles you like")} <span key={titles.length} className="counter-motion">({titles.length} / 5)</span></div>
       <div className="row">
         {items.data.map((i) => (
           <button key={i.id} className={`chip ${titles.includes(i.id) ? "chip-active" : ""}`} onClick={() => toggle(titles, setTitles, i.id)}>{appLang==="ka"&&i.title_ka?.trim()?i.title_ka:i.title_en}</button>

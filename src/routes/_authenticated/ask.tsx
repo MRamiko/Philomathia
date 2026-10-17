@@ -77,7 +77,7 @@ function Ask() {
       {action.error&&<p className="error" role="alert">{action.error}</p>}
       <h1 className="h1">{t('Ask Phi')}</h1>
       <div className="stack">
-        <div className="toggle">
+        <div className="toggle" style={{ '--selected': ['film','book','either'].indexOf(media), '--segments': 3 } as React.CSSProperties}>
           {(["film", "book", "either"] as const).map((m) => (
             <button key={m} className={media === m ? "on" : ""} onClick={() => { setMedia(m); setTime(""); }}>{m === "film" ? t('Film') : m === "book" ? t('Book') : t('Either')}</button>
           ))}
@@ -95,12 +95,13 @@ function Ask() {
         <input className="input" placeholder={t('a 90-minute thriller for a rainy evening')} value={text} onChange={(e) => setText(e.target.value)} />
         <button className="btn btn-primary" disabled={busy} onClick={find}>{busy ? t('Finding…') : t('Find')}</button>
       </div>
+      {busy && <Loading />}
       {res && (
         <div style={{ marginTop: 16 }}>
           <span className="chip muted">{res.ai ? t('AI used') : t('Rules only')}</span>
           {res.note && <p className="muted small">{res.note}</p>}
           {res.recs.length === 0 && <p className="muted">{t('No matches. Try fewer filters.')}</p>}
-          {res.recs.map((r) => (
+          <div key={res.recs.map(r=>r.item.id).join('-')} className="motion-list">{res.recs.map((r) => (
             <div key={r.item.id}>
               <ItemRow item={r.item} lang={lang} right={done[r.item.id] ? <span className="small ok">{done[r.item.id]}</span> : (
                 <>
@@ -110,7 +111,7 @@ function Ask() {
               )} />
               <p className="small ok" style={{ margin: "8px 0" }}>{localizedReason(r, appLang)}</p>
             </div>
-          ))}
+          ))}</div>
         </div>
       )}
     </Shell>

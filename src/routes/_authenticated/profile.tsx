@@ -39,7 +39,7 @@ function Profile() {
   async function signOut() {
     await qc.cancelQueries(); qc.clear();
     await supabase.auth.signOut();
-    nav({ to: "/auth", replace: true });
+    nav({ to: "/login", replace: true });
   }
 
   return (
@@ -48,7 +48,7 @@ function Profile() {
       <h1 className="h1">{t('Profile')}</h1>
       <p className="muted small">{me.data.email}</p>
       <div className="h2">{t('App language')}</div>
-      <div className="toggle">
+      <div className="toggle" style={{ '--selected': appLang === 'en' ? 0 : 1 } as React.CSSProperties}>
         <button className={appLang === "en" ? "on" : ""} disabled={action.busy} onClick={() => action.run(()=>setLanguage("en"))}>{t('English')}</button>
         <button className={appLang === "ka" ? "on" : ""} disabled={action.busy} onClick={() => action.run(()=>setLanguage("ka"))}>ქართული</button>
       </div>

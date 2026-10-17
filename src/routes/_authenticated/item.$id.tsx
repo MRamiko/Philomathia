@@ -82,11 +82,12 @@ function ItemPage() {
             <option value="">{t('No rating')}</option>
             {RATINGS.map((r) => <option key={r} value={r}>{r} / 5</option>)}
           </select>
+          {rating && <span key={rating} className="rating-selected" aria-hidden="true">★ {rating} / 5</span>}
           <textarea className="input" rows={3} placeholder={t('Review (optional)')} value={review} onChange={(e) => setReview(e.target.value)} />
           <div className="row">
             <button className="btn btn-primary" disabled={action.busy} onClick={()=>action.run(save,()=>setSaved(true),()=>setSaved(false))}>{t('Save')}</button>
             {prev && <button className="btn" disabled={action.busy} onClick={()=>action.run(async()=>{await deleteLog(item,prev);await refresh();})}>{t('Remove')}</button>}
-            {saved && <span className="ok small">{t('Saved')}</span>}
+            {saved && <span className="ok small saved-notice" role="status">{t('Saved ✓')}</span>}
           </div>
         </div>
         {item.media_type === "book" && <WhereToBuy itemId={item.id} />}
@@ -115,6 +116,7 @@ function Teaser({ item, weights }: { item: Item; weights: Record<string, number>
   if (frame < 0) return <button className="btn" onClick={() => setFrame(0)}>{t('Teaser')}</button>;
   return (
     <div className="stack">
+      <div className={`teaser-progress ${paused ? 'paused' : ''}`} aria-hidden="true">{[0,1,2,3].map(n=><div key={n} className={`teaser-segment ${n < frame ? 'complete' : n === frame ? 'current' : ''}`}><span/></div>)}</div>
       <div className="teaser">
         {frame <= 3 ? <div key={frame} className={paused ? "" : "fade"}>{frames[frame]}</div> : <span className="muted">{t('The end')}</span>}
       </div>

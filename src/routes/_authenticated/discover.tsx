@@ -5,6 +5,7 @@ import { ItemDrawer, Loading, Shell, SwipeCard } from "@/components/phi";
 import { swipe, undoSwipe, useItems, useMe, useRefresh } from "@/lib/data";
 import { localizedReason } from "@/lib/reasons";
 import { recommend } from "@/lib/recommend";
+import { motionWait } from '@/components/motion';
 
 export const Route = createFileRoute("/_authenticated/discover")({
   validateSearch: (s: Record<string, unknown>): { tag?: string | undefined } => ({ tag: typeof s['tag'] === "string" ? (s['tag'] as string) : undefined }),
@@ -25,6 +26,8 @@ function Discover() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [hidden, setHidden] = useState<string | null>(null);
+  const [leaving, setLeaving] = useState<'like' | 'pass' | null>(null);
+  const [arrival, setArrival] = useState<'like' | 'pass' | null>(null);
   const [previousGenres, setPreviousGenres] = useState<string[]>([]);
   useEffect(() => { refresh(); const saved=localStorage.getItem("phi-media"); if(saved==="film"||saved==="book")setMedia(saved); }, []);
 
@@ -60,13 +63,13 @@ function Discover() {
 
   async function act(action: "like" | "pass") {
     if (!current || busy || !me.data) return;
-    setBusy(true); setError(""); setHidden(current.item.id);
-    try { await swipe(me.data.uid, current.item, action); await refresh(); setPreviousGenres(g => [...g, current.item.genres[0] ?? ""].slice(-3)); } catch { setError(t("Could not save. Please retry.")); } finally { setHidden(null); setBusy(false); }
+    setBusy(true); setError(""); setArrival(null); setLeaving(action);
+    try { await Promise.all([swipe(me.data.uid, current.item, action), motionWait()]); setHidden(current.item.id); await refresh(); setPreviousGenres(g => [...g, current.item.genres[0] ?? ""].slice(-3)); } catch { setError(t("Could not save. Please retry.")); } finally { setLeaving(null); setHidden(null); setBusy(false); }
   }
   async function undo() {
     if (!lastItem || busy) return;
     setBusy(true);
-    try { await undoSwipe(lastItem, last.action); await refresh(); setPreviousGenres([]); } catch { setError(t("Could not save. Please retry.")); } finally { setBusy(false); }
+    try { await undoSwipe(lastItem, last.action); setArrival(last.action === 'like' ? 'like' : 'pass'); await refresh(); setPreviousGenres([]); } catch { setError(t("Could not save. Please retry.")); } finally { setBusy(false); }
   }
 
   return (
@@ -74,7 +77,7 @@ function Discover() {
       <div className="section">
         <div className="stack"><h1 className="h1">{t('Discover')}</h1><p className="lede">{t('Find something worth your time.')}</p></div>
         {error && <p role="alert" className="error">{error}</p>}
-        <div className="toggle">
+        <div className="toggle" style={{ '--selected': media === 'film' ? 0 : 1 } as React.CSSProperties}>
           <button className={media === "film" ? "on" : ""} onClick={() => {setMedia("film");localStorage.setItem("phi-media","film");}}>{t('Films')}</button>
           <button className={media === "book" ? "on" : ""} onClick={() => {setMedia("book");localStorage.setItem("phi-media","book");}}>{t('Books')}</button>
         </div>
@@ -83,7 +86,7 @@ function Discover() {
           {tag && <button className="chip chip-active" onClick={() => nav({ to: "/discover", search: { tag: undefined } })}>{tag} ✕</button>}
         </div>
         {current ? (
-          <SwipeCard key={current.item.id} item={current.item} lang={lang} reason={localizedReason(current, appLang)} onLike={() => act("like")} disabled={busy} onPass={() => act("pass")} onTap={() => setOpen(true)} />
+          <SwipeCard key={current.item.id} item={current.item} lang={lang} reason={localizedReason(current, appLang)} leaving={leaving} arrival={arrival} onLike={() => act("like")} disabled={busy} onPass={() => act("pass")} onTap={() => setOpen(true)} />
         ) : (
           <div className="box"><p>{t('No more picks here. Try the other tab, untick Georgian only, or undo a swipe.')}</p><button className="btn" onClick={() => { setGeo(false); setMedia(media === "film" ? "book" : "film"); if (tag) nav({ to: "/discover", search: { tag: undefined } }); }}>{t('Change filters')}</button></div>
         )}
