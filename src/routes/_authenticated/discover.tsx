@@ -47,7 +47,7 @@ function Discover() {
         <div className="box stack">
           <strong>{t('Welcome to Philomathia')}</strong>
           <p className="small muted">{t('Tell us a few things you like to get better first picks. Optional.')}</p>
-          <Link to="/onboarding" className="btn btn-primary" style={{ textAlign: "center", textDecoration: "none" }}>{t('Set up my taste')}</Link>
+          <Link to="/onboarding" className="btn btn-primary">{t('Set up my taste')}</Link>
           <OnboardSkip />
         </div>
       </Shell>
@@ -71,27 +71,28 @@ function Discover() {
 
   return (
     <Shell>
-      <div className="stack">
+      <div className="section">
+        <div className="stack"><h1 className="h1">{t('Discover')}</h1><p className="lede">{t('Find something worth your time.')}</p></div>
         {error && <p role="alert" className="error">{error}</p>}
         <div className="toggle">
           <button className={media === "film" ? "on" : ""} onClick={() => {setMedia("film");localStorage.setItem("phi-media","film");}}>{t('Films')}</button>
           <button className={media === "book" ? "on" : ""} onClick={() => {setMedia("book");localStorage.setItem("phi-media","book");}}>{t('Books')}</button>
         </div>
         <div className="between">
-          <label className="row small"><input type="checkbox" checked={geo} onChange={(e) => setGeo(e.target.checked)} />{t('Georgian only')}</label>
+          <label className="row"><input type="checkbox" checked={geo} onChange={(e) => setGeo(e.target.checked)} />{t('Georgian only')}</label>
           {tag && <button className="chip chip-active" onClick={() => nav({ to: "/discover", search: { tag: undefined } })}>{tag} ✕</button>}
         </div>
         {current ? (
           <SwipeCard key={current.item.id} item={current.item} lang={lang} reason={localizedReason(current, appLang)} onLike={() => act("like")} disabled={busy} onPass={() => act("pass")} onTap={() => setOpen(true)} />
         ) : (
-          <div className="box"><p>{t('No more picks here. Try the other tab, untick Georgian only, or undo a swipe.')}</p></div>
+          <div className="box"><p>{t('No more picks here. Try the other tab, untick Georgian only, or undo a swipe.')}</p><button className="btn" onClick={() => { setGeo(false); setMedia(media === "film" ? "book" : "film"); if (tag) nav({ to: "/discover", search: { tag: undefined } }); }}>{t('Change filters')}</button></div>
         )}
-        <div className="row" style={{ justifyContent: "space-between" }}>
-          <button className="btn" disabled={!current || busy} onClick={() => act("pass")}>{t('Pass')}</button>
-          <button className="btn" disabled={!current} onClick={() => setOpen(true)}>{t('Info')}</button>
-          <button className="btn btn-primary" disabled={!current || busy} onClick={() => act("like")}>{t('Like')}</button>
+        <div className="row" style={{ flexWrap: "nowrap" }}>
+          <button className="btn btn-danger pill" disabled={!current || busy} onClick={() => act("pass")}>{t('Pass')}</button>
+          <button className="btn pill" disabled={!current} onClick={() => setOpen(true)}>{t('Info')}</button>
+          <button className="btn btn-primary pill" disabled={!current || busy} onClick={() => act("like")}>{t('Like')}</button>
         </div>
-        <button className="btn" disabled={!lastItem || busy} onClick={undo}>{t("Undo last swipe")}{lastItem ? ` (${lastItem.title_en})` : ""}</button>
+        <button className="btn btn-text" disabled={!lastItem || busy} onClick={undo}>{t("Undo last swipe")}{lastItem ? ` (${lastItem.title_en})` : ""}</button>
       </div>
       {open && current && <ItemDrawer item={current.item} items={items.data} lang={lang} reason={localizedReason(current, appLang)} onClose={() => setOpen(false)} />}
     </Shell>
@@ -103,10 +104,10 @@ function OnboardSkip() {
   const refresh = useRefresh();
   const me = useMe();
   return (
-    <button className="btn" onClick={async () => {
+    <button onClick={async () => {
       const { supabase } = await import("@/integrations/supabase/client");
       await supabase.from("profiles").update({ onboarded: true }).eq("id", me.data?.uid ?? "");
       refresh();
-    }}>{t('Skip')}</button>
+    }} className="btn btn-text">{t('Skip')}</button>
   );
 }

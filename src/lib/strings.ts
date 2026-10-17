@@ -1,5 +1,6 @@
 export type Locale = 'en' | 'ka';
 export const ka: Record<string,string> = {
+'Find something worth your time.':'იპოვე რამე, რაც დროს ღირს.','Find your next great story.':'იპოვე შენი შემდეგი დიდი ისტორია.','LIKE':'მომწონს','PASS':'გამოტოვება','New here? Create an account':'ახალი ხარ? შექმენი ანგარიში','Already have an account? Sign in':'უკვე გაქვს ანგარიში? შესვლა','Change filters':'ფილტრების შეცვლა',
 'Philomathia':'Philomathia','novella':'მოკლე რომანი','experimental fiction':'ექსპერიმენტული პროზა','Discover':'აღმოაჩინე','Search':'ძიება','Library':'ბიბლიოთეკა','Ask Phi':'ჰკითხე ფის','Profile':'პროფილი',
 'Films':'ფილმები','Books':'წიგნები','Film':'ფილმი','Book':'წიგნი','Either':'ორივე','All':'ყველა','film':'ფილმი','book':'წიგნი','Georgia':'საქართველო',
 'Georgian only':'მხოლოდ ქართული','Made in Georgia':'შექმნილია საქართველოში','Pass':'გამოტოვება','Info':'ინფორმაცია','Like':'მომწონს','Liked':'მოწონებული','Passed':'გამოტოვებული','Undo':'გაუქმება','Undo last swipe':'ბოლო არჩევანის გაუქმება',
