@@ -23,10 +23,10 @@ function Shops() {
   });
   return (
     <Shell>
-      <div className="between"><h1 className="h1">{t('Bookshops')}</h1><span className="muted small">{t('Sample data, not real stores')}</span></div>
+      <div className="between"><h1 className="h1">{t('Bookshops')}</h1></div>
       {q.error ? <p className="error">{t("Could not load.")}<button className="btn" onClick={()=>q.refetch()}>{t("Retry")}</button></p> : !q.data ? <Loading /> : q.data.length===0 ? <p>{t("No results")}</p> : q.data.map((s: any) => (
         <div key={s.id} className="box" style={{ marginBottom: 16 }}>
-          <strong>{s.name}</strong><p className="muted small">{t("Sample stock and prices")}</p>
+          <strong>{s.name}</strong><p className="muted small">{s.is_sample?t("Sample stock and prices"):t("Updated {date}",{date:new Date(Math.max(...s.shop_stock.map((st:any)=>new Date(st.updated_at).getTime()),0)).toLocaleDateString(appLang==='ka'?'ka-GE':'en-GB')})}</p>
           <div className="muted small">{s.address}, {s.city}</div>
           <MotionList scope={`shop-${s.id}`}>{s.shop_stock.map((st: any) => (
             <div key={st.id} className="between small" style={{ padding: "8px 0" }}>
