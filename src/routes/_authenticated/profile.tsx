@@ -10,6 +10,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Loading, Shell } from "@/components/phi";
 import { supabase } from "@/integrations/supabase/client";
 import { useItems, useMe, useRefresh, tasteAction } from "@/lib/data";
+import { deleteAccount } from "@/lib/account.functions";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({ meta: [{ title: "Profile · Philomathia" }, { name: "description", content: "Language, avoided genres and your data." }, { property: "og:title", content: "Profile · Philomathia" }, { property: "og:description", content: "Language, avoided genres and your data." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -52,7 +53,6 @@ function Profile() {
     refresh();
   }
   async function wipe() {
-    const { deleteAccount } = await import('@/lib/account.functions');
     await deleteAccount();
     await qc.cancelQueries(); qc.clear();
     await supabase.auth.signOut();
