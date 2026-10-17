@@ -10,7 +10,7 @@ export const useEmailDraft = () => useContext(EmailDraft);
 export function Button({ className = '', ...props }: ComponentProps<'button'>) {
   return <button className={`btn ${className}`} {...props} />;
 }
-export function PasswordField({ label, visibleToggle = false, error, ...props }: ComponentProps<'input'> & { label: string; visibleToggle?: boolean; error?: string }) {
+export function PasswordField({ label, visibleToggle = false, error, ...props }: ComponentProps<'input'> & { label: string; visibleToggle?: boolean; error?: string | undefined }) {
   const { t } = useLocale();
   const [visible, setVisible] = useState(false);
   return <div className={`field stack${error ? ' field-error' : ''}`}>
