@@ -8,17 +8,19 @@ export function motionWait() {
 export function ScreenMotion({ children }: { children: ReactNode }) {
   const location = useRouterState({ select: s => s.location });
   const previous = useRef(location.pathname);
+  const previousIndex = useRef(location.state.__TSR_index ?? 0);
   const [intro, setIntro] = useState(false);
   const path = location.pathname;
   const from = previous.current;
-  const backward = Number(location.state.__TSR_index ?? 0) < Number(useRef(location.state.__TSR_index ?? 0).current);
+  const backward = Number(location.state.__TSR_index ?? 0) < Number(previousIndex.current);
   const direction = backward || path === '/login' && from === '/signup' ? 'back' : ['/signup', '/shops'].includes(path) || path.startsWith('/item/') ? 'push' : 'tab';
-  useEffect(() => { previous.current = path; }, [path]);
+  useEffect(() => { previous.current = path; previousIndex.current = location.state.__TSR_index ?? 0; }, [path, location.state.__TSR_index]);
   useEffect(() => {
     if (sessionStorage.getItem('phi-launched')) return;
     sessionStorage.setItem('phi-launched', '1');
     setIntro(true);
-    const timer = window.setTimeout(() => setIntro(false), 400);
+    const duration = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--motion-slow'));
+    const timer = window.setTimeout(() => setIntro(false), duration);
     return () => window.clearTimeout(timer);
   }, []);
   return <>

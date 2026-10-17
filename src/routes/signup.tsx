@@ -33,7 +33,7 @@ function Signup() {
     try {
       const { data, error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin } });
       if (error) {
-        const field = error.code === 'weak_password' ? 'password' : error.code === 'user_already_exists' || error.status === 422 ? 'email' : 'form';
+        const field = error.code === 'weak_password' ? 'password' : ['user_already_exists', 'email_exists'].includes(error.code ?? '') ? 'email' : 'form';
         setErrors({ [field]: t(field === 'password' ? 'Password is too short.' : field === 'email' ? 'Email is already registered.' : 'Could not create account. Please retry.') });
         form.querySelector<HTMLInputElement>(`[name="${field}"]`)?.focus();
       } else if (data.session) await nav({ to: '/onboarding' });

@@ -78,7 +78,7 @@
 
 /* ---------- Philomathia design tokens ---------- */
 :root {
-  --c-bg: var(--background); --c-text: var(--foreground); --c-text-2: var(--muted-foreground); --c-line: var(--border); --c-fill: dimgray; --c-surface: var(--card);
+  --c-bg: navy; --c-text: var(--foreground); --c-text-2: var(--muted-foreground); --c-line: var(--border); --c-fill: dimgray; --c-surface: darkslategray;
   --c-primary: var(--primary); --c-on-primary: var(--primary-foreground); --c-active: var(--primary); --c-danger: var(--destructive);
   --s-1: 8px; --s-2: 16px; --s-3: 24px; --s-4: 32px; --s-6: 48px; --hair: 4px;
   --t-caption: 0.75rem; --lh-caption: 1rem;
