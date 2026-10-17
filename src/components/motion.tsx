@@ -1,5 +1,5 @@
 import { Children, isValidElement, useEffect, useLayoutEffect, useRef, useState, type ReactNode, type CSSProperties } from 'react';
-import { useRouterState } from '@tanstack/react-router';
+import { useBlocker, useRouterState } from '@tanstack/react-router';
 import { Button } from './auth-form';
 import { useLocale } from '@/lib/locale';
 export function motionWait() {
@@ -47,6 +47,7 @@ export function usePresence(onExit: () => void) {
 export function Presence({ children, onExit, className = '', historyEntry = false, autoClose }: { children: (close: () => void) => ReactNode; onExit: () => void; className?: string; historyEntry?: boolean; autoClose?: number }) {
   const { state, close, finish } = usePresence(onExit);
   const root = useRef<HTMLDivElement>(null);
+  useBlocker({ shouldBlockFn: ({ action }) => { if (historyEntry && action === 'BACK') { close(); return true; } return false; }, enableBeforeUnload: false });
   useEffect(() => { if (!autoClose) return; const timer = window.setTimeout(close,autoClose); return () => clearTimeout(timer); }, [autoClose]);
   useEffect(() => {
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
@@ -59,10 +60,8 @@ export function Presence({ children, onExit, className = '', historyEntry = fals
       if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last?.focus(); }
       else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first?.focus(); }
     };
-    if (historyEntry) history.pushState({ ...history.state, phiOverlay: true }, '');
-    const back = () => close();
-    window.addEventListener('keydown', key); if (historyEntry) window.addEventListener('popstate', back);
-    return () => { window.removeEventListener('keydown', key); window.removeEventListener('popstate', back); if (historyEntry && history.state?.phiOverlay) history.back(); if (opener?.isConnected) opener.focus(); };
+    window.addEventListener('keydown', key);
+    return () => { window.removeEventListener('keydown', key); if (opener?.isConnected) opener.focus(); };
   }, []);
   if (state === 'closed') return null;
   return <div ref={root} className={`${className}${state === 'closing' ? ' exiting' : ''}`} data-presence={state} onAnimationEnd={e => { if (state === 'closing' && e.target === e.currentTarget) finish(); }}>{children(close)}</div>;
