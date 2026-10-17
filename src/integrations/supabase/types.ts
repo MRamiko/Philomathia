@@ -14,16 +14,314 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      items: {
+        Row: {
+          created_at: string
+          creator: string
+          description_en: string
+          description_ka: string | null
+          genres: string[]
+          id: string
+          is_georgian: boolean
+          isbn: string | null
+          keywords: string[]
+          media_type: string
+          mood_tags: string[]
+          openlibrary_key: string | null
+          original_title: string | null
+          page_count: number | null
+          poster_url: string | null
+          runtime_minutes: number | null
+          source: string
+          title_en: string
+          title_ka: string | null
+          tmdb_id: number | null
+          trailer_key: string | null
+          wikidata_id: string | null
+          year: number | null
+        }
+        Insert: {
+          created_at?: string
+          creator?: string
+          description_en?: string
+          description_ka?: string | null
+          genres?: string[]
+          id?: string
+          is_georgian?: boolean
+          isbn?: string | null
+          keywords?: string[]
+          media_type: string
+          mood_tags?: string[]
+          openlibrary_key?: string | null
+          original_title?: string | null
+          page_count?: number | null
+          poster_url?: string | null
+          runtime_minutes?: number | null
+          source?: string
+          title_en: string
+          title_ka?: string | null
+          tmdb_id?: number | null
+          trailer_key?: string | null
+          wikidata_id?: string | null
+          year?: number | null
+        }
+        Update: {
+          created_at?: string
+          creator?: string
+          description_en?: string
+          description_ka?: string | null
+          genres?: string[]
+          id?: string
+          is_georgian?: boolean
+          isbn?: string | null
+          keywords?: string[]
+          media_type?: string
+          mood_tags?: string[]
+          openlibrary_key?: string | null
+          original_title?: string | null
+          page_count?: number | null
+          poster_url?: string | null
+          runtime_minutes?: number | null
+          source?: string
+          title_en?: string
+          title_ka?: string | null
+          tmdb_id?: number | null
+          trailer_key?: string | null
+          wikidata_id?: string | null
+          year?: number | null
+        }
+        Relationships: []
+      }
+      logs: {
+        Row: {
+          id: string
+          item_id: string
+          logged_at: string
+          rating: number | null
+          review: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          item_id: string
+          logged_at?: string
+          rating?: number | null
+          review?: string | null
+          status: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          item_id?: string
+          logged_at?: string
+          rating?: number | null
+          review?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "logs_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avoided_genres: string[]
+          created_at: string
+          display_name: string | null
+          id: string
+          onboarded: boolean
+          preferred_language: string
+        }
+        Insert: {
+          avoided_genres?: string[]
+          created_at?: string
+          display_name?: string | null
+          id: string
+          onboarded?: boolean
+          preferred_language?: string
+        }
+        Update: {
+          avoided_genres?: string[]
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          onboarded?: boolean
+          preferred_language?: string
+        }
+        Relationships: []
+      }
+      shop_stock: {
+        Row: {
+          id: string
+          item_id: string
+          price_gel: number
+          quantity: number
+          shop_id: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          item_id: string
+          price_gel: number
+          quantity?: number
+          shop_id: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          item_id?: string
+          price_gel?: number
+          quantity?: number
+          shop_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_stock_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shop_stock_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shops: {
+        Row: {
+          address: string
+          city: string
+          id: string
+          lat: number | null
+          lng: number | null
+          name: string
+        }
+        Insert: {
+          address: string
+          city: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          name: string
+        }
+        Update: {
+          address?: string
+          city?: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          name?: string
+        }
+        Relationships: []
+      }
+      swipes: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          item_id: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          item_id: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          item_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "swipes_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tag_weights: {
+        Row: {
+          id: string
+          tag: string
+          updated_at: string
+          user_id: string
+          weight: number
+        }
+        Insert: {
+          id?: string
+          tag: string
+          updated_at?: string
+          user_id: string
+          weight?: number
+        }
+        Update: {
+          id?: string
+          tag?: string
+          updated_at?: string
+          user_id?: string
+          weight?: number
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          shop_id: string | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          shop_id?: string | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          shop_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      bump_tags: {
+        Args: { _delta: number; _tags: string[] }
+        Returns: undefined
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "user" | "shop" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +448,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["user", "shop", "admin"],
+    },
   },
 } as const
