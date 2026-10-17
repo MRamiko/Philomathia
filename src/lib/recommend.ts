@@ -57,7 +57,7 @@ export function recommend(x:RecInput,limit=REC.QUEUE_SIZE):Rec[]{
   const eligible=raw.filter(r=>r.item.genres[0]!==banned);if(!eligible.length)break;
   const exploratorySlot=((x.position??swipes.length)+out.length+1)%REC.EXPLORE_EVERY===0;
   const unusedGenre=eligible.find(r=>!out.some(o=>o.item.genres[0]===r.item.genres[0]));
-  const coldStart=!swipes.length;
+  const coldStart=!swipes.length&&!x.likedIds.size;
   const country=coldStart&&!x.georgianOnly?eligible.filter(r=>r.item.is_georgian===(((x.position??0)+out.length+1)%COLD_GEORGIAN_EVERY===0)):eligible;
   const pool=country.length?country:eligible;
   const varied=pool.find(r=>!out.some(o=>o.item.genres[0]===r.item.genres[0]))??pool[0];

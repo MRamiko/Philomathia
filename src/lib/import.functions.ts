@@ -1,10 +1,11 @@
 import {createServerFn} from '@tanstack/react-start';
 import {requireSupabaseAuth} from '@/integrations/supabase/auth-middleware';
 import {PASSES,normalizeTitle} from './import-rules';
+import type {Item} from './recommend';
 export const importProgress=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).handler(async({context})=>{
  const role=await context.supabase.rpc('has_role',{_user_id:context.userId,_role:'admin'});if(role.error||!role.data)throw new Error('Forbidden');
  const r=await context.supabase.from('import_jobs').select('*').order('pass_name');if(r.error)throw r.error;
- const items=[];for(let n=0;;n+=1000){const x=await context.supabase.from('items').select('*').range(n,n+999);if(x.error)throw x.error;items.push(...x.data);if(x.data.length<1000)break;}
+ const items:Item[]=[];for(let n=0;;n+=1000){const x=await context.supabase.from('items').select('*').range(n,n+999);if(x.error)throw x.error;items.push(...x.data);if(x.data.length<1000)break;}
  const keys=items.map(i=>i.media_type+'|'+normalizeTitle(i.title_en)+'|'+i.year+'|'+normalizeTitle(i.creator));
  const coverage=['film','book'].map(media=>{const rows=items.filter(i=>i.media_type===media);return {media,total:rows.length,georgian:rows.filter(i=>i.is_georgian).length,image:rows.filter(i=>i.image_source&&i.image_ref).length,description:rows.filter(i=>i.description_en?.trim()||i.description_ka?.trim()).length,georgianTitle:rows.filter(i=>i.title_ka?.trim()).length,moods:rows.filter(i=>i.mood_tags.length>=3).length};});
  return {jobs:r.data,coverage,duplicates:keys.length-new Set(keys).size,tmdbConfigured:!!process.env['TMDB_API_KEY']};
