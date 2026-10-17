@@ -47,7 +47,13 @@ export function usePresence(onExit: () => void) {
 export function Presence({ children, onExit, className = '', historyEntry = false, autoClose }: { children: (close: () => void) => ReactNode; onExit: () => void; className?: string; historyEntry?: boolean; autoClose?: number }) {
   const { state, close, finish } = usePresence(onExit);
   const root = useRef<HTMLDivElement>(null);
-  useBlocker({ shouldBlockFn: ({ action }) => { if (historyEntry && action === 'BACK') { close(); return true; } return false; }, enableBeforeUnload: false });
+  useBlocker({ shouldBlockFn: async ({ action }) => {
+    if (!historyEntry) return false;
+    close();
+    if (action === 'BACK') return true;
+    await new Promise<void>(resolve => window.setTimeout(resolve,duration('--motion-standard') + 50));
+    return false;
+  }, enableBeforeUnload: false });
   useEffect(() => { if (!autoClose) return; const timer = window.setTimeout(close,autoClose); return () => clearTimeout(timer); }, [autoClose]);
   useEffect(() => {
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;

@@ -311,6 +311,10 @@ button.chip.chip-active::before { animation: fade-in var(--motion-standard) var(
 .list-cell { min-width: 0; }
 .list-empty { animation: fade-in var(--motion-standard) var(--ease-enter); }
 .avatar { width: 48px; height: 48px; display: grid; place-items: center; border: 1px solid var(--c-primary); border-radius: 8px; color: var(--c-primary); }
+.avatar + .h2 { overflow-wrap: anywhere; min-width: 0; flex: 1; }
+.stock-title { color: var(--c-text); }
+.teaser { border-color: var(--c-divider); }
+.tag-cloud > :nth-child(-n+3) a { margin: 0; }
 @media (prefers-reduced-motion: reduce) {
  .list-enter, .list-fade, .list-empty, .dialog, .drawer, .snackbar { animation: fade-in var(--motion-fast) linear !important; }
  .exiting, .exiting .dialog, .exiting .drawer, .row-removing, .list-switching { animation: fade-out var(--motion-fast) linear forwards !important; }
