@@ -11,6 +11,7 @@ import { parseQuery } from "@/lib/ask.functions";
 import { swipe, useItems, useMe, useRefresh } from "@/lib/data";
 import { localizedReason } from "@/lib/reasons";
 import { recommend, type Rec } from "@/lib/recommend";
+import {candidateItems} from '@/lib/catalog';
 
 export const Route = createFileRoute("/_authenticated/ask")({
   head: () => ({ meta: [{ title: "Ask Phi · Philomathia" }, { name: "description", content: "Find your next film or book by mood and time." }, { property: "og:title", content: "Ask Phi · Philomathia" }, { property: "og:description", content: "Find your next film or book by mood and time." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -58,8 +59,10 @@ function Ask() {
     if (bt) { minP = bt[0] ?? undefined; maxP = bt[1] ?? undefined; }
     if (f.max_minutes) maxM = Math.min(maxM ?? 9999, f.max_minutes);
     const d = me.data; if (!d) { setBusy(false); return; }
+    let candidates;
+    try{candidates=await candidateItems({mediaType,georgianOnly:f.georgian_only,avoidedGenres:d.profile.avoided_genres,minMinutes:minM,maxMinutes:maxM,minPages:minP,maxPages:maxP},!d.swipes.length);}catch{setBusy(false);setRes({recs:[],ai,note:t('Could not load.')});return;}
     const base = {
-      items: items.data ?? [], weights: d.weights, swipes: d.swipes,
+      items: candidates, historyItems:items.data??[], weights: d.weights, swipes: d.swipes,
       excludedIds: new Set([...d.swipes.map((s) => s.item_id), ...d.logs.filter((l) => l.status === "seen").map((l) => l.item_id)]),
       likedIds: new Set(d.swipes.filter((s) => s.action === "like").map((s) => s.item_id)),
       avoidedGenres: d.profile.avoided_genres, mediaType: mediaType, georgianOnly: f.georgian_only,
