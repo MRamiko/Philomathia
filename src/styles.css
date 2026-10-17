@@ -62,8 +62,8 @@
 }
 
 :root, .dark {
- --forest: #283618; --olive: #606c38; --tan: #dda15e; --rust: #bc6c25;
- --radius: 8px; --background:var(--forest); --foreground:white; --card:color-mix(in srgb,var(--olive) 25%,var(--forest)); --card-foreground:var(--foreground); --popover:var(--forest); --popover-foreground:var(--foreground); --primary:var(--tan); --primary-foreground:var(--forest); --secondary:var(--olive); --secondary-foreground:var(--foreground); --muted:var(--card); --muted-foreground:var(--tan); --accent:var(--tan); --accent-foreground:var(--forest); --destructive:var(--rust); --destructive-foreground:var(--foreground); --border:var(--tan); --input:var(--tan); --ring:var(--foreground);
+ --night: #0e1409; --forest: #283618; --olive: #606c38; --tan: #dda15e; --rust: #bc6c25;
+ --radius: 8px; --background:var(--night); --foreground:white; --card:var(--forest); --card-foreground:var(--foreground); --popover:var(--forest); --popover-foreground:var(--foreground); --primary:var(--tan); --primary-foreground:var(--forest); --secondary:var(--olive); --secondary-foreground:var(--foreground); --muted:var(--card); --muted-foreground:var(--tan); --accent:var(--tan); --accent-foreground:var(--forest); --destructive:var(--rust); --destructive-foreground:var(--foreground); --border:var(--tan); --input:var(--tan); --ring:var(--foreground);
 }
 
 @layer base {
@@ -161,10 +161,12 @@ button.chip.chip-active::before { content: "✓"; }
 .list-item { display: flex; gap: var(--s-2); min-height: var(--tap); padding: var(--s-1) 0; border-bottom: 1px solid var(--c-divider); color: var(--c-text); text-decoration: none; }
 .list-item > * { min-width: 0; }
 .list-item strong { font-size: var(--t-section); line-height: var(--lh-section); }
-.poster { background: var(--c-fill); border-radius: var(--r-control); flex: none; display: flex; align-items: center; justify-content: center; color: var(--c-text); font-size: var(--t-caption); overflow: hidden; }
+.poster { position: relative; background: var(--c-fill); border: 1px solid var(--c-divider); border-radius: var(--r-control); flex: none; display: flex; align-items: center; justify-content: center; color: var(--c-text-2); font-size: 12px; overflow: hidden; aspect-ratio: 2 / 3; }
 .poster-sm { width: 100px; height: 150px; }
 .poster-lg { width: 200px; height: 300px; margin: 0 auto; }
-.poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.poster img { position:absolute; inset:0; width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0; transition: opacity var(--motion-standard) var(--ease-enter); }
+.poster img.loaded { opacity: 1; }
+.poster img.pending { visibility: hidden; }
 .reason { border-left: 2px solid var(--c-primary); padding-left: var(--s-1); }
 .reason b, .match { color: var(--c-active); font-weight: normal; }
 
@@ -185,7 +187,7 @@ button.chip.chip-active::before { content: "✓"; }
 
 /* Sheets and overlays */
 .drawer-bg { position: fixed; inset: 0; background: color-mix(in srgb, var(--c-bg) 85%, transparent); z-index: 30; display: flex; align-items: flex-end; justify-content: center; }
-.drawer { width: 100%; max-width: 430px; max-height: 90dvh; overflow-y: auto; background: var(--c-bg); border: 1px solid var(--c-divider); border-radius: var(--r-sheet) var(--r-sheet) 0 0; padding: var(--s-1) var(--s-2) calc(var(--s-3) + env(safe-area-inset-bottom)); gap: var(--s-2); }
+.drawer { width: 100%; max-width: 430px; max-height: 90dvh; overflow-y: auto; background: var(--c-surface); border: 1px solid var(--c-divider); border-radius: var(--r-sheet) var(--r-sheet) 0 0; padding: var(--s-1) var(--s-2) calc(var(--s-3) + env(safe-area-inset-bottom)); gap: var(--s-2); }
 .handle { width: 48px; height: 4px; background: var(--c-fill); border-radius: 4px; margin: 0 auto; }
 .tag-cloud a { color: var(--c-text); text-decoration: none; margin-right: var(--s-2); line-height: var(--tap); display: inline-block; }
 .teaser { min-height: 200px; border: 1px solid var(--c-line); border-radius: var(--r-control); display: flex; align-items: center; justify-content: center; text-align: center; padding: var(--s-2); }
@@ -301,11 +303,11 @@ button.chip.chip-active::before { animation: fade-in var(--motion-standard) var(
 .tag-cloud > :nth-child(-n+3) { border: 1px solid var(--c-primary); border-radius: var(--r-pill); padding: 0 8px; }
 .tag-cloud { display: flex; flex-wrap: wrap; }
 .dialog-bg { align-items: center; padding: 16px; }
-.dialog { width: 100%; max-width: 398px; background: var(--c-bg); border: 1px solid var(--c-divider); padding: 24px; border-radius: 8px; position: relative; animation: card-in var(--motion-standard) var(--ease-enter); }
+.dialog { width: 100%; max-width: 398px; background: var(--c-surface); border: 1px solid var(--c-line); padding: 24px; border-radius: 8px; position: relative; animation: card-in var(--motion-standard) var(--ease-enter); }
 @keyframes dialog-out { to { opacity: 0; transform: scale(0.98); } }
 .drawer-bg.exiting .dialog { animation: dialog-out var(--motion-standard) var(--ease-exit) forwards; }
-.snackbar { background: var(--c-primary); color: var(--c-on-primary); padding: 8px 16px; border-radius: 8px; }
-.snackbar.error { background: var(--c-bg); color: var(--c-text); border: 1px solid var(--c-danger); }
+.snackbar { background: var(--c-surface); color: var(--c-text); border:1px solid var(--c-line); padding: 8px 16px; border-radius: 8px; }
+.snackbar.error { background: var(--c-surface); color: var(--c-text); border: 1px solid var(--c-danger); }
 .list-enter { animation: enter-rise var(--motion-standard) var(--ease-enter) var(--row-delay, 0ms) both; }
 .list-fade { animation: fade-in var(--motion-standard) var(--ease-enter); }
 .list-switching { animation: fade-out var(--motion-fast) var(--ease-exit) forwards; }
