@@ -38,7 +38,7 @@ function Login() {
         <PasswordField key={`password-${attempt}`} id="login-password" name="password" label={t('Password')} autoComplete="current-password" required value={password} onChange={e => setPassword(e.target.value)} visibleToggle aria-describedby={error ? 'login-error' : undefined} />
         <Button className="btn-primary" type="submit" disabled={busy}>{t(busy ? 'Loading…' : 'Sign in')}</Button>
       </form>
-      {error && <p id="login-error" className="error small" role="alert">{t('Error: email or password is incorrect.')}</p>}
+      {error && <p id="login-error" className="error small error-prefixed" role="alert">{t('Error: email or password is incorrect.')}</p>}
       <Link className="btn btn-text auth-switch" to="/signup">{t('New here? Create an account')}</Link>
     </div>
   </main>;

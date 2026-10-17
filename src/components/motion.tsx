@@ -47,10 +47,10 @@ export function usePresence(onExit: () => void) {
 export function Presence({ children, onExit, className = '', historyEntry = false, autoClose }: { children: (close: () => void) => ReactNode; onExit: () => void; className?: string; historyEntry?: boolean; autoClose?: number }) {
   const { state, close, finish } = usePresence(onExit);
   const root = useRef<HTMLDivElement>(null);
-  useBlocker({ shouldBlockFn: async ({ action }) => {
+  useBlocker({ shouldBlockFn: async ({ action, current, next }) => {
     if (!historyEntry) return false;
     close();
-    if (action === 'BACK') return true;
+    if (action === 'BACK' || action === 'GO' && Number(next.state.__TSR_index ?? 0) <= Number(current.state.__TSR_index ?? 0)) return true;
     await new Promise<void>(resolve => window.setTimeout(resolve,duration('--motion-standard') + 50));
     return false;
   }, enableBeforeUnload: false });

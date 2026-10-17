@@ -294,6 +294,7 @@ button.chip.chip-active::before { animation: fade-in var(--motion-standard) var(
 
 /* Shared overlay and list states */
 .error::before { content: var(--error-label, "Error:"); }
+.error-prefixed::before { content: none; }
 .field label, label.field { color: var(--c-text-2); }
 .input:focus { outline: 2px solid var(--c-text); outline-offset: 2px; }
 .stock-out { color: var(--c-text); border: 1px solid var(--c-danger); padding: 4px 8px; border-radius: var(--r-control); }
