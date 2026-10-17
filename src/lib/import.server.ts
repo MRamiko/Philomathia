@@ -32,7 +32,7 @@ export async function runImport(db:SupabaseClient<Database>,job:Database['public
    if(group>=groups.length)cursor.finished=true;
    else if(job.pass_name==='E'&&group===3){
     const query=`SELECT ?work ?workLabel ?workEn ?date ?authorLabel WHERE { ?work wdt:P50 ?author . ?author wdt:P27 wd:Q230 . OPTIONAL { ?work wdt:P577 ?date } OPTIONAL { ?work rdfs:label ?workEn FILTER(LANG(?workEn)="en") } SERVICE wikibase:label { bd:serviceParam wikibase:language "ka,en". } } ORDER BY ?work LIMIT 200 OFFSET ${cursor.offset??0}`;
-    const result=await api('https://query.wikidata.org/sparql?format=json&query='+encodeURIComponent(query));cursor.pending=result.results?.bindings??[];cursor.offset=(cursor.offset??0)+200;cursor.finished=cursor.pending.length<200;
+    const result=await api('https://query.wikidata.org/sparql?format=json&query='+encodeURIComponent(query));cursor.pending=result.results?.bindings??[];cursor.offset=(cursor.offset??0)+200;cursor.finished=(cursor.pending?.length??0)<200;
    }else{
     const u=new URL('https://openlibrary.org/search.json');u.searchParams.set('fields','key,title,author_name,first_publish_year,cover_i,isbn,edition_count,subject,number_of_pages_median,language');u.searchParams.set('limit','100');u.searchParams.set('page',String(page));u.searchParams.set('sort','editions');if(job.pass_name==='E'&&group===0)u.searchParams.set('language','geo');else u.searchParams.set('subject',groups[group]??'fiction');
     const result=await api(u.href);cursor.pending=result.docs??[];const max=job.pass_name==='D'?5:20;
@@ -67,7 +67,7 @@ export async function runImport(db:SupabaseClient<Database>,job:Database['public
    if(item){
     const existing=all.find(i=>(item?.tmdb_id&&i.tmdb_id===item.tmdb_id)||(item?.openlibrary_key&&i.openlibrary_key===item.openlibrary_key)||(item?.wikidata_id&&i.wikidata_id===item.wikidata_id)||(i.media_type===item?.media_type&&identity(i)===identity(item)));
     if(existing){const patch:Record<string,unknown>={};for(const [k,v]of Object.entries(item)){const old=(existing as any)[k];if(v!=null&&v!==''&&((old==null||old===''||Array.isArray(old)&&!old.length)||k==='popularity'&&Number(v)>Number(old)))patch[k]=v;}if(item.is_georgian)patch['is_georgian']=true;if(existing.source==='seed'&&item.source==='openlibrary')patch['isbn']=item.isbn??null;
-     if(Object.keys(patch).length){const r=await db.from('items').update(patch).eq('id',existing.id);if(r.error)throw r.error;Object.assign(existing,patch);}skip('duplicate');
+     if(Object.keys(patch).length){const r=await db.from('items').update(patch as Database['public']['Tables']['items']['Update']).eq('id',existing.id);if(r.error)throw r.error;Object.assign(existing,patch);}skip('duplicate');
     }else {const r=await db.from('items').insert(item).select().single();if(r.error){if(r.error.code==='23505')skip('duplicate');else throw r.error;}else{all.push(r.data);imported++;}}
    }else skip(reason);
    cursor.pending.shift();processed++;
