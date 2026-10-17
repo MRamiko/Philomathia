@@ -1,8 +1,9 @@
+import { recommend } from "@/lib/recommend";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loading, Shell } from "@/components/phi";
 import { supabase } from "@/integrations/supabase/client";
-import { useItems, useMe, useRefresh } from "@/lib/data";
+import { useItems, useMe, useRefresh, tasteAction } from "@/lib/data";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({ meta: [{ title: "Profile · Philomathia" }, { name: "description", content: "Language, avoided genres and your data." }] }),
@@ -22,17 +23,12 @@ function Profile() {
 
   async function reset() {
     if (!confirm("Reset your taste profile? This clears your swipes and taste weights.")) return;
-    await supabase.from("swipes").delete().eq("user_id", me.data!.uid);
-    await supabase.from("tag_weights").delete().eq("user_id", me.data!.uid);
+    await tasteAction(null, "reset");
     refresh();
   }
   async function wipe() {
     if (!confirm("Delete all your data? Swipes, diary, taste weights and profile settings will be removed.")) return;
-    const uid = me.data!.uid;
-    await supabase.from("swipes").delete().eq("user_id", uid);
-    await supabase.from("tag_weights").delete().eq("user_id", uid);
-    await supabase.from("logs").delete().eq("user_id", uid);
-    await supabase.from("profiles").update({ avoided_genres: [], preferred_language: "en", onboarded: false }).eq("id", uid);
+    await tasteAction(null, "wipe");
     refresh();
   }
   async function signOut() {
@@ -59,6 +55,13 @@ function Profile() {
       </div>
       <div className="h2">How recommendations work</div>
       <p className="small">Every like adds points to the genres, moods, keywords and creator of that title, and every pass takes some away. Each new title is scored mostly by how well its tags match those points, plus its creator, your chosen mood and a little novelty. About one card in five is a deliberate step outside your usual taste, and every reason shown is built from the tags that actually matched.</p>
+      {me.data.roles.includes("admin") && <div className="stack">
+        <h2 className="h2">Taste debug</h2>
+        {Object.entries(me.data.weights).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([tag,weight])=><span key={tag}>{tag}: {weight.toFixed(3)}</span>)}
+        <strong>Recent likes</strong>
+        {me.data.swipes.filter(s=>s.action==="like").slice(0,5).map(s=><span key={s.item_id}>{items.data?.find(i=>i.id===s.item_id)?.title_en}</span>)}
+        <pre>{JSON.stringify(recommend({items:items.data,weights:me.data.weights,swipes:me.data.swipes,excludedIds:new Set([...me.data.swipes.map(s=>s.item_id),...me.data.logs.filter(l=>l.status==="seen").map(l=>l.item_id)]),likedIds:new Set(me.data.swipes.filter(s=>s.action==="like").map(s=>s.item_id)),avoidedGenres:p.avoided_genres,mediaType:"film"},1)[0]?.parts,null,2)}</pre>
+      </div>}
       <div className="stack" style={{ marginTop: 16 }}>
         <Link to="/shops" className="btn" style={{ textAlign: "center", textDecoration: "none" }}>Bookshops</Link>
         <button className="btn" onClick={reset}>Reset my taste profile</button>

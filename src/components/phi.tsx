@@ -109,8 +109,8 @@ export function Chips({ tags }: { tags: string[] }) {
   );
 }
 
-export function SwipeCard({ item, lang, reason, onLike, onPass, onTap }: {
-  item: Item; lang: string; reason: string; onLike: () => void; onPass: () => void; onTap: () => void;
+export function SwipeCard({ item, lang, reason, onLike, onPass, onTap, disabled }: {
+  disabled?: boolean; item: Item; lang: string; reason: string; onLike: () => void; onPass: () => void; onTap: () => void;
 }) {
   const [dx, setDx] = useState(0);
   const [drag, setDrag] = useState(false);
@@ -121,6 +121,7 @@ export function SwipeCard({ item, lang, reason, onLike, onPass, onTap }: {
       className={`card${drag ? " dragging" : ""}`}
       style={{ transform: `translateX(${dx}px) rotate(${Math.round(dx / 16)}deg)`, borderColor: dx > 100 ? "green" : dx < -100 ? "red" : undefined }}
       onPointerDown={(e) => {
+        if (disabled || e.clientX < 24 || e.clientX > window.innerWidth - 24) return;
         start.current = { x: e.clientX, y: e.clientY };
         moved.current = false;
         setDrag(true);
@@ -133,11 +134,12 @@ export function SwipeCard({ item, lang, reason, onLike, onPass, onTap }: {
         setDx(d);
       }}
       onPointerUp={() => {
+        if (!start.current) return;
         setDrag(false);
         const d = dx;
         start.current = null;
-        if (d > 100) { setDx(400); setTimeout(onLike, 200); }
-        else if (d < -100) { setDx(-400); setTimeout(onPass, 200); }
+        if (d > 100) { setDx(0); onLike(); }
+        else if (d < -100) { setDx(0); onPass(); }
         else { setDx(0); if (!moved.current) onTap(); }
       }}
       onPointerCancel={() => { setDrag(false); setDx(0); start.current = null; }}

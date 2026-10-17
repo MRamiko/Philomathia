@@ -59,9 +59,9 @@ function Ask() {
     if (ft) { minM = ft[0] ?? undefined; maxM = ft[1] ?? undefined; }
     if (bt) { minP = bt[0] ?? undefined; maxP = bt[1] ?? undefined; }
     if (f.max_minutes) maxM = Math.min(maxM ?? 9999, f.max_minutes);
-    const d = me.data!;
+    const d = me.data; if (!d) { setBusy(false); return; }
     const base = {
-      items: items.data!, weights: d.weights,
+      items: items.data ?? [], weights: d.weights, swipes: d.swipes,
       excludedIds: new Set([...d.swipes.map((s) => s.item_id), ...d.logs.filter((l) => l.status === "seen").map((l) => l.item_id)]),
       likedIds: new Set(d.swipes.filter((s) => s.action === "like").map((s) => s.item_id)),
       avoidedGenres: d.profile.avoided_genres, mediaType: mediaType, georgianOnly: f.georgian_only,
@@ -69,11 +69,6 @@ function Ask() {
     };
     let recs = recommend({ ...base, minMinutes: minM, maxMinutes: maxM, minPages: minP, maxPages: maxP }, 5);
     let note = "";
-    if (recs.length < 5) {
-      const extra = recommend(base, 50).filter((r) => !recs.some((x) => x.item.id === r.item.id)).slice(0, 5 - recs.length);
-      if (extra.length) note = `Only ${recs.length} match your time limit; the rest are the closest picks outside it (runtime shown).`;
-      recs = [...recs, ...extra.map((e) => ({ ...e, reason: `${e.reason} (outside your time limit)` }))];
-    }
     if (ai && recs.length) {
       const rr = await rewrite({ data: { lang, items: recs.map((r) => ({ title: r.item.title_en, reason: r.reason })) } }).catch(() => null);
       if (rr) recs = recs.map((r, k) => ({ ...r, reason: rr[k] ?? r.reason }));

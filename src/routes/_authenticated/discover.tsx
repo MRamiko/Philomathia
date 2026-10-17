@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { ItemDrawer, Loading, Shell, SwipeCard } from "@/components/phi";
 import { swipe, undoSwipe, useItems, useMe, useRefresh } from "@/lib/data";
 import { recommend } from "@/lib/recommend";
@@ -20,17 +20,24 @@ function Discover() {
   const [geo, setGeo] = useState(false);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [hidden, setHidden] = useState<string | null>(null);
+  const [previousGenres, setPreviousGenres] = useState<string[]>([]);
+  useEffect(() => { refresh(); }, []);
 
   const recs = useMemo(() => {
-    if (!items.data || !me.data) return [];
+    if (items.error || me.error) return <Shell><p className="error">Could not load. <button className="btn" onClick={() => { items.refetch(); me.refetch(); }}>Retry</button></p></Shell>;
+  if (!items.data || !me.data) return [];
     const excluded = new Set([...me.data.swipes.map((s) => s.item_id), ...me.data.logs.filter((l) => l.status === "seen").map((l) => l.item_id)]);
     return recommend({
       items: items.data, weights: me.data.weights, excludedIds: excluded,
+      swipes: me.data.swipes, previousGenres,
       likedIds: new Set(me.data.swipes.filter((s) => s.action === "like").map((s) => s.item_id)),
       avoidedGenres: me.data.profile.avoided_genres, mediaType: media, georgianOnly: geo, tagFilter: tag,
-    }, 10);
-  }, [items.data, me.data, media, geo, tag]);
+    }, 5);
+  }, [items.data, me.data, media, geo, tag, previousGenres]);
 
+  if (items.error || me.error) return <Shell><p className="error">Could not load. <button className="btn" onClick={() => { items.refetch(); me.refetch(); }}>Retry</button></p></Shell>;
   if (!items.data || !me.data) return <Shell><Loading /></Shell>;
   if (!me.data.profile.onboarded && me.data.swipes.length === 0) {
     return (
@@ -45,24 +52,25 @@ function Discover() {
     );
   }
   const lang = me.data.profile.preferred_language;
-  const current = recs[0];
+  const current = recs.find(r => r.item.id !== hidden);
   const last = me.data.swipes[0];
   const lastItem = last && items.data.find((i) => i.id === last.item_id);
 
   async function act(action: "like" | "pass") {
-    if (!current || busy) return;
-    setBusy(true);
-    try { await swipe(me.data!.uid, current.item, action); await refresh(); } finally { setBusy(false); }
+    if (!current || busy || !me.data) return;
+    setBusy(true); setError(""); setHidden(current.item.id);
+    try { await swipe(me.data.uid, current.item, action); await refresh(); setPreviousGenres(g => [...g, current.item.genres[0] ?? ""].slice(-3)); } catch { setError("Could not save. Please retry."); } finally { setHidden(null); setBusy(false); }
   }
   async function undo() {
     if (!lastItem || busy) return;
     setBusy(true);
-    try { await undoSwipe(lastItem, last.action); await refresh(); } finally { setBusy(false); }
+    try { await undoSwipe(lastItem, last.action); await refresh(); setPreviousGenres([]); } catch { setError("Could not save. Please retry."); } finally { setBusy(false); }
   }
 
   return (
     <Shell>
       <div className="stack">
+        {error && <p role="alert" className="error">{error}</p>}
         <div className="toggle">
           <button className={media === "film" ? "on" : ""} onClick={() => setMedia("film")}>Films</button>
           <button className={media === "book" ? "on" : ""} onClick={() => setMedia("book")}>Books</button>
@@ -72,7 +80,7 @@ function Discover() {
           {tag && <button className="chip chip-active" onClick={() => nav({ to: "/discover", search: { tag: undefined } })}>{tag} ✕</button>}
         </div>
         {current ? (
-          <SwipeCard key={current.item.id} item={current.item} lang={lang} reason={current.reason} onLike={() => act("like")} onPass={() => act("pass")} onTap={() => setOpen(true)} />
+          <SwipeCard key={current.item.id} item={current.item} lang={lang} reason={current.reason} onLike={() => act("like")} disabled={busy} onPass={() => act("pass")} onTap={() => setOpen(true)} />
         ) : (
           <div className="box"><p>No more picks here. Try the other tab, untick Georgian only, or undo a swipe.</p></div>
         )}
@@ -94,7 +102,7 @@ function OnboardSkip() {
   return (
     <button className="btn" onClick={async () => {
       const { supabase } = await import("@/integrations/supabase/client");
-      await supabase.from("profiles").update({ onboarded: true }).eq("id", me.data!.uid);
+      await supabase.from("profiles").update({ onboarded: true }).eq("id", me.data?.uid ?? "");
       refresh();
     }}>Skip</button>
   );
