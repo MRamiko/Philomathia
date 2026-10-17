@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedDiscoverRouteImport } from './routes/_authenticated/discover'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedSearchRouteImport } from './routes/_authenticated/search'
+import { Route as AuthenticatedItemIdRouteImport } from './routes/_authenticated/item.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -45,6 +46,11 @@ const AuthenticatedSearchRoute = AuthenticatedSearchRouteImport.update({
   path: '/search',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedItemIdRoute = AuthenticatedItemIdRouteImport.update({
+  id: '/item/$id',
+  path: '/item/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/discover': typeof AuthenticatedDiscoverRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/search': typeof AuthenticatedSearchRoute
+  '/item/$id': typeof AuthenticatedItemIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/discover': typeof AuthenticatedDiscoverRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/search': typeof AuthenticatedSearchRoute
+  '/item/$id': typeof AuthenticatedItemIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -68,12 +76,14 @@ export interface FileRoutesById {
   '/_authenticated/discover': typeof AuthenticatedDiscoverRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/search': typeof AuthenticatedSearchRoute
+  '/_authenticated/item/$id': typeof AuthenticatedItemIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/discover' | '/onboarding' | '/search'
+  fullPaths:
+    '/' | '/auth' | '/discover' | '/onboarding' | '/search' | '/item/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/discover' | '/onboarding' | '/search'
+  to: '/' | '/auth' | '/discover' | '/onboarding' | '/search' | '/item/$id'
   id:
     | '__root__'
     | '/'
@@ -82,6 +92,7 @@ export interface FileRouteTypes {
     | '/_authenticated/discover'
     | '/_authenticated/onboarding'
     | '/_authenticated/search'
+    | '/_authenticated/item/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -134,6 +145,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSearchRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/item/$id': {
+      id: '/_authenticated/item/$id'
+      path: '/item/$id'
+      fullPath: '/item/$id'
+      preLoaderRoute: typeof AuthenticatedItemIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -141,12 +159,14 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDiscoverRoute: typeof AuthenticatedDiscoverRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedSearchRoute: typeof AuthenticatedSearchRoute
+  AuthenticatedItemIdRoute: typeof AuthenticatedItemIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDiscoverRoute: AuthenticatedDiscoverRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedSearchRoute: AuthenticatedSearchRoute,
+  AuthenticatedItemIdRoute: AuthenticatedItemIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
