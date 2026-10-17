@@ -4,7 +4,7 @@
 - Interaction writes use the atomic `taste_action` RPC and replay active `taste_events` through `bump_tags`; this prevents duplicate contributions and keeps undo deterministic.
 - Roles live in `public.user_roles` (not profiles) to prevent privilege escalation; shop users are linked via `user_roles.shop_id`.
 - App styling uses plain CSS classes and semantic palette tokens in `src/styles.css`; offline palette and PWA icons derive from that theme to keep fallback and install branding aligned.
-- Auth screens share a root-scoped email draft and shared form controls; separate leaf routes preserve the draft without storing passwords.
+- Auth screens share an email draft persisted in sessionStorage (`phi-email-draft`) and shared form controls; separate leaf routes preserve the draft without storing passwords. Password reset uses public /forgot-password and /reset-password routes; reset success flags /login via sessionStorage `phi-pw-reset`.
 - Motion durations and easing live in the global stylesheet; screen and control motion uses transform/opacity only with a reduced-motion override.
 - Overlays use shared Presence with token-based exit fallback, focus return and router Back blocking, avoiding same-URL history pushes that remount authenticated pages.
 - Lists use shared MotionList with stable entity keys, per-set entrance tracking and transform-only FLIP capped at 30 rows, preventing replay and abrupt removal gaps.
