@@ -15,13 +15,13 @@ const items = [
 describe("recommend", () => {
   it("cold start says varied starter pick", () => {
     const r = recommend({ items, weights: {}, excludedIds: new Set(), likedIds: new Set(), avoidedGenres: [] });
-    expect(r[0]!.reason).toBe("A varied starter pick");
+    expect(r[0]?.reason).toBe("A varied starter pick");
   });
   it("after liking Memento, Shutter Island ranks first with a reason naming tags", () => {
     const weights: Record<string, number> = { thriller: 3, "psychological thriller": 3, "mind-bending": 3, mysterious: 3, memory: 3, "creator:Christopher Nolan": 3 };
     const r = recommend({ items, weights, excludedIds: new Set(["memento"]), likedIds: new Set(["memento"]), avoidedGenres: [] });
-    expect(r[0]!.item.id).toBe("shutter");
-    expect(r[0]!.reason).toMatch(/Matches your interest in/);
+    expect(r[0]?.item.id).toBe("shutter");
+    expect(r[0]?.reason).toMatch(/Because you liked memento:.*thriller/);
   });
   it("hard filters runtime and avoided genres", () => {
     const r = recommend({ items, weights: { x: 1 }, excludedIds: new Set(), likedIds: new Set(), avoidedGenres: ["comedy"], maxMinutes: 90 });
