@@ -17,7 +17,7 @@ export const checkKeys=createServerFn({method:'POST'}).middleware([requireSupaba
  if(googleKey){try{await api('https://www.googleapis.com/books/v1/volumes?q=test&maxResults=1&key='+encodeURIComponent(googleKey));google='working';}catch{google='rejected';}}
  return {tmdb,google};
 });
-export const filmSearch=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((d:{query?:string;year?:number;mode:'search'|'georgian'|'top';page?:number})=>d).handler(async({context,data})=>{
+export const filmSearch=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((d:{query?:string|undefined;year?:number|undefined;mode:'search'|'georgian'|'top';page?:number|undefined})=>d).handler(async({context,data})=>{
  await requireAdmin(context as unknown as Ctx);
  const key=process.env['TMDB_API_KEY'];if(!key)throw new Error('TMDB key required');
  const {api,tmdbUrl,existingByTmdbIds}=await import('./admin-import.server');
