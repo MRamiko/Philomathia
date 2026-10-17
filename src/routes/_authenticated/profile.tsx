@@ -39,7 +39,7 @@ function Profile() {
   async function signOut() {
     await qc.cancelQueries(); qc.clear();
     await supabase.auth.signOut();
-    nav({ to: "/auth", replace: true });
+    nav({ to: "/login", replace: true });
   }
 
   return (

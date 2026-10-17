@@ -13,6 +13,8 @@ import {
   type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { AuthDraftProvider } from '@/components/auth-form';
+import { ScreenMotion } from '@/components/motion';
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -78,7 +80,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <LocaleProvider><Outlet /></LocaleProvider>
+      <LocaleProvider><AuthDraftProvider><ScreenMotion><Outlet /></ScreenMotion></AuthDraftProvider></LocaleProvider>
     </QueryClientProvider>
   );
 }
