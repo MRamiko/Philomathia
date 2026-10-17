@@ -10,11 +10,12 @@ import {importBatch,importProgress} from '@/lib/import.functions';
 import {PASSES} from '@/lib/import-rules';
 export const Route=createFileRoute('/_authenticated/admin-import')({head:()=>({meta:[{title:'Catalog imports · Philomathia'},{name:'description',content:'Manage official catalog imports and coverage in Philomathia.'},{property:'og:title',content:'Catalog imports · Philomathia'},{property:'og:description',content:'Administrator catalog imports and coverage.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary'}]}),component:AdminImport});
 function AdminImport(){
- const {t}=useLocale();const me=useMe();const progress=useServerFn(importProgress);const batch=useServerFn(importBatch);const qc=useQueryClient();const busy=useRef(false);const stopped=useRef(false);const [error,setError]=useState('');
+ const {t}=useLocale();const me=useMe();const progress=useServerFn(importProgress);const batch=useServerFn(importBatch);const qc=useQueryClient();const busy=useRef(false);const stopped=useRef(false);const pauseRequested=useRef<string|null>(null);const [error,setError]=useState('');
  const admin=me.data?.roles.includes('admin')??false;
  const state=useQuery({queryKey:['import-progress'],queryFn:()=>progress(),enabled:admin,refetchInterval:3000});
  async function action(pass:string,kind:'start'|'pause'|'resume'|'batch'){
-  if(busy.current)return;busy.current=true;setError('');try{await batch({data:{pass,action:kind}});await qc.invalidateQueries({queryKey:['import-progress']});await qc.invalidateQueries({queryKey:['items']});}catch{setError(t('Import failed. Please retry.'));}finally{busy.current=false;}
+  if(kind==='pause')pauseRequested.current=pass;
+  if(busy.current)return;busy.current=true;setError('');try{await batch({data:{pass,action:kind}});if(pauseRequested.current){const p=pauseRequested.current;pauseRequested.current=null;await batch({data:{pass:p,action:'pause'}});}await qc.invalidateQueries({queryKey:['import-progress']});await qc.invalidateQueries({queryKey:['items']});}catch{setError(t('Import failed. Please retry.'));}finally{busy.current=false;}
  }
  useEffect(()=>{stopped.current=false;const timer=setInterval(()=>{if(stopped.current||busy.current)return;const running=state.data?.jobs.find(j=>j.status==='running');if(running)void action(running.pass_name,'batch');},1000);return()=>{stopped.current=true;clearInterval(timer);};},[state.data]);
  if(!me.data)return <Shell><Loading/></Shell>;
