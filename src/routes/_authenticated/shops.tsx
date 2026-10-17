@@ -15,16 +15,17 @@ function Shops() {
   const q = useQuery({
     queryKey: ["shops"],
     queryFn: async () => {
-      const { data } = await supabase.from("shops").select("id,name,address,city,shop_stock(price_gel,quantity,items(id,title_en,title_ka))").order("name");
+      const { data,error } = await supabase.from("shops").select("id,name,address,city,shop_stock(price_gel,quantity,items(id,title_en,title_ka))").order("name");
+      if(error)throw error;
       return data ?? [];
     },
   });
   return (
     <Shell>
       <div className="between"><h1 className="h1">{t('Bookshops')}</h1><span className="muted small">{t('Sample data, not real stores')}</span></div>
-      {!q.data ? <Loading /> : q.data.map((s: any) => (
+      {q.error ? <p className="error">{t("Could not load.")}<button className="btn" onClick={()=>q.refetch()}>{t("Retry")}</button></p> : !q.data ? <Loading /> : q.data.length===0 ? <p>{t("No results")}</p> : q.data.map((s: any) => (
         <div key={s.id} className="box" style={{ marginBottom: 16 }}>
-          <strong>{s.name}</strong>
+          <strong>{s.name}</strong><p className="muted small">{t("Sample stock and prices")}</p>
           <div className="muted small">{s.address}, {s.city}</div>
           {s.shop_stock.map((st: any, k: number) => (
             <div key={k} className="between small" style={{ padding: "8px 0" }}>

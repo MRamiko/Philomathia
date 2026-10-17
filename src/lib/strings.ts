@@ -1,6 +1,6 @@
 export type Locale = 'en' | 'ka';
 export const ka: Record<string,string> = {
-'Discover':'აღმოაჩინე','Search':'ძიება','Library':'ბიბლიოთეკა','Ask Phi':'ჰკითხე ფის','Profile':'პროფილი',
+'Philomathia':'Philomathia','novella':'მოკლე რომანი','experimental fiction':'ექსპერიმენტული პროზა','Discover':'აღმოაჩინე','Search':'ძიება','Library':'ბიბლიოთეკა','Ask Phi':'ჰკითხე ფის','Profile':'პროფილი',
 'Films':'ფილმები','Books':'წიგნები','Film':'ფილმი','Book':'წიგნი','Either':'ორივე','All':'ყველა','film':'ფილმი','book':'წიგნი','Georgia':'საქართველო',
 'Georgian only':'მხოლოდ ქართული','Made in Georgia':'შექმნილია საქართველოში','Pass':'გამოტოვება','Info':'ინფორმაცია','Like':'მომწონს','Liked':'მოწონებული','Passed':'გამოტოვებული','Undo':'გაუქმება','Undo last swipe':'ბოლო არჩევანის გაუქმება',
 'Close':'დახურვა','Open full page':'სრული გვერდი','Similar titles':'მსგავსი სათაურები','Why you’re seeing this':'რატომ გირჩევთ','Loading…':'იტვირთება…','Retry':'ხელახლა ცდა','Reload':'განახლება','Something went wrong':'რაღაც შეფერხდა','Could not load.':'ჩატვირთვა ვერ მოხერხდა.','Could not save. Please retry.':'შენახვა ვერ მოხერხდა. სცადე ხელახლა.','You are offline':'ინტერნეტთან კავშირი არ არის','Live search, recommendations and saves are unavailable offline.':'ძიება, რეკომენდაციები და შენახვა ინტერნეტის გარეშე მიუწვდომელია.',

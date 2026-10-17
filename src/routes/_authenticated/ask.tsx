@@ -36,6 +36,7 @@ function Ask() {
   const [res, setRes] = useState<{ recs: Rec[]; ai: boolean; note: string } | null>(null);
   const [done, setDone] = useState<Record<string, string>>({});
 
+  if (items.error || me.error) return <Shell><p role="alert" className="error">{t("Could not load.")}</p><button className="btn" onClick={()=>{items.refetch();me.refetch();}}>{t("Retry")}</button></Shell>;
   if (!items.data || !me.data) return <Shell><Loading /></Shell>;
   const lang = appLang;
 

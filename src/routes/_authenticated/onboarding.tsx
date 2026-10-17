@@ -23,6 +23,7 @@ function Onboarding() {
   const [tags, setTags] = useState<string[]>([]);
   const [titles, setTitles] = useState<string[]>([]);
   const genres = useMemo(() => Array.from(new Set((items.data ?? []).flatMap((i) => i.genres))).sort(), [items.data]);
+  if (items.error || me.error) return <Shell><p role="alert" className="error">{translate("Could not load.")}</p><button className="btn" onClick={()=>{items.refetch();me.refetch();}}>{translate("Retry")}</button></Shell>;
   if (!items.data || !me.data) return <Shell><Loading /></Shell>;
   const toggle = (list: string[], set: (v: string[]) => void, v: string) =>
     set(list.includes(v) ? list.filter((x) =>x !== v) : list.length< 5 ? [...list, v] : list);

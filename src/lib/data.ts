@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { REC } from "./config";
+import { translate, type Locale } from "./strings";
 import { allTagsOf, type Item } from "./recommend";
 
 export type Log = { id: string; item_id: string; status: string; rating: number | null; review: string | null; logged_at: string };
@@ -72,8 +73,9 @@ export function titleOf(i: Item, lang: string) {
 export function descOf(i: Item, lang: string) {
   return lang === "ka" && i.description_ka?.trim() ? i.description_ka : i.description_en;
 }
-export function lengthOf(i: Item) {
-  return i.media_type === "film" ? (i.runtime_minutes ? `${i.runtime_minutes} min` : "") : i.page_count ? `${i.page_count} pages` : "";
+export function lengthOf(i: Item, lang: string="en") {
+  const t=(k:string)=>translate(lang==="ka"?"ka":"en",k);
+  return i.media_type === "film" ? (i.runtime_minutes ? `${i.runtime_minutes} ${t("min")}` : "") : i.page_count ? `${i.page_count} ${t("pages")}` : "";
 }
 export function twoSentences(s: string) {
   const m = s.match(/[^.!?]+[.!?]+/g);

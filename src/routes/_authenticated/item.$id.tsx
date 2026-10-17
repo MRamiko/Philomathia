@@ -1,3 +1,4 @@
+import { useAction } from "@/lib/use-action";
 import { useLocale } from "@/lib/locale";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -14,6 +15,7 @@ const RATINGS = Array.from({ length: 10 }, (_, k) => (k + 1) / 2);
 
 function ItemPage() {
   const { t, lang: appLang } = useLocale();
+  const action=useAction();
   const { id } = Route.useParams();
   const items = useItems();
   const me = useMe();
@@ -32,16 +34,18 @@ function ItemPage() {
     if (prev) { setStatus(prev.status); setRating(prev.rating?.toString() ?? ""); setReview(prev.review ?? ""); }
   }, [prev?.id]);
 
+  if (items.error || me.error) return <Shell><p role="alert" className="error">{t("Could not load.")}</p><button className="btn" onClick={()=>{items.refetch();me.refetch();}}>{t("Retry")}</button></Shell>;
   if (!items.data || !me.data) return <Shell><Loading /></Shell>;
   if (!item) return <Shell><p>{t('Not found.')}<Link to="/search">{t('Search')}</Link></p></Shell>;
 
   const title = titleOf(item, lang);
   const desc = descOf(item, lang);
-  const fellBack = lang === "ka" && (!item.title_ka || !item.description_ka);
+  const fellBack = lang === "ka" && (!item.title_ka?.trim() || !item.description_ka?.trim());
   const footer = item.source === "seed" ? t("Sample data for demo") : `${t("Source")}: ${item.source}`;
 
   async function save() {
-    await saveLog(me.data!.uid, item!, prev, { status, rating: rating ? Number(rating) : null, review: review || null });
+    if(!me.data||!item)return;
+    await saveLog(me.data.uid, item, prev, { status, rating: rating ? Number(rating) : null, review: review || null });
     await refresh();
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
@@ -50,10 +54,11 @@ function ItemPage() {
   return (
     <Shell footer={footer}>
       <div className="stack">
+        {action.error&&<p role="alert" className="error">{action.error}</p>}
         <Poster item={item} size="lg" />
         <h1 className="h1">{title}</h1>
         {item.original_title && item.original_title !== title && <div className="muted small">{item.original_title}</div>}
-        <div className="muted small">{yearOf(item.year)} · {item.creator} · {t(item.media_type)} · {lengthOf(item)}{item.is_georgian ? ` · ${t("Georgia")}` : ""}</div>
+        <div className="muted small">{yearOf(item.year)} · {item.creator} · {t(item.media_type)} · {lengthOf(item, appLang)}{item.is_georgian ? ` · ${t("Georgia")}` : ""}</div>
         {item.isbn && <div className="muted small">ISBN {item.isbn}</div>}
         <p>{desc || t("No description available.")}</p>
         {fellBack && <p className="muted small">{t('No Georgian text stored yet; showing English.')}</p>}
@@ -63,23 +68,24 @@ function ItemPage() {
         {item.trailer_key && (trailer ? (
           <iframe width="100%" height="200" src={`https://www.youtube-nocookie.com/embed/${item.trailer_key}`} title={t('Trailer')} allow="encrypted-media" allowFullScreen style={{ border: 0 }} />
         ) : <button className="btn" onClick={() => setTrailer(true)}>{t('Watch trailer')}</button>)}
+        {item.media_type === "film" && !item.trailer_key && <p className="muted">{t("No trailer available.")}</p>}
         {item.media_type === "book" && <Teaser item={item} weights={me.data.weights} />}
 
         <div className="box stack">
           <strong>{t('My diary')}</strong>
-          <select className="input" value={status} onChange={(e) => setStatus(e.target.value)}>
+          <select className="input" aria-label={t("Status")} value={status} onChange={(e) => setStatus(e.target.value)}>
             <option value="want">{t(item.media_type === "film" ? "Want to watch" : "Want to read")}</option>
             <option value="in_progress">{t('In progress')}</option>
             <option value="seen">{t('Done')}</option>
           </select>
-          <select className="input" value={rating} onChange={(e) => setRating(e.target.value)}>
+          <select className="input" aria-label={t("Rating")} value={rating} onChange={(e) => setRating(e.target.value)}>
             <option value="">{t('No rating')}</option>
             {RATINGS.map((r) => <option key={r} value={r}>{r} / 5</option>)}
           </select>
           <textarea className="input" rows={3} placeholder={t('Review (optional)')} value={review} onChange={(e) => setReview(e.target.value)} />
           <div className="row">
-            <button className="btn btn-primary" onClick={save}>{t('Save')}</button>
-            {prev && <button className="btn" onClick={async () => { await deleteLog(item, prev); await refresh(); }}>{t('Remove')}</button>}
+            <button className="btn btn-primary" disabled={action.busy} onClick={()=>action.run(save,()=>setSaved(true),()=>setSaved(false))}>{t('Save')}</button>
+            {prev && <button className="btn" disabled={action.busy} onClick={()=>action.run(async()=>{await deleteLog(item,prev);await refresh();})}>{t('Remove')}</button>}
             {saved && <span className="ok small">{t('Saved')}</span>}
           </div>
         </div>

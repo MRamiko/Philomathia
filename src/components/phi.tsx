@@ -65,7 +65,7 @@ export function ItemRow({ item, lang, right }: { item: Item; lang: string; right
             {yearOf(item.year)} · {item.creator} · {t(item.media_type)}
             {item.is_georgian ? ` · ${t("Georgia")}` : ""}
           </span>
-          <span className="muted small">{lengthOf(item)}</span>
+          <span className="muted small">{lengthOf(item, appLang)}</span>
         </div>
       </Link>
       {right ? <div className="stack">{right}</div> : null}
@@ -78,7 +78,8 @@ export function WhereToBuy({ itemId }: { itemId: string }) {
   const q = useQuery({
     queryKey: ["stock", itemId],
     queryFn: async () => {
-      const { data } = await supabase.from("shop_stock").select("price_gel,quantity,shops(name,address,city)").eq("item_id", itemId);
+      const { data,error } = await supabase.from("shop_stock").select("price_gel,quantity,shops(name,address,city)").eq("item_id", itemId);
+      if(error)throw error;
       return (data ?? []).sort((a: any, b: any) => (b.quantity > 0 ? 1 : 0) - (a.quantity > 0 ? 1 : 0) || a.price_gel - b.price_gel);
     },
   });
@@ -88,9 +89,11 @@ export function WhereToBuy({ itemId }: { itemId: string }) {
     <div className="box">
       <div className="between">
         <strong>{t('Where to buy')}</strong>
-        <span className="muted small">{t('Sample data')}</span>
+        <span className="muted small">{t('Sample stock and prices')}</span>
       </div>
-      {!rows.length && <p className="muted small">{t('No shop lists this book yet.')}</p>}
+      {q.error&&<p className="error">{t("Could not load.")}<button className="btn" onClick={()=>q.refetch()}>{t("Retry")}</button></p>}
+      {q.isPending&&<Loading/>}
+      {!q.isPending&&!rows.length && <p className="muted small">{t('No shop lists this book yet.')}</p>}
       {cheapest && (
         <p className="ok small">
           {t("Cheapest in stock")}: {(cheapest as any).shops.name}, {(cheapest as any).shops.city} · {formatPrice((cheapest as any).price_gel, appLang)}
@@ -160,10 +163,10 @@ export function SwipeCard({ item, lang, reason, onLike, onPass, onTap, disabled 
       <Poster item={item} size="lg" />
       <h2 className="h2">{titleOf(item, lang)}</h2>
       <div className="muted small">
-        {yearOf(item.year)} · {item.creator} · {lengthOf(item)}
+        {yearOf(item.year)} · {item.creator} · {lengthOf(item, appLang)}
       </div>
       <div style={{ margin: "8px 0" }}><Chips tags={item.genres} /></div>
-      <p className="small">{twoSentences(descOf(item, lang))}</p>
+      <p className="small">{twoSentences(descOf(item, lang))||t("No description available.")}</p>
       <p className="small ok">{t("Why you’re seeing this")}: {reason}</p>
     </div>
   );
@@ -183,7 +186,7 @@ export function ItemDrawer({ item, items, lang, reason, onClose }: { item: Item;
           <strong>{titleOf(item, lang)}</strong>
           <button className="btn btn-sm" onClick={onClose}>{t('Close')}</button>
         </div>
-        <p>{descOf(item, lang)}</p>
+        <p>{descOf(item, lang)||t("No description available.")}</p>
         <Chips tags={item.mood_tags} />
         <p className="small ok">{t("Why you’re seeing this")}: {reason}</p>
         <div className="h2">{t('Similar titles')}</div>
