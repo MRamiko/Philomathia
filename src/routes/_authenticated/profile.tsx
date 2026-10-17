@@ -83,6 +83,8 @@ function Profile() {
         })}
       </MotionList>
       <div className="h2">{t('How recommendations work')}</div>
+      <div className="box stack"><h2 className="h2">{t('Credits')}</h2><p className="small">{t('Films and posters by TMDB')}</p><p className="small">{t('Books and covers by Open Library and Google Books')}</p><p className="small">{t('Georgian titles from Wikidata')}</p><p className="small">{t('This product uses the TMDB API but is not endorsed or certified by TMDB.')}</p></div>
+      {me.data.roles.includes('admin')&&<Link to="/admin-import" className="btn">{t('Admin Import')}</Link>}
       <p className="small">{t('Every like adds points to the genres, moods, keywords and creator of that title, and every pass takes some away. Each new title is scored mostly by how well its tags match those points, plus its creator, your chosen mood and a little novelty. About one card in five is a deliberate step outside your usual taste, and every reason shown is built from the tags that actually matched.')}</p>
       {me.data.roles.includes("admin") && <div className="stack">
         <h2 className="h2">{t('Taste debug')}</h2>

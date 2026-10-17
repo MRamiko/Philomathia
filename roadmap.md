@@ -1,4 +1,10 @@
 # Corrective update
+- [ ] Night background, forest surfaces and install branding
+- [ ] Catalog image/popularity fields, indexes and admin-only resumable import jobs
+- [ ] Official API bulk imports, reconciliation, coverage and optional mood refinement
+- [ ] Shared real-cover helper, image fallback/loading and bilingual credits
+- [ ] Indexed Search, SQL candidate sampling and bounded onboarding picker
+- [ ] Verify new catalog update and report provider/configuration limits
 - [x] Latest palette, icon and contrast corrections; old palette/unauthorized hex scan clean
 - [x] Shared overlay exits/focus, router Back handling and list transitions/FLIP implemented
 - [x] Metadata signup name, own-profile repair/edit/security and Unicode tests

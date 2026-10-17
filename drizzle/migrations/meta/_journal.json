@@ -36,6 +36,13 @@
       "when": 1792270265229,
       "tag": "0004_save_and_protect_display_names",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792271697192,
+      "tag": "0005_catalog_images_import_jobs_and_queries",
+      "breakpoints": true
     }
   ]
 }

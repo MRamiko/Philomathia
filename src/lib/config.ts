@@ -1,5 +1,7 @@
 // Show real poster/cover URLs (items.poster_url) instead of gray boxes.
-export const SHOW_IMAGES = false;
+export const SHOW_IMAGES = true;
+export const COLD_GEORGIAN_EVERY = 5;
+export const CANDIDATE_LIMIT = 300;
 
 // Recommendation scoring constants. These are reasonable defaults, not proven optimal.
 export const REC = {

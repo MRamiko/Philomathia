@@ -1,0 +1,5 @@
+import {expect,it} from 'vitest';
+import {imageUrl} from './images';
+it('uses official TMDB sizes',()=>{expect(imageUrl({image_source:'tmdb',image_ref:'/poster.jpg'},'sm')).toBe('https://image.tmdb.org/t/p/w342/poster.jpg');expect(imageUrl({image_source:'tmdb',image_ref:'/poster.jpg'},'lg')).toBe('https://image.tmdb.org/t/p/w500/poster.jpg');});
+it('uses Open Library cover ids and never ISBNs',()=>{expect(imageUrl({image_source:'openlibrary',image_ref:'123'},'sm')).toBe('https://covers.openlibrary.org/b/id/123-M.jpg');expect(imageUrl({image_source:'openlibrary',image_ref:'123'},'lg')).toBe('https://covers.openlibrary.org/b/id/123-L.jpg');});
+it('rejects missing and unsafe references',()=>{expect(imageUrl({image_source:null,image_ref:null},'sm')).toBeNull();expect(imageUrl({image_source:'googlebooks',image_ref:'https://evil.example/image'},'sm')).toBeNull();expect(imageUrl({image_source:'tmdb',image_ref:'https://evil.example'},'sm')).toBeNull();});

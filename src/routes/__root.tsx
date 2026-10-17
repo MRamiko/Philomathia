@@ -33,7 +33,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { title: "Philomathia" },
       { name: "description", content: "Film and book diary with swipe discovery, made for Georgia." },
-      { name: "theme-color", content: "#283618" },
+      { name: "theme-color", content: "rgb(14, 20, 9)" },
       { property: "og:title", content: "Philomathia" },
       { property: "og:description", content: "Film and book diary with swipe discovery, made for Georgia." },
       { property: "og:type", content: "website" },
