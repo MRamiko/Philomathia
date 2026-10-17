@@ -15,7 +15,7 @@ async function shopsFor(context:Ctx){
 }
 function canWrite(shops:{id:string}[],shopId:string){return shops.some(s=>s.id===shopId);}
 export const myShops=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).handler(async({context})=>shopsFor(context as unknown as Ctx));
-export const matchStockRows=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((d:{shopId:string;rows:{isbn:string;price:number;quantity:number;title?:string;author?:string}[]})=>{if(!Array.isArray(d.rows)||d.rows.length>1000)throw new Error('Too many rows');return d;}).handler(async({context,data})=>{
+export const matchStockRows=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((d:{shopId:string;rows:{isbn:string;price:number;quantity:number;title?:string|undefined;author?:string|undefined}[]})=>{if(!Array.isArray(d.rows)||d.rows.length>1000)throw new Error('Too many rows');return d;}).handler(async({context,data})=>{
  const ctx=context as unknown as Ctx;const {shops}=await shopsFor(ctx);
  if(!canWrite(shops,data.shopId))throw new Error('Forbidden');
  const isbns=[...new Set(data.rows.map(r=>r.isbn))];
