@@ -10,6 +10,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Loading, Shell } from "@/components/phi";
 import { supabase } from "@/integrations/supabase/client";
 import { useItems, useMe, useRefresh, tasteAction } from "@/lib/data";
+import { deleteAccount } from "@/lib/account.functions";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({ meta: [{ title: "Profile · Philomathia" }, { name: "description", content: "Language, avoided genres and your data." }, { property: "og:title", content: "Profile · Philomathia" }, { property: "og:description", content: "Language, avoided genres and your data." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -52,8 +53,10 @@ function Profile() {
     refresh();
   }
   async function wipe() {
-    await tasteAction(null, "wipe");
-    refresh();
+    await deleteAccount();
+    await qc.cancelQueries(); qc.clear();
+    await supabase.auth.signOut();
+    nav({ to: "/login", replace: true });
   }
   async function signOut() {
     await qc.cancelQueries(); qc.clear();
@@ -95,6 +98,7 @@ function Profile() {
       </div>}
       <div className="stack" style={{ marginTop: 16 }}>
         <Link to="/shops" className="btn" style={{ textAlign: "center", textDecoration: "none" }}>{t('Bookshops')}</Link>
+        {(me.data.roles.includes('shop')||me.data.roles.includes('admin'))&&<Link to="/shop-stock" className="btn" style={{ textAlign: "center", textDecoration: "none" }}>{t('Shop stock')}</Link>}
         <button className="btn" disabled={action.busy} onClick={()=>setConfirmation("reset")}>{t('Reset my taste profile')}</button>
         <button className="btn" disabled={action.busy} onClick={()=>setConfirmation("wipe")}>{t('Delete my data')}</button>
         <button className="btn" disabled={action.busy} onClick={()=>action.run(signOut)}>{t('Sign out')}</button>

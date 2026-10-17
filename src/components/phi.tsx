@@ -90,7 +90,7 @@ export function WhereToBuy({ itemId }: { itemId: string }) {
   const q = useQuery({
     queryKey: ["stock", itemId],
     queryFn: async () => {
-      const { data,error } = await supabase.from("shop_stock").select("id,price_gel,quantity,shops(name,address,city)").eq("item_id", itemId);
+      const { data,error } = await supabase.from("shop_stock").select("id,price_gel,quantity,updated_at,shops(name,address,city,is_sample)").eq("item_id", itemId);
       if(error)throw error;
       return (data ?? []).sort((a: any, b: any) => (b.quantity > 0 ? 1 : 0) - (a.quantity > 0 ? 1 : 0) || a.price_gel - b.price_gel);
     },
@@ -101,7 +101,7 @@ export function WhereToBuy({ itemId }: { itemId: string }) {
     <div className="box">
       <div className="between">
         <strong>{t('Where to buy')}</strong>
-        <span className="muted small">{t('Sample stock and prices')}</span>
+        {rows.length>0&&rows.every((r:any)=>r.shops.is_sample)&&<span className="muted small">{t('Sample stock and prices')}</span>}
       </div>
       {q.error&&<p className="error">{t("Could not load.")}<button className="btn" onClick={()=>q.refetch()}>{t("Retry")}</button></p>}
       {q.isPending&&<Loading/>}
