@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useLocale } from '@/lib/locale';
+import { Presence } from '@/components/motion';
 import { Button, PasswordField, useEmailDraft, keepFocusedFieldVisible } from '@/components/auth-form';
 
 export const Route = createFileRoute('/login')({
