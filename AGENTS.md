@@ -16,3 +16,5 @@
 - Administrator import commands queue while a batch is busy rather than being discarded; provider credentials remain project-scoped server secrets, never per-account browser storage.
 - Search and candidate selection run through indexed SQL RPCs; scoring receives sampled candidates and separate interaction context so sampling cannot erase learned history.
 - Cover URLs are built only by `src/lib/images.ts` from provider references; shared Poster handles fixed-size loading/error placeholders and the global image kill switch.
+- Shop stock uploads parse in src/lib/stock-csv.ts (client) and commit through src/lib/stock.functions.ts; writes are scoped by user_roles.shop_id or admin.
+- Admin per-provider imports live in src/lib/admin-import.functions.ts (+ admin-import.server.ts); the bulk resumable importer stays in import.server.ts.

@@ -22,3 +22,8 @@
 - [ ] Destructive data reset/delete and import submission regression — not exercised against the user's existing data; preview and cancel paths checked
 - [ ] Real Android back/keyboard and HTTPS PWA installation verification — blocked by unpublished site and no physical Android device
 - [ ] Replace demo stock with verified ISBN-matched stock — blocked by no verified inventory source
+- [x] Admin Import: Status/Films/Books/Georgian works/Bulk tabs with Search-Review-Confirm-Summary, check-keys, run-all-passes
+- [x] Bookshop CSV upload: parser (BOM, semicolons, ISBN-10→13, duplicates last-wins), shop-scoped writes, admin picker, shops.is_sample
+- [x] Delete my data removes the auth account server-side
+- [ ] Verify as a non-admin account (blocked: only one account exists)
+- [ ] Real Android device feel (unverified)
