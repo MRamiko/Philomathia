@@ -32,6 +32,7 @@ export function useMe() {
         supabase.from("tag_weights").select("tag,weight"),
         supabase.from("user_roles").select("role,shop_id"),
       ]);
+      for (const result of [p,s,l,t,r]) if (result.error) throw result.error;
       const weights: Record<string, number> = {};
       for (const row of t.data ?? []) weights[row.tag] = Number(row.weight);
       return {
@@ -44,6 +45,8 @@ export function useMe() {
         roles: (r.data ?? []).map((x) => x.role as string),
       };
     },
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 }
 export type Me = NonNullable<ReturnType<typeof useMe>["data"]>;
@@ -53,46 +56,21 @@ export function useRefresh() {
   return () => qc.invalidateQueries({ queryKey: ["me"] });
 }
 
-export async function bump(tags: string[], delta: number) {
-  if (!tags.length || !delta) return;
-  await supabase.rpc("bump_tags", { _tags: tags, _delta: delta });
-}
-
-export async function swipe(uid: string, item: Item, action: "like" | "pass") {
-  const { error } = await supabase.from("swipes").upsert({ user_id: uid, item_id: item.id, action }, { onConflict: "user_id,item_id" });
+export async function tasteAction(itemId: string | null, kind: string, value: Record<string, unknown> = {}) {
+  const { error } = await supabase.rpc("taste_action", { _item: itemId as string, _kind: kind, _value: value as any, _rules: REC });
   if (error) throw error;
-  await bump(allTagsOf(item), action === "like" ? REC.LIKE_DELTA : REC.PASS_DELTA);
 }
-
-export async function undoSwipe(item: Item, action: string) {
-  const { error } = await supabase.from("swipes").delete().eq("item_id", item.id);
-  if (error) throw error;
-  await bump(allTagsOf(item), action === "like" ? -REC.LIKE_DELTA : -REC.PASS_DELTA);
-}
-
-const ratingEffect = (status: string | undefined, r: number | null | undefined) =>
-  status === "seen" && r != null ? (r >= 4 ? REC.HIGH_RATING_DELTA : r <= 2 ? REC.LOW_RATING_DELTA : 0) : 0;
-
-export async function saveLog(uid: string, item: Item, prev: Log | undefined, v: { status: string; rating: number | null; review: string | null }) {
-  const { error } = await supabase.from("logs").upsert(
-    { user_id: uid, item_id: item.id, status: v.status, rating: v.rating, review: v.review, logged_at: new Date().toISOString() },
-    { onConflict: "user_id,item_id" },
-  );
-  if (error) throw error;
-  const delta = ratingEffect(v.status, v.rating) - ratingEffect(prev?.status, prev?.rating);
-  await bump(allTagsOf(item), delta);
-}
-
-export async function deleteLog(item: Item, prev: Log) {
-  await supabase.from("logs").delete().eq("item_id", item.id);
-  await bump(allTagsOf(item), -ratingEffect(prev.status, prev.rating));
-}
+export async function bump(tags: string[], _delta: number) { await tasteAction(null, "onboard", { tags }); }
+export async function swipe(_uid: string, item: Item, action: "like" | "pass") { await tasteAction(item.id, action); }
+export async function undoSwipe(item: Item, _action: string) { await tasteAction(item.id, "undo"); }
+export async function saveLog(_uid: string, item: Item, _prev: Log | undefined, value: { status: string; rating: number | null; review: string | null }) { await tasteAction(item.id, "log", value); }
+export async function deleteLog(item: Item, _prev: Log) { await tasteAction(item.id, "remove_log"); }
 
 export function titleOf(i: Item, lang: string) {
-  return lang === "ka" && i.title_ka ? i.title_ka : i.title_en;
+  return lang === "ka" && i.title_ka?.trim() ? i.title_ka : i.title_en;
 }
 export function descOf(i: Item, lang: string) {
-  return lang === "ka" && i.description_ka ? i.description_ka : i.description_en;
+  return lang === "ka" && i.description_ka?.trim() ? i.description_ka : i.description_en;
 }
 export function lengthOf(i: Item) {
   return i.media_type === "film" ? (i.runtime_minutes ? `${i.runtime_minutes} min` : "") : i.page_count ? `${i.page_count} pages` : "";

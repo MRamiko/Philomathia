@@ -1,0 +1,3 @@
+import { useLocale } from '@/lib/locale';
+import { REC } from '@/lib/config';
+export function Pagination({page,total,onChange}:{page:number;total:number;onChange:(page:number)=>void}){const {t}=useLocale();const pages=Math.max(1,Math.ceil(total/REC.PAGE_SIZE));if(pages===1)return null;return <div className="between"><button className="btn" disabled={page<=1} onClick={()=>onChange(page-1)}>{t('Previous')}</button><span className="small">{t('Page {page} of {total}',{page,total:pages})}</span><button className="btn" disabled={page>=pages} onClick={()=>onChange(page+1)}>{t('Next')}</button></div>;}

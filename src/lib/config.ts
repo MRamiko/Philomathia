@@ -14,6 +14,16 @@ export const REC = {
   ONBOARD_DELTA: 2,
   EXPLORE_EVERY: 5, // about 1 in 5 cards is exploratory
   TOP_TAGS_FOR_EXPLORE: 10,
+  DECAY: 0.97,
+  SHORT_BLEND: 0.5,
+  RECENT_PER_ACTION: 10,
+  RECENT_LIKES: 5,
+  TAG_CAP: 0.25,
+  OVERLAP_BONUS: 0.05,
+  CROSS_MEDIA: 0.5,
+  MAX_GENRE_RUN: 3,
+  QUEUE_SIZE: 5,
+  PAGE_SIZE: 20,
 };
 
 export const MOOD_TAGS = [
