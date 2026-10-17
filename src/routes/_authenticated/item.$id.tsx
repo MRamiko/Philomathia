@@ -18,7 +18,7 @@ function ItemPage() {
   const { t, lang: appLang } = useLocale();
   const action=useAction();
   const { id } = Route.useParams();
-  const items = useItems();
+  const items = useItems(id);
   const me = useMe();
   const refresh = useRefresh();
   const item = items.data?.find((i) => i.id === id);
@@ -42,7 +42,7 @@ function ItemPage() {
   const title = titleOf(item, lang);
   const desc = descOf(item, lang);
   const fellBack = lang === "ka" && (!item.title_ka?.trim() || !item.description_ka?.trim());
-  const footer = item.source === "seed" ? t("Sample data for demo") : `${t("Source")}: ${item.source}`;
+  const footer = `${t("Source")}: ${item.source}${item.source==='seed'?' · '+t('Sample data for demo'):''}`;
 
   async function save() {
     if(!me.data||!item)return;
@@ -60,6 +60,7 @@ function ItemPage() {
         {item.original_title && item.original_title !== title && <div className="muted small">{item.original_title}</div>}
         <div className="muted small">{yearOf(item.year)} · {item.creator} · {t(item.media_type)} · {lengthOf(item, appLang)}{item.is_georgian ? ` · ${t("Georgia")}` : ""}</div>
         {item.isbn && <div className="muted small">ISBN {item.isbn}</div>}
+        {item.image_source==='openlibrary' && item.openlibrary_key && <a className="muted small" href={`https://openlibrary.org${item.openlibrary_key}`} target="_blank" rel="noreferrer">{t('Cover: Open Library')}</a>}
         <p>{desc || t("No description available.")}</p>
         {fellBack && <p className="muted small">{t('No Georgian text stored yet; showing English.')}</p>}
         <Chips tags={item.genres} />
@@ -119,6 +120,7 @@ function Teaser({ item, weights }: { item: Item; weights: Record<string, number>
     <div className="drawer-dismiss" onClick={close}/>
     <div className="drawer stack" role="dialog" aria-modal="true" aria-label={t('Teaser')}>
     <button className="btn icon-btn" aria-label={t('Close')} onClick={close}>✕</button>
+    <Poster item={item} size="lg" />
       <div className={`teaser-progress ${paused ? 'paused' : ''}`} aria-hidden="true">{[0,1,2,3].map(n=><div key={n} className={`teaser-segment ${n < frame ? 'complete' : n === frame ? 'current' : ''}`}><span/></div>)}</div>
       <div className="teaser">
         {frame <= 3 ? <div key={frame} className={paused ? "" : "fade"}>{frames[frame]}</div> : <span className="muted">{t('The end')}</span>}

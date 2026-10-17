@@ -8,13 +8,18 @@ import { cleanDisplayName, displayName, validDisplayName } from './display-name'
 export type Log = { id: string; item_id: string; status: string; rating: number | null; review: string | null; logged_at: string };
 export type Swipe = { item_id: string; action: string; created_at: string };
 
-export function useItems() {
+export function useItems(itemId?:string) {
   return useQuery({
-    queryKey: ["items"],
+    queryKey: ["items",itemId],
     queryFn: async () => {
-      const { data, error } = await supabase.from("items").select("*").order("title_en");
+      const { data, error } = await supabase.from("items").select("*").order("popularity",{ascending:false}).limit(300);
       if (error) throw error;
-      return data as Item[];
+      const user=await supabase.auth.getUser();
+      const ids=new Set<string>(itemId?[itemId]:[]);
+      if(user.data.user){for(const table of ['swipes','logs'] as const){let offset=0;while(true){const r=await supabase.from(table).select('item_id').range(offset,offset+999);if(r.error)throw r.error;for(const row of r.data??[])ids.add(row.item_id);if((r.data?.length??0)<1000)break;offset+=1000;}}}
+      const merged=new Map((data??[]).map(i=>[i.id,i]));const wanted=[...ids].filter(id=>!merged.has(id));
+      for(let n=0;n<wanted.length;n+=100){const r=await supabase.from('items').select('*').in('id',wanted.slice(n,n+100));if(r.error)throw r.error;for(const i of r.data??[])merged.set(i.id,i);}
+      return [...merged.values()] as Item[];
     },
     staleTime: 60_000,
   });

@@ -6,6 +6,9 @@ import { swipe, undoSwipe, useItems, useMe, useRefresh } from "@/lib/data";
 import { localizedReason } from "@/lib/reasons";
 import { recommend } from "@/lib/recommend";
 import { motionWait } from '@/components/motion';
+import {useCandidates} from '@/lib/catalog';
+import {imageUrl} from '@/lib/images';
+import {SHOW_IMAGES} from '@/lib/config';
 
 export const Route = createFileRoute("/_authenticated/discover")({
   validateSearch: (s: Record<string, unknown>): { tag?: string | undefined } => ({ tag: typeof s['tag'] === "string" ? (s['tag'] as string) : undefined }),
@@ -29,21 +32,23 @@ function Discover() {
   const [leaving, setLeaving] = useState<'like' | 'pass' | null>(null);
   const [arrival, setArrival] = useState<'like' | 'pass' | null>(null);
   const [previousGenres, setPreviousGenres] = useState<string[]>([]);
+  const candidates=useCandidates({mediaType:media,georgianOnly:geo,avoidedGenres:me.data?.profile.avoided_genres??[]},me.data?.swipes,!me.data?.swipes.length);
   useEffect(() => { refresh(); const saved=localStorage.getItem("phi-media"); if(saved==="film"||saved==="book")setMedia(saved); }, []);
 
   const recs = useMemo(() => {
-    if (!items.data || !me.data) return [];
+    if (!items.data || !me.data || !candidates.data) return [];
     const excluded = new Set([...me.data.swipes.map((s) => s.item_id), ...me.data.logs.filter((l) => l.status === "seen").map((l) => l.item_id)]);
     return recommend({
-      items: items.data, weights: me.data.weights, excludedIds: excluded,
+      items: candidates.data, historyItems:items.data, weights: me.data.weights, excludedIds: excluded,
       swipes: me.data.swipes, previousGenres: previousGenres.length?previousGenres:me.data.swipes.slice(0,3).reverse().map(s=>items.data?.find(i=>i.id===s.item_id)?.genres[0]??""),
       likedIds: new Set(me.data.swipes.filter((s) => s.action === "like").map((s) => s.item_id)),
       avoidedGenres: me.data.profile.avoided_genres, mediaType: media, georgianOnly: geo, tagFilter: tag,
     }, 5);
-  }, [items.data, me.data, media, geo, tag, previousGenres]);
+  }, [items.data, candidates.data, me.data, media, geo, tag, previousGenres]);
+  useEffect(()=>{const next=recs[1]?.item;const url=next&&SHOW_IMAGES?imageUrl(next,'lg'):null;if(url){const img=new Image();img.src=url;}},[recs[1]?.item.id]);
 
   if (items.error || me.error) return <Shell><p className="error">{t('Could not load.')}<button className="btn" onClick={() => { items.refetch(); me.refetch(); }}>{t('Retry')}</button></p></Shell>;
-  if (!items.data || !me.data) return <Shell><Loading /></Shell>;
+  if (!items.data || !me.data || !candidates.data) return <Shell><Loading /></Shell>;
   if (!me.data.profile.onboarded && me.data.swipes.length === 0) {
     return (
       <Shell>
