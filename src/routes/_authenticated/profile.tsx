@@ -52,7 +52,7 @@ function Profile() {
       <div className="row">
         {genres.map((g) => {
           const on = p.avoided_genres.includes(g);
-          return <button key={g} className={`chip ${on ? "chip-active" : ""}`} onClick={() => update({ avoided_genres: on ? p.avoided_genres.filter((x) => x !== g) : [...p.avoided_genres, g] })>{t(g)}</button>;
+          return <button key={g} className={`chip ${on ? "chip-active" : ""}`} onClick={() => update({ avoided_genres: on ? p.avoided_genres.filter((x) => x !== g) : [...p.avoided_genres, g] })}>{t(g)}</button>;
         })}
       </div>
       <div className="h2">{t('How recommendations work')}</div>
