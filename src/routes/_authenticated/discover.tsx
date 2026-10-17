@@ -26,8 +26,7 @@ function Discover() {
   useEffect(() => { refresh(); }, []);
 
   const recs = useMemo(() => {
-    if (items.error || me.error) return <Shell><p className="error">Could not load. <button className="btn" onClick={() => { items.refetch(); me.refetch(); }}>Retry</button></p></Shell>;
-  if (!items.data || !me.data) return [];
+    if (!items.data || !me.data) return [];
     const excluded = new Set([...me.data.swipes.map((s) => s.item_id), ...me.data.logs.filter((l) => l.status === "seen").map((l) => l.item_id)]);
     return recommend({
       items: items.data, weights: me.data.weights, excludedIds: excluded,

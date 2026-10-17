@@ -5,8 +5,8 @@ export const creatorTag = (i: Item) => `creator:${i.creator}`;
 export const featuresOf = (i: Item) => [...new Set([...i.genres,...i.mood_tags,...i.keywords].map(t=>t.toLowerCase()))];
 export const allTagsOf = (i: Item) => [...featuresOf(i),creatorTag(i)];
 export type History = {item_id:string; action:string; created_at:string};
-export type RecInput = {items:Item[];weights:Record<string,number>;excludedIds:Set<string>;likedIds:Set<string>;avoidedGenres:string[];swipes?:History[];mediaType?:'film'|'book'|'either';georgianOnly?:boolean;moods?:string[];keywords?:string[];minMinutes?:number;maxMinutes?:number;minPages?:number;maxPages?:number;tagFilter?:string;previousGenres?:string[]};
-export type Rec = {item:Item;score:number;reason:string;matched:string[];exploratory:boolean;parts:{tag:number;creator:number;mood:number;novelty:number;overlap:number};reasonData:{kind:'starter'|'explore'|'match'|'new';title?:string;tags:string[];creator?:string;moods:string[];keywords:string[]}};
+export type RecInput = {items:Item[];weights:Record<string,number>;excludedIds:Set<string>;likedIds:Set<string>;avoidedGenres:string[];swipes?:History[]|undefined;mediaType?:'film'|'book'|'either'|undefined;georgianOnly?:boolean|undefined;moods?:string[]|undefined;keywords?:string[]|undefined;minMinutes?:number|undefined;maxMinutes?:number|undefined;minPages?:number|undefined;maxPages?:number|undefined;tagFilter?:string|undefined;previousGenres?:string[]}|undefined;
+export type Rec = {item:Item;score:number;reason:string;matched:string[];exploratory:boolean;parts:{tag:number;creator:number;mood:number;novelty:number;overlap:number};reasonData:{kind:'starter'|'explore'|'match'|'new';title?:string|undefined;tags:string[];creator?:string|undefined;moods:string[];keywords:string[]}};
 const clamp=(n:number)=>Math.min(1,Math.max(0,n));
 function hardFilter(i:Item,x:RecInput){
  if(x.excludedIds.has(i.id)|| (x.mediaType&&x.mediaType!=='either'&&i.media_type!==x.mediaType)|| (x.georgianOnly&&!i.is_georgian))return false;
