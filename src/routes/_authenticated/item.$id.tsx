@@ -6,7 +6,7 @@ import { deleteLog, descOf, titleOf, lengthOf, saveLog, useItems, useMe, useRefr
 import type { Item } from "@/lib/recommend";
 
 export const Route = createFileRoute("/_authenticated/item/$id")({
-  head: () => ({ meta: [{ title: "Title · Philomathia" }, { name: "description", content: "Details, your diary entry and where to buy." }] }),
+  head: () => ({ meta: [{ title: "Title · Philomathia" }, { name: "description", content: "Details, your diary entry and where to buy." }, { property: "og:title", content: "Title · Philomathia" }, { property: "og:description", content: "Details, your diary entry and where to buy." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: ItemPage,
 });
 

@@ -8,7 +8,7 @@ import { recommend } from "@/lib/recommend";
 
 export const Route = createFileRoute("/_authenticated/discover")({
   validateSearch: (s: Record<string, unknown>): { tag?: string | undefined } => ({ tag: typeof s['tag'] === "string" ? (s['tag'] as string) : undefined }),
-  head: () => ({ meta: [{ title: "Discover · Philomathia" }, { name: "description", content: "Swipe through films and books picked for your taste." }] }),
+  head: () => ({ meta: [{ title: "Discover · Philomathia" }, { name: "description", content: "Swipe through films and books picked for your taste." }, { property: "og:title", content: "Discover · Philomathia" }, { property: "og:description", content: "Swipe through films and books picked for your taste." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Discover,
 });
 

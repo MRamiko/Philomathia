@@ -1,3 +1,4 @@
+import { useAction } from "@/lib/use-action";
 import { useLocale } from "@/lib/locale";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
@@ -8,12 +9,13 @@ import { bump, useItems, useMe, useRefresh } from "@/lib/data";
 import { allTagsOf } from "@/lib/recommend";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
-  head: () => ({ meta: [{ title: "Your taste · Philomathia" }, { name: "description", content: "Pick genres, moods and titles you like." }] }),
+  head: () => ({ meta: [{ title: "Your taste · Philomathia" }, { name: "description", content: "Pick genres, moods and titles you like." }, { property: "og:title", content: "Your taste · Philomathia" }, { property: "og:description", content: "Pick genres, moods and titles you like." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Onboarding,
 });
 
 function Onboarding() {
   const { t: translate, lang: appLang } = useLocale();
+  const action=useAction();
   const items = useItems();
   const me = useMe();
   const refresh = useRefresh();
@@ -27,16 +29,17 @@ function Onboarding() {
 
   async function finish(save: boolean) {
     if (save) {
-      const picked = items.data!.filter((i) => titles.includes(i.id));
+      const picked = (items.data??[]).filter((i) => titles.includes(i.id));
       await bump([...tags, ...picked.flatMap(allTagsOf)], REC.ONBOARD_DELTA);
     }
-    await supabase.from("profiles").update({ onboarded: true }).eq("id", me.data!.uid);
+    await supabase.from("profiles").update({ onboarded: true }).eq("id", me.data?.uid??"");
     await refresh();
     nav({ to: "/discover", search: { tag: undefined } });
   }
 
   return (
     <Shell>
+      {action.error&&<p role="alert" className="error">{action.error}</p>}
       <h1 className="h1">{translate('What do you like?')}</h1>
       <div className="h2">{translate("Up to 5 genres or moods")} ({tags.length}/5)</div>
       <div className="row">
@@ -47,12 +50,12 @@ function Onboarding() {
       <div className="h2">{translate("Up to 5 titles you like")} ({titles.length}/5)</div>
       <div className="row">
         {items.data.map((i) => (
-          <button key={i.id} className={`chip ${titles.includes(i.id) ? "chip-active" : ""}`} onClick={() => toggle(titles, setTitles, i.id)}>{i.title_en}</button>
+          <button key={i.id} className={`chip ${titles.includes(i.id) ? "chip-active" : ""}`} onClick={() => toggle(titles, setTitles, i.id)}>{appLang==="ka"&&i.title_ka?.trim()?i.title_ka:i.title_en}</button>
         ))}
       </div>
       <div className="row" style={{ marginTop: 16 }}>
-        <button className="btn" onClick={() => finish(false)}>{translate('Skip')}</button>
-        <button className="btn btn-primary" onClick={() => finish(true)}>{translate('Save')}</button>
+        <button className="btn" disabled={action.busy} onClick={() => action.run(()=>finish(false))}>{translate('Skip')}</button>
+        <button className="btn btn-primary" disabled={action.busy} onClick={() => action.run(()=>finish(true))}>{translate('Save')}</button>
       </div>
     </Shell>
   );

@@ -1,3 +1,6 @@
+import { Pagination } from "@/components/pagination";
+import { REC } from "@/lib/config";
+import { useAction } from "@/lib/use-action";
 import { useLocale } from "@/lib/locale";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
@@ -7,12 +10,13 @@ import { saveLog, undoSwipe, useItems, useMe, useRefresh, type Log } from "@/lib
 import type { Item } from "@/lib/recommend";
 
 export const Route = createFileRoute("/_authenticated/library")({
-  head: () => ({ meta: [{ title: "Library · Philomathia" }, { name: "description", content: "Your liked, wanted and finished films and books." }] }),
+  head: () => ({ meta: [{ title: "Library · Philomathia" }, { name: "description", content: "Your liked, wanted and finished films and books." }, { property: "og:title", content: "Library · Philomathia" }, { property: "og:description", content: "Your liked, wanted and finished films and books." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Library,
 });
 
 function Library() {
   const { t, lang: appLang } = useLocale();
+  const action=useAction(); const [hidden,setHidden]=useState<string[]>([]);
   const items = useItems();
   const me = useMe();
   const refresh = useRefresh();
@@ -20,9 +24,9 @@ function Library() {
   const d = me.data;
   const lang = appLang;
   const byId = new Map(items.data.map((i) => [i.id, i]));
-  const logged = (s: string) => d.logs.filter((l) => l.status === s).map((l) => ({ l, i: byId.get(l.item_id)! })).filter((x) => x.i);
-  const liked = d.swipes.filter((s) => s.action === "like").map((s) => byId.get(s.item_id)!).filter(Boolean);
-  const passed = d.swipes.filter((s) => s.action === "pass").map((s) => byId.get(s.item_id)!).filter(Boolean);
+  const logged = (s: string) => d.logs.filter((l) => l.status === s).map((l) => ({ l, i: byId.get(l.item_id) })).filter((x):x is {l:Log;i:Item} => !!x.i);
+  const liked = d.swipes.filter((s) => s.action === "like").map((s) => byId.get(s.item_id)).filter((i):i is Item=>!!i);
+  const passed = d.swipes.filter((s) => s.action === "pass" && !hidden.includes(s.item_id)).map((s) => byId.get(s.item_id)).filter((i):i is Item=>!!i);
 
   const positive = Object.entries(d.weights).filter(([, w]) => w > 0).sort((a, b) => b[1] - a[1]);
   const total = positive.reduce((s, [, w]) => s + w, 0);
@@ -30,14 +34,15 @@ function Library() {
 
   return (
     <Shell>
+      {action.error&&<p role="alert" className="error">{action.error}</p>}
       <h1 className="h1">{t('Library')}</h1>
       <div className="box">
         <strong>{t('Taste Cloud')}</strong>
         {cloud.length === 0 ? <p className="muted small">{t('Like a few titles to grow your taste cloud.')}</p> : (
           <p className="tag-cloud">
-            {cloud.map(([t, w]) => (
-              <Link key={t} to="/discover" search={{ tag: t }}>
-                {t.replace("creator:", "")} <span className="muted">{Math.round((w / total) * 100)}%</span>
+            {cloud.map(([tag, w]) => (
+              <Link key={tag} to="/discover" search={{ tag }}>
+                {tag.startsWith("creator:") ? tag.slice(8) : t(tag)} <span className="muted">{Math.round((w / total) * 100)}%</span>
               </Link>
             ))}
           </p>
@@ -54,7 +59,7 @@ function Library() {
         {logged("seen").map(({ l, i }) => <ItemRow key={i.id} item={i} lang={lang} right={<span className="small">{l.rating ? `${l.rating} / 5` : <span className="muted">{t('No rating')}</span>}</span>} />)}
       </Section>
       <Section title={t('Passed')} empty={t('No passes.')}>
-        {passed.map((i) => <ItemRow key={i.id} item={i} lang={lang} right={<button className="btn btn-sm" onClick={async () => { await undoSwipe(i, "pass"); refresh(); }}>{t('Undo')}</button>} />)}
+        {passed.map((i) => <ItemRow key={i.id} item={i} lang={lang} right={<button className="btn btn-sm" disabled={action.busy} onClick={()=>action.run(async()=>{await undoSwipe(i,"pass");await refresh();},()=>setHidden(h=>[...h,i.id]),()=>setHidden(h=>h.filter(id=>id!==i.id)))}>{t('Undo')}</button>} />)}
       </Section>
       <LetterboxdImport items={items.data} uid={d.uid} logs={d.logs} onDone={refresh} />
     </Shell>
@@ -63,17 +68,21 @@ function Library() {
 
 function Section({ title, empty, children }: { title: string; empty: string; children: React.ReactNode[] | React.ReactNode }) {
   const { t, lang: appLang } = useLocale();
+  const [page,setPage]=useState(1);
+  const entries=Array.isArray(children)?children:[children];
   const has = Array.isArray(children) ? children.length > 0 : !!children;
   return (
     <>
       <div className="h2">{title}</div>
-      {has ? children : <p className="muted small">{empty}</p>}
+      {has ? entries.slice((page-1)*REC.PAGE_SIZE,page*REC.PAGE_SIZE) : <p className="muted small">{empty}</p>}
+      <Pagination page={page} total={entries.filter(Boolean).length} onChange={setPage}/>
     </>
   );
 }
 
 function MarkDone({ uid, item, prev, onDone }: { uid: string; item: Item; prev: Log; onDone: () => void }) {
   const { t, lang: appLang } = useLocale();
+  const action=useAction();
   const [open, setOpen] = useState(false);
   const [r, setR] = useState("");
   if (!open) return <button className="btn btn-sm" onClick={() => setOpen(true)}>{t('Mark done')}</button>;
@@ -83,7 +92,7 @@ function MarkDone({ uid, item, prev, onDone }: { uid: string; item: Item; prev: 
         <option value="">{t('No rating')}</option>
         {Array.from({ length: 10 }, (_, k) => (k + 1) / 2).map((x) => <option key={x} value={x}>{x}</option>)}
       </select>
-      <button className="btn btn-sm btn-primary" onClick={async () => { await saveLog(uid, item, prev, { status: "seen", rating: r ? Number(r) : null, review: prev.review }); onDone(); }}>{t('Save')}</button>
+      <button className="btn btn-sm btn-primary" disabled={action.busy} onClick={()=>action.run(async()=>{await saveLog(uid,item,prev,{status:"seen",rating:r?Number(r):null,review:prev.review});onDone();})}>{t('Save')}</button>{action.error&&<span className="error">{action.error}</span>}
     </>
   );
 }
@@ -104,6 +113,7 @@ function parseCsv(text: string): string[][] {
 
 function LetterboxdImport({ items, uid, logs, onDone }: { items: Item[]; uid: string; logs: Log[]; onDone: () => void }) {
   const { t, lang: appLang } = useLocale();
+  const action=useAction();
   const [rows, setRows] = useState<{ name: string; year: string; rating: number | null; item: Item | undefined; on: boolean }[] | null>(null);
   const [msg, setMsg] = useState("");
   async function onFile(f: File) {
@@ -120,8 +130,8 @@ function LetterboxdImport({ items, uid, logs, onDone }: { items: Item[]; uid: st
     }));
   }
   async function confirm() {
-    const pick = rows!.filter((r) => r.on && r.item);
-    for (const r of pick) await saveLog(uid, r.item!, logs.find((l) => l.item_id === r.item!.id), { status: "seen", rating: r.rating, review: null });
+    const pick = (rows??[]).filter((r) => r.on && r.item);
+    for (const r of pick) { if(!r.item)continue; await saveLog(uid, r.item, logs.find((l) => l.item_id === r.item?.id), { status: "seen", rating: r.rating, review: null }); }
     setMsg(t("Imported {count} films.", {count:pick.length})); setRows(null); onDone();
   }
   return (
@@ -131,7 +141,7 @@ function LetterboxdImport({ items, uid, logs, onDone }: { items: Item[]; uid: st
       <input type="file" accept=".csv" onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])} />
       {rows && (
         <>
-          <table className="t">
+          <div className="table-scroll"><table className="t">
             <thead><tr><th></th><th>{t('Name')}</th><th>{t('Year')}</th><th>{t('Rating')}</th><th>{t('Match')}</th></tr></thead>
             <tbody>
               {rows.map((r, k) => (
@@ -142,10 +152,11 @@ function LetterboxdImport({ items, uid, logs, onDone }: { items: Item[]; uid: st
                 </tr>
               ))}
             </tbody>
-          </table>
-          <button className="btn btn-primary" onClick={confirm}>{t('Confirm')}</button>
+          </table></div>
+          <button className="btn btn-primary" disabled={action.busy} onClick={()=>action.run(confirm)}>{t('Confirm')}</button>
         </>
       )}
+      {action.error&&<p className="error">{action.error}</p>}
       {msg && <span className="small ok">{msg}</span>}
     </div>
   );

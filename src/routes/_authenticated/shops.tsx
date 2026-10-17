@@ -6,7 +6,7 @@ import { Loading, Shell } from "@/components/phi";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/shops")({
-  head: () => ({ meta: [{ title: "Bookshops · Philomathia" }, { name: "description", content: "Tbilisi bookshops and their stock." }] }),
+  head: () => ({ meta: [{ title: "Bookshops · Philomathia" }, { name: "description", content: "Tbilisi bookshops and their stock." }, { property: "og:title", content: "Bookshops · Philomathia" }, { property: "og:description", content: "Tbilisi bookshops and their stock." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Shops,
 });
 

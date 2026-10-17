@@ -40,7 +40,7 @@ export const parseQuery = createServerFn({ method: "POST" })
   .inputValidator((d: { text: string }) => ({ text: String(d.text ?? "").slice(0, 300) }))
   .handler(async ({ data }) => {
     const raw = await chat(
-      `Convert the user's request for a film or book into JSON with exactly these keys: media_type ("film","book" or "either"), max_minutes (number or null; only for films), moods (array, only from: ${MOODS.join(", ")}), georgian_only (boolean), keywords (array of short lowercase genre or topic words, e.g. "thriller"). Reply with JSON only.`,
+      `Understand English or Georgian. Never infer any mood not explicitly expressed by the user. Convert the user's request for a film or book into JSON with exactly these keys: media_type ("film","book" or "either"), max_minutes (number or null; only for films), moods (array, only from: ${MOODS.join(", ")}), georgian_only (boolean), keywords (array of English canonical short lowercase genre or topic words, e.g. "thriller"). Reply with JSON only.`,
       data.text,
     );
     const f = validate(raw);
