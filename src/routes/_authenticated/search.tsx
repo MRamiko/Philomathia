@@ -42,7 +42,7 @@ function SearchPage() {
         </div>
         <label className="row small"><input type="checkbox" checked={geo} onChange={(e) => {setGeo(e.target.checked);setPage(1);}} />{t('Made in Georgia')}</label>
       </div>
-      {!items.data ? <Loading />: results.length === 0 ?<p className="muted">{t('No results')}</p> : results.slice((page-1)*REC.PAGE_SIZE,page*REC.PAGE_SIZE).map((i) => <ItemRow key={i.id} item={i} lang={lang} />)}
+      {items.error ? <p className="error">{t("Could not load.")}<button className="btn" onClick={()=>items.refetch()}>{t("Retry")}</button></p> : !items.data ? <Loading />: results.length === 0 ?<p className="muted">{t('No results')}</p> : results.slice((page-1)*REC.PAGE_SIZE,page*REC.PAGE_SIZE).map((i) => <ItemRow key={i.id} item={i} lang={lang} />)}
       <Pagination page={page} total={results.length} onChange={setPage}/>
     </Shell>
   );

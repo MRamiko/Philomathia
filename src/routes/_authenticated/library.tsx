@@ -20,6 +20,7 @@ function Library() {
   const items = useItems();
   const me = useMe();
   const refresh = useRefresh();
+  if (items.error || me.error) return <Shell><p role="alert" className="error">{t("Could not load.")}</p><button className="btn" onClick={()=>{items.refetch();me.refetch();}}>{t("Retry")}</button></Shell>;
   if (!items.data || !me.data) return <Shell><Loading /></Shell>;
   const d = me.data;
   const lang = appLang;

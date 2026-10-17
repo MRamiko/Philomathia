@@ -33,7 +33,7 @@ function Discover() {
     const excluded = new Set([...me.data.swipes.map((s) => s.item_id), ...me.data.logs.filter((l) => l.status === "seen").map((l) => l.item_id)]);
     return recommend({
       items: items.data, weights: me.data.weights, excludedIds: excluded,
-      swipes: me.data.swipes, previousGenres,
+      swipes: me.data.swipes, previousGenres: previousGenres.length?previousGenres:me.data.swipes.slice(0,3).reverse().map(s=>items.data?.find(i=>i.id===s.item_id)?.genres[0]??""),
       likedIds: new Set(me.data.swipes.filter((s) => s.action === "like").map((s) => s.item_id)),
       avoidedGenres: me.data.profile.avoided_genres, mediaType: media, georgianOnly: geo, tagFilter: tag,
     }, 5);

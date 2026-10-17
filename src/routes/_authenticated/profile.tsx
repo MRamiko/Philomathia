@@ -1,3 +1,4 @@
+import { useAction } from "@/lib/use-action";
 import { useLocale } from "@/lib/locale";
 import { recommend } from "@/lib/recommend";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
@@ -13,15 +14,17 @@ export const Route = createFileRoute("/_authenticated/profile")({
 
 function Profile() {
   const { t, lang: appLang, setLanguage } = useLocale();
+  const action=useAction();
   const me = useMe();
   const items = useItems();
   const refresh = useRefresh();
   const qc = useQueryClient();
   const nav = useNavigate();
+  if (items.error || me.error) return <Shell><p role="alert" className="error">{t("Could not load.")}</p><button className="btn" onClick={()=>{items.refetch();me.refetch();}}>{t("Retry")}</button></Shell>;
   if (!me.data || !items.data) return <Shell><Loading /></Shell>;
   const p = me.data.profile;
   const genres = Array.from(new Set(items.data.flatMap((i) => i.genres))).sort();
-  const update = async (patch: { preferred_language?: string; avoided_genres?: string[] }) => { await supabase.from("profiles").update(patch).eq("id", me.data!.uid); refresh(); };
+  const update = async (patch: { preferred_language?: string; avoided_genres?: string[] }) => { const {error}=await supabase.from("profiles").update(patch).eq("id", me.data?.uid??"");if(error)throw error;await refresh(); };
 
   async function reset() {
     if (!confirm(t("Reset your taste profile? This clears your swipes and taste weights."))) return;
@@ -41,18 +44,19 @@ function Profile() {
 
   return (
     <Shell>
+      {action.error&&<p role="alert" className="error">{action.error}</p>}
       <h1 className="h1">{t('Profile')}</h1>
       <p className="muted small">{me.data.email}</p>
       <div className="h2">{t('App language')}</div>
       <div className="toggle">
-        <button className={appLang === "en" ? "on" : ""} onClick={() => setLanguage("en")}>{t('English')}</button>
-        <button className={appLang === "ka" ? "on" : ""} onClick={() => setLanguage("ka")}>ქართული</button>
+        <button className={appLang === "en" ? "on" : ""} disabled={action.busy} onClick={() => action.run(()=>setLanguage("en"))}>{t('English')}</button>
+        <button className={appLang === "ka" ? "on" : ""} disabled={action.busy} onClick={() => action.run(()=>setLanguage("ka"))}>ქართული</button>
       </div>
       <div className="h2">{t('Avoided genres')}</div>
       <div className="row">
         {genres.map((g) => {
           const on = p.avoided_genres.includes(g);
-          return <button key={g} className={`chip ${on ? "chip-active" : ""}`} onClick={() => update({ avoided_genres: on ? p.avoided_genres.filter((x) => x !== g) : [...p.avoided_genres, g] })}>{t(g)}</button>;
+          return <button key={g} className={`chip ${on ? "chip-active" : ""}`} disabled={action.busy} onClick={() => action.run(()=>update({ avoided_genres: on ? p.avoided_genres.filter((x) => x !== g) : [...p.avoided_genres, g] }))}>{t(g)}</button>;
         })}
       </div>
       <div className="h2">{t('How recommendations work')}</div>
@@ -66,9 +70,9 @@ function Profile() {
       </div>}
       <div className="stack" style={{ marginTop: 16 }}>
         <Link to="/shops" className="btn" style={{ textAlign: "center", textDecoration: "none" }}>{t('Bookshops')}</Link>
-        <button className="btn" onClick={reset}>{t('Reset my taste profile')}</button>
-        <button className="btn" onClick={wipe}>{t('Delete my data')}</button>
-        <button className="btn" onClick={signOut}>{t('Sign out')}</button>
+        <button className="btn" disabled={action.busy} onClick={()=>action.run(reset)}>{t('Reset my taste profile')}</button>
+        <button className="btn" disabled={action.busy} onClick={()=>action.run(wipe)}>{t('Delete my data')}</button>
+        <button className="btn" disabled={action.busy} onClick={()=>action.run(signOut)}>{t('Sign out')}</button>
       </div>
     </Shell>
   );
