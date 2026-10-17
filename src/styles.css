@@ -178,7 +178,7 @@ button.chip.chip-active::before { content: "✓"; }
 .footer { margin-top: auto; color: var(--c-text-2); font-size: var(--t-caption); line-height: var(--lh-caption); text-align: center; }
 
 /* Sheets and overlays */
-.drawer-bg { position: fixed; inset: 0; background: rgb(0 0 0 / 0.6); z-index: 30; display: flex; align-items: flex-end; justify-content: center; }
+.drawer-bg { position: fixed; inset: 0; background: color-mix(in srgb, black 60%, transparent); z-index: 30; display: flex; align-items: flex-end; justify-content: center; }
 .drawer { width: 100%; max-width: 430px; max-height: 90dvh; overflow-y: auto; background: var(--c-bg); border-top: 1px solid var(--c-line); border-radius: var(--r-sheet) var(--r-sheet) 0 0; padding: var(--s-1) var(--s-2) calc(var(--s-3) + env(safe-area-inset-bottom)); gap: var(--s-2); }
 .handle { width: 48px; height: 4px; background: var(--c-fill); border-radius: 4px; margin: 0 auto; }
 .tag-cloud a { color: var(--c-text); text-decoration: none; margin-right: var(--s-2); line-height: var(--tap); display: inline-block; }
