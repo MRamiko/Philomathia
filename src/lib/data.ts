@@ -49,9 +49,8 @@ function meOptions() {
         supabase.from("user_roles").select("role,shop_id"),
       ]);
       bootMark('[DB] profile fetch finish'); bootMark('[DB] taste and swipe data fetch finish');
-      const values=results.map(result=>{if(result.status==='rejected')throw result.reason;return result.value;});
-      const p=values[0],s=values[1],l=values[2],t=values[3],r=values[4];
-      if(!p||!s||!l||!t||!r)throw new Error('Could not load account data');
+      const unwrap=<T,>(result:PromiseSettledResult<T>):T=>{if(result.status==='rejected')throw result.reason;return result.value;};
+      const p=unwrap(results[0]),s=unwrap(results[1]),l=unwrap(results[2]),t=unwrap(results[3]),r=unwrap(results[4]);
       for (const result of [p,s,l,t,r]) if (result.error) throw result.error;
       let profile = p.data;
       if (!profile) {
