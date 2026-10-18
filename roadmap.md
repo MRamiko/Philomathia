@@ -1,3 +1,9 @@
+# Startup freeze repair
+- [ ] Instrument opt-in scrubbed diagnostics, request lifetimes and boot stages
+- [ ] Measure startup and trace auth, data, tabs and service-worker failures
+- [ ] Repair blocking stages, isolated recovery, watchdog and offline/update handling
+- [ ] Verify phone widths, throttled startup, failures, navigation and report actual results
+
 # October 18 taste and mobile update
 - [x] Timings, cached independent tabs, optimistic record_swipe, eight-card SQL queue and indexes implemented
 - [x] Controlled facets, exposure learning, portraits, overrides, preference and onboarding implemented
