@@ -98,7 +98,7 @@ export function TasteCard() {
                 <strong className="small">{label === 'Defining' && <Icon name="spark" />}{t(label)}</strong>
                 <div className="row">
                   {values.map(trait => (
-                    <Button key={trait.facet + trait.value + trait.media_type} className={`chip trait-chip ${trait.stance === 'exploring' ? 'exploring' : ''}`} data-facet={trait.facet} onClick={() => setSelected(trait)}>{facetLabel(trait.value)}</Button>
+                    <Button key={trait.facet + trait.value + trait.media_type} className={`chip trait-chip ${trait.stance === 'exploring' ? 'exploring' : ''}`} data-facet={trait.facet} onClick={() => setSelected(trait)}>{t(facetLabel(trait.value))}</Button>
                   ))}
                 </div>
               </div>
@@ -110,8 +110,8 @@ export function TasteCard() {
       {selected && (
         <Presence historyEntry className="drawer-bg" onExit={() => setSelected(null)}>{close => <>
           <div className="drawer-dismiss" onClick={close} />
-          <div className="drawer stack" role="dialog" aria-modal="true" aria-label={facetLabel(selected.value)}>
-            <div className="between"><h2 className="h2">{facetLabel(selected.value)}</h2><Button className="icon-btn" aria-label={t('Close')} onClick={close}><Icon name="close" /></Button></div>
+          <div className="drawer stack" role="dialog" aria-modal="true" aria-label={t(facetLabel(selected.value))}>
+            <div className="between"><h2 className="h2">{t(facetLabel(selected.value))}</h2><Button className="icon-btn" aria-label={t('Close')} onClick={close}><Icon name="close" /></Button></div>
             <p>{traits.some(tr => tr.facet === selected.facet && tr.value === selected.value && tr.defining) ? t('You liked this trait across at least three genres.') : t('This pattern comes from your choices among the titles you have been shown.')}</p>
             {error && <p className="error">{error}</p>}
             <Button className="btn-primary" onClick={() => override('love')}>{t('More of this')}</Button>
