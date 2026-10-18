@@ -21,3 +21,5 @@
 - Five visited screens stay mounted in TabWorkspace with independent lazy loading and boundaries so feed work cannot block another tab.
 - Facet vocabularies and rule extraction share src/lib/facets.ts; enrichment jobs persist through import_jobs and never overwrite admin or keyword evidence.
 - Watch-provider reads use authenticated server functions and a seven-day GE cache, fetched only in item detail surfaces.
+- Diary facet signals are maintained by a database trigger so Letterboxd, item forms, and library actions use the same learning path.
+- Client route gates read the cached session for navigation; authenticated server functions and database RLS still validate access.
