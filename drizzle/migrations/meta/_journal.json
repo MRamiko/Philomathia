@@ -120,6 +120,13 @@
       "when": 1792303661262,
       "tag": "0016_refresh_taste_dedupe_rows",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1792304137817,
+      "tag": "0017_refresh_taste_no_default_portrait",
+      "breakpoints": true
     }
   ]
 }
