@@ -88,13 +88,13 @@ export async function saveLog(_uid: string, item: Item, _prev: Log | undefined, 
 export async function deleteLog(item: Item, _prev: Log) { await tasteAction(item.id, "remove_log"); }
 
 export function titleOf(i: Item, lang: string) {
-  return lang === "ka" && i.title_ka?.trim() ? i.title_ka : i.title_en;
+  return i.title_en || i.title_ka || i.original_title || 'Untitled';
 }
 export function descOf(i: Item, lang: string) {
-  return lang === "ka" && i.description_ka?.trim() ? i.description_ka : i.description_en;
+  return i.description_en || i.description_ka || '';
 }
 export function lengthOf(i: Item, lang: string="en") {
-  const t=(k:string)=>translate(lang==="ka"?"ka":"en",k);
+  const t=(k:string)=>translate('en',k);
   return i.media_type === "film" ? (i.runtime_minutes ? `${i.runtime_minutes} ${t("min")}` : "") : i.page_count ? `${i.page_count} ${t("pages")}` : "";
 }
 export function twoSentences(s: string) {
