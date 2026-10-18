@@ -49,12 +49,12 @@ export function Profile() {
   if (!me.data || !items.data) return <Shell><Loading /></Shell>;
   const p = me.data.profile;
   const genres = Array.from(new Set(items.data.flatMap((i) => i.genres))).sort();
-  const update = async (patch: { georgian_preference?: string; avoided_genres?: string[] }) => { const {error}=await supabase.from("profiles").update(patch).eq("id", me.data?.uid??"");if(error)throw error;await refresh(); };
+  const update = async (patch: { georgian_preference?: string; avoided_genres?: string[] }) => { const {error}=await supabase.from("profiles").update(patch).eq("id", me.data?.uid??"");if(error)throw error;await refresh();window.dispatchEvent(new Event('phi-taste-changed')); };
 
   async function reset() {
     const result=await supabase.rpc('reset_facet_taste');if(result.error)throw result.error;
     await qc.invalidateQueries({queryKey:['taste']});
-    refresh();
+    await refresh();window.dispatchEvent(new Event('phi-taste-changed'));
   }
   async function wipe() {
     await deleteAccount();

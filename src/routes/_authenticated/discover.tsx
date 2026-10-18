@@ -41,14 +41,15 @@ export function Discover() {
   const version=reset?++generation.current:generation.current;
   refilling.current=true; if(reset){setLoading(true);setQueue([]);}setError('');
   try {
-   const ahead=reset?[]:queueRef.current;
+  const ahead=reset?[]:queueRef.current.slice(0,2);
    const cards=await discoverQueue(media,filters,[...excluded.current,...ahead.map(c=>c.item.id)],String(version)+':'+swipeCount.current);
    if(version!==generation.current)return;
-   setQueue(old=>reset?cards.filter(c=>!excluded.current.has(c.item.id)):[...old,...cards.filter(c=>!excluded.current.has(c.item.id)&&!old.some(o=>o.item.id===c.item.id))].slice(0,8));
+   setQueue(old=>{const locked=reset?[]:old.slice(0,2);return [...locked,...cards.filter(c=>!excluded.current.has(c.item.id)&&!locked.some(o=>o.item.id===c.item.id))].slice(0,8);});
   } catch { if(version===generation.current)setError('Could not load your picks. Please retry.'); }
   finally { if(version===generation.current){refilling.current=false;setLoading(false);} }
  }
  useEffect(()=>{void refill(true);},[media,filterKey]);
+ useEffect(()=>{const update=()=>{excluded.current.clear();setLast(null);void refill(true);};window.addEventListener('phi-taste-changed',update);return()=>window.removeEventListener('phi-taste-changed',update);},[media,filterKey]);
  useEffect(()=>{shownAt.current=performance.now();opened.current=false;},[current?.item.id]);
  useEffect(()=>{for(const card of queue.slice(1,3)){const url=SHOW_IMAGES?imageUrl(card.item,'lg'):null;if(url){const img=new Image();img.src=url;}}},[queue[1]?.item.id,queue[2]?.item.id]);
  useEffect(()=>{if(current){recordTiming('time to first card',performance.now()-shownAt.current);}},[loading]);
