@@ -31,7 +31,7 @@ export function bootMark(name: string, kind = 'timeline', duration?: number, sta
   if (kind === 'timeline') performance.mark(name);
   listeners.forEach(listener => listener());
 }
-export function firstInteractive() { interactive = true; bootMark('[UI] first screen interactive'); }
+export function firstInteractive() { if(interactive)return;interactive = true; bootMark('[UI] navigation hydrated'); }
 export function isInteractive() { return interactive; }
 export function captureError(error: unknown) {
   if(typeof window==='undefined')return;
@@ -66,9 +66,9 @@ export function initializeDiagnostics() {
       for (let attempt = 0; ; attempt++) {
         const controller = new AbortController();
         const abort = () => controller.abort(parent?.reason);
-        if (parent?.aborted) abort(); else parent?.addEventListener('abort', abort, { once: true });
         const remaining=REQUEST_TIMEOUT_MS-(performance.now()-started);
         if(remaining<=0)throw new DOMException('Request timed out','TimeoutError');
+        if (parent?.aborted) abort(); else parent?.addEventListener('abort', abort, { once: true });
         const timer = window.setTimeout(() => controller.abort(new DOMException('Request timed out', 'TimeoutError')), remaining);
         try {
           const response = await nativeFetch(input, { ...init, signal: controller.signal });
