@@ -52,7 +52,7 @@ export function Profile() {
   const update = async (patch: { georgian_preference?: string; avoided_genres?: string[] }) => { const {error}=await supabase.from("profiles").update(patch).eq("id", me.data?.uid??"");if(error)throw error;await refresh(); };
 
   async function reset() {
-    const result=await supabase.rpc('reset_facet_taste',{});if(result.error)throw result.error;
+    const result=await supabase.rpc('reset_facet_taste');if(result.error)throw result.error;
     await qc.invalidateQueries({queryKey:['taste']});
     refresh();
   }
