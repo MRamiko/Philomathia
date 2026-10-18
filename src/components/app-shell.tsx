@@ -34,7 +34,7 @@ export function Shell({ children, footer, header }: { children: ReactNode; foote
           <span className="nav-indicator" style={{ transform: `translateX(${Math.max(0, TABS.findIndex(tab => path.startsWith(tab.to))) * 100}%)` }} />
           {TABS.map((tab) => (
             <Link key={tab.to} to={tab.to} aria-label={tab.label} title={tab.label} onClick={()=>{try{sessionStorage.setItem('phi-tab-start',String(performance.now()));}catch{}haptic();}} className={path.startsWith(tab.to) ? "active" : ""}>
-              <Icon name={(tab.to.slice(1)==='ask'?'ask':tab.to.slice(1)) as IconName}/>
+              <Icon name={(tab.to.slice(1)==='ask'?'ask':tab.to.slice(1)) as IconName}/><span className="nav-label">{tab.label}</span>
             </Link>
           ))}
         </div>
