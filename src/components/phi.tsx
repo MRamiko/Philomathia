@@ -53,12 +53,13 @@ export function ItemRow({ item, lang, right }: { item: Item; lang: string; right
   );
 }
 
+function shopText(shop:any,key:'name'|'address'|'city',lang:string){return (lang==='ka'&&shop[key+'_ka'])||shop[key];}
 export function WhereToBuy({ itemId }: { itemId: string }) {
   const { t, lang: appLang } = useLocale();
   const q = useQuery({
     queryKey: ["stock", itemId],
     queryFn: async () => {
-      const { data,error } = await supabase.from("shop_stock").select("id,price_gel,quantity,updated_at,shops(name,address,city,is_sample)").eq("item_id", itemId);
+      const { data,error } = await supabase.from("shop_stock").select("id,price_gel,quantity,updated_at,shops(name,address,city,is_sample,name_ka,address_ka,city_ka)").eq("item_id", itemId);
       if(error)throw error;
       return (data ?? []).sort((a: any, b: any) => (b.quantity > 0 ? 1 : 0) - (a.quantity > 0 ? 1 : 0) || a.price_gel - b.price_gel);
     },
@@ -76,15 +77,15 @@ export function WhereToBuy({ itemId }: { itemId: string }) {
       {!q.isPending&&!rows.length && <p className="muted small">{t('No shop lists this book yet.')}</p>}
       {cheapest && (
         <p className="ok small">
-          {t("Cheapest in stock")}: {(cheapest as any).shops.name}, {(cheapest as any).shops.city} · {formatPrice((cheapest as any).price_gel, appLang)}
+          {t("Cheapest in stock")}: {shopText((cheapest as any).shops,'name',appLang)}, {shopText((cheapest as any).shops,'city',appLang)} · {formatPrice((cheapest as any).price_gel, appLang)}
         </p>
       )}
       <MotionList scope={`stock-${itemId}`}>{rows.map((r: any) => (
         <div key={r.id} className="between small" style={{ padding: "8px 0" }}>
           <span>
-            {r.shops.name}
+            {shopText(r.shops,'name',appLang)}
             <br />
-            <span className="muted">{r.shops.address}, {r.shops.city}</span>
+            <span className="muted">{shopText(r.shops,'address',appLang)}, {shopText(r.shops,'city',appLang)}</span>
           </span>
           <span>{r.quantity > 0 ? `${formatPrice(r.price_gel, appLang)} · ${t("{count} left", {count:r.quantity})}` : <span className="stock-out">{t('Out of stock')}</span>}</span>
         </div>
