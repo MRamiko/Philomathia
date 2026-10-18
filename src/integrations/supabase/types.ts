@@ -110,6 +110,7 @@ export type Database = {
           popularity: number | null
           poster_url: string | null
           runtime_minutes: number | null
+          search_document: unknown
           source: string
           title_en: string
           title_ka: string | null
@@ -139,6 +140,7 @@ export type Database = {
           popularity?: number | null
           poster_url?: string | null
           runtime_minutes?: number | null
+          search_document?: unknown
           source?: string
           title_en: string
           title_ka?: string | null
@@ -168,6 +170,7 @@ export type Database = {
           popularity?: number | null
           poster_url?: string | null
           runtime_minutes?: number | null
+          search_document?: unknown
           source?: string
           title_en?: string
           title_ka?: string | null
@@ -643,6 +646,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      ask_rank: { Args: { intent: Json }; Returns: Json }
       bump_tags: {
         Args: { _delta: number; _tags: string[] }
         Returns: undefined
@@ -679,6 +683,7 @@ export type Database = {
           popularity: number | null
           poster_url: string | null
           runtime_minutes: number | null
+          search_document: unknown
           source: string
           title_en: string
           title_ka: string | null
