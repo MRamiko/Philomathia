@@ -4,6 +4,7 @@ import { REC } from "./config";
 import { translate, type Locale } from "./strings";
 import { allTagsOf, type Item } from "./recommend";
 import { cleanDisplayName, displayName, validDisplayName } from './display-name';
+import { setLocaleLang } from './locale';
 import { bootMark } from './startup-diagnostics';
 
 export type Log = { id: string; item_id: string; status: string; rating: number | null; review: string | null; logged_at: string };
