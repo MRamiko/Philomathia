@@ -79,7 +79,7 @@ export function Profile() {
       {saved && <Presence autoClose={2000} className="snackbar" onExit={() => setSaved(false)}>{() => <span role="status">{t('Saved ✓')}</span>}</Presence>}
       <TasteCard/>
       <InstallApp/>
-      <h2 className="h2">Taste preferences</h2><strong>Georgian content</strong><p className="small muted">How often Georgian stories appear in your picks.</p><div className="toggle">{['less','balanced','more'].map(value=><Button key={value} className={p.georgian_preference===value?'on':''} onClick={()=>action.run(()=>update({georgian_preference:value}))}>{value[0]?.toUpperCase()}{value.slice(1)}</Button>)}</div>
+      <h2 className="h2">{t('Taste preferences')}</h2><strong>{t('Georgian content')}</strong><p className="small muted">{t('How often Georgian stories appear in your picks.')}</p><div className="toggle" role="group" aria-label={t('Georgian content')}>{(['less','balanced','more'] as const).map(value=><Button key={value} className={(p.georgian_preference??'balanced')===value?'on':''} aria-pressed={(p.georgian_preference??'balanced')===value} onClick={()=>action.run(()=>update({georgian_preference:value}))}>{t(value[0]?.toUpperCase()+value.slice(1))}</Button>)}</div>
       {confirmation && <ConfirmDialog message={t(confirmation === 'reset' ? 'Reset your taste profile? This clears your swipes and taste weights.' : 'Delete all your data? Swipes, diary, taste weights and profile settings will be removed.')} onClose={() => setConfirmation(null)} onConfirm={() => action.run(confirmation === 'reset' ? reset : wipe)} />}
       <div className="h2">{t('Avoided genres')}</div>
       <MotionList scope="avoided-genres" className="row">
