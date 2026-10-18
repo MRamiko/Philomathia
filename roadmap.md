@@ -3,6 +3,7 @@
 - [x] Remove awaited route auth, consolidate queue initialization, isolate shell imports and preserve security
 - [x] Verify real startup and five tabs at 360/390/430, delayed queue, denied profile, signed-out route and report copying; 84 tests pass
 - [ ] Validate published cold-start and installed Android/PWA upgrade; blocked by no published deployment or physical device. Development slow-4G script loading still exceeds target; do not claim the speed budget passed.
+- [ ] Offline completion requires published-environment verification: local offline navigation was blank despite a correctly cached public offline document. Detailed measurements and unverified checks are recorded in startup-report.md.
 
 # October 18 taste and mobile update
 - [x] Timings, cached independent tabs, optimistic record_swipe, eight-card SQL queue and indexes implemented
