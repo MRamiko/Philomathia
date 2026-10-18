@@ -14,6 +14,8 @@ import { Icon, PhiLogo, type IconName } from './icons';
 import { haptic } from '@/lib/timings';
 import {WhereToWatch} from './where-to-watch';
 import {Button} from './auth-form';
+import { bootMark, firstInteractive, renderCounter } from '@/lib/startup-diagnostics';
+import { StartupContent } from './startup-recovery';
 
 const TABS = [
   { to: "/discover", label: "Discover" },
@@ -24,6 +26,8 @@ const TABS = [
 ] as const;
 
 export function Shell({ children, footer, header }: { children: ReactNode; footer?: ReactNode; header?:ReactNode }) {
+  renderCounter('Shell');
+  useEffect(() => { bootMark('[BOOT] shell rendered'); firstInteractive(); }, []);
   const { t, lang: appLang } = useLocale();
   const [offline,setOffline]=useState(false);
   useEffect(()=>{const update=()=>setOffline(!navigator.onLine);update();window.addEventListener("online",update);window.addEventListener("offline",update);return()=>{window.removeEventListener("online",update);window.removeEventListener("offline",update);};},[]);
@@ -59,7 +63,7 @@ export function Poster({ item, size, eager = false }: { item: Item; size: "sm" |
   return (
     <div className={`poster poster-${size}`}>
       {loaded!==url || !url || failed===url ? <span>{t(item.media_type === "book" ? "Book" : "Film")}</span>:null}
-      {url && failed!==url && <img key={url} src={url} alt={titleOf(item,appLang)} width={size==='sm'?100:200} height={size==='sm'?150:300} loading={eager?'eager':'lazy'} decoding="async" className={loaded===url?'loaded':'pending'} onLoad={()=>setLoaded(url)} onError={()=>setFailed(url)}/>}
+      {url && failed!==url && <img key={url} src={url} alt={titleOf(item,appLang)} width={size==='sm'?100:200} height={size==='sm'?150:300} loading={eager?'eager':'lazy'} decoding="async" className={loaded===url?'loaded':'pending'} onLoad={()=>{setLoaded(url);if(eager)bootMark('first image loaded');}} onError={()=>setFailed(url)}/>}
     </div>
   );
 }
