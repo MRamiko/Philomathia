@@ -15,6 +15,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 import { AuthDraftProvider } from '@/components/auth-form';
 import { ScreenMotion } from '@/components/motion';
+import {checkThemeContrast} from '@/lib/contrast';
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -75,7 +76,7 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   const router = useRouter();
-  useEffect(() => { initializePwa(); }, []);
+  useEffect(() => { initializePwa();checkThemeContrast(); }, []);
   useEffect(() => { const { data } = supabase.auth.onAuthStateChange((event) => { if (!["SIGNED_IN","SIGNED_OUT","USER_UPDATED"].includes(event)) return; router.invalidate(); if(event!=="SIGNED_OUT") queryClient.invalidateQueries(); }); return () => data.subscription.unsubscribe(); }, [router,queryClient]);
   return (
     <QueryClientProvider client={queryClient}>

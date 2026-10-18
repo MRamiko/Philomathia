@@ -23,7 +23,7 @@ const TABS = [
   { to: "/profile", label: "Profile" },
 ] as const;
 
-export function Shell({ children, footer }: { children: ReactNode; footer?: ReactNode }) {
+export function Shell({ children, footer, header }: { children: ReactNode; footer?: ReactNode; header?:ReactNode }) {
   const { t, lang: appLang } = useLocale();
   const [offline,setOffline]=useState(false);
   useEffect(()=>{const update=()=>setOffline(!navigator.onLine);update();window.addEventListener("online",update);window.addEventListener("offline",update);return()=>{window.removeEventListener("online",update);window.removeEventListener("offline",update);};},[]);
@@ -33,7 +33,7 @@ export function Shell({ children, footer }: { children: ReactNode; footer?: Reac
     <>
       <div className="app">
         {offline && <p role="alert" className="offline">{t("You are offline")}</p>}
-        <header className="topbar"><PhiLogo /></header>
+        <header className="topbar"><PhiLogo />{header}</header>
         {children}
         {footer&&<div className="footer">{footer}</div>}
       </div>

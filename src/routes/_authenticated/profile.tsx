@@ -13,6 +13,7 @@ import { useItems, useMe, useRefresh, tasteAction } from "@/lib/data";
 import { deleteAccount } from "@/lib/account.functions";
 import { TasteCard } from '@/components/taste-card';
 import { useTimings } from '@/lib/timings';
+import {InstallApp} from '@/components/install-app';
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({ meta: [{ title: "Profile · Philomathia" }, { name: "description", content: "Your taste portrait, preferences and private diary settings." }, { property: "og:title", content: "Profile · Philomathia" }, { property: "og:description", content: "Your taste portrait, preferences and private diary settings." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -49,12 +50,12 @@ export function Profile() {
   if (!me.data || !items.data) return <Shell><Loading /></Shell>;
   const p = me.data.profile;
   const genres = Array.from(new Set(items.data.flatMap((i) => i.genres))).sort();
-  const update = async (patch: { georgian_preference?: string; avoided_genres?: string[] }) => { const {error}=await supabase.from("profiles").update(patch).eq("id", me.data?.uid??"");if(error)throw error;await refresh(); };
+  const update = async (patch: { georgian_preference?: string; avoided_genres?: string[] }) => { const {error}=await supabase.from("profiles").update(patch).eq("id", me.data?.uid??"");if(error)throw error;await refresh();window.dispatchEvent(new Event('phi-taste-changed')); };
 
   async function reset() {
     const result=await supabase.rpc('reset_facet_taste');if(result.error)throw result.error;
     await qc.invalidateQueries({queryKey:['taste']});
-    refresh();
+    await refresh();window.dispatchEvent(new Event('phi-taste-changed'));
   }
   async function wipe() {
     await deleteAccount();
@@ -77,6 +78,7 @@ export function Profile() {
       {nameError && <p className="error" role="alert">{nameError}</p>}
       {saved && <Presence autoClose={2000} className="snackbar" onExit={() => setSaved(false)}>{() => <span role="status">{t('Saved ✓')}</span>}</Presence>}
       <TasteCard/>
+      <InstallApp/>
       <h2 className="h2">Taste preferences</h2><strong>Georgian content</strong><p className="small muted">How often Georgian stories appear in your picks.</p><div className="toggle">{['less','balanced','more'].map(value=><Button key={value} className={p.georgian_preference===value?'on':''} onClick={()=>action.run(()=>update({georgian_preference:value}))}>{value[0]?.toUpperCase()}{value.slice(1)}</Button>)}</div>
       {confirmation && <ConfirmDialog message={t(confirmation === 'reset' ? 'Reset your taste profile? This clears your swipes and taste weights.' : 'Delete all your data? Swipes, diary, taste weights and profile settings will be removed.')} onClose={() => setConfirmation(null)} onConfirm={() => action.run(confirmation === 'reset' ? reset : wipe)} />}
       <div className="h2">{t('Avoided genres')}</div>

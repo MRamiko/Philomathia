@@ -82,8 +82,8 @@ export async function tasteAction(itemId: string | null, kind: string, value: Re
   if (error) throw error;
 }
 export async function bump(tags: string[], _delta: number) { await tasteAction(null, "onboard", { tags }); }
-export async function swipe(_uid: string, item: Item, action: "like" | "pass") { const r=await supabase.rpc('record_swipe',{item_id:item.id,action,dwell_ms:0,opened_details:false});if(r.error)throw r.error; }
-export async function undoSwipe(item: Item, _action: string) { const r=await supabase.rpc('undo_record_swipe',{item_id:item.id});if(r.error)throw r.error; }
+export async function swipe(_uid: string, item: Item, action: "like" | "pass") { const r=await supabase.rpc('record_swipe',{item_id:item.id,action,dwell_ms:0,opened_details:false});if(r.error)throw r.error;if(!r.data)throw new Error('Choice already recorded'); }
+export async function undoSwipe(item: Item, _action: string) { const r=await supabase.rpc('undo_record_swipe',{item_id:item.id});if(r.error)throw r.error;if(!r.data)throw new Error('Choice already undone'); }
 export async function saveLog(_uid: string, item: Item, _prev: Log | undefined, value: { status: string; rating: number | null; review: string | null }) { await tasteAction(item.id, "log", value); }
 export async function deleteLog(item: Item, _prev: Log) { await tasteAction(item.id, "remove_log"); }
 

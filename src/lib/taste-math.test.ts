@@ -1,0 +1,10 @@
+import {it,expect} from 'vitest';
+import {decayedEvidence,traitStance,traitConfidence,isDefining} from './taste-math';
+it('evidence has a half life of 40 swipes',()=>expect(decayedEvidence(10,40)).toBe(5));
+it('fewer than three exposures remain exploring',()=>expect(traitStance(2,2,0.5)).toBe('exploring'));
+it('three through five exposures are emerging',()=>{expect(traitConfidence(3)).toBe('emerging');expect(traitConfidence(5)).toBe('emerging');});
+it('six through fourteen exposures are established',()=>{expect(traitConfidence(6)).toBe('established');expect(traitConfidence(14)).toBe('established');});
+it('fifteen exposures are strong',()=>expect(traitConfidence(15)).toBe('strong'));
+it('five likes across three genres define a positive trait',()=>expect(isDefining(traitStance(5,5,0.5),['drama','thriller','comedy'])).toBe(true));
+it('two genres cannot define a trait',()=>expect(isDefining('loves',['drama','thriller','drama'])).toBe(false));
+it('passing vivid color lowers its stance without banning the value',()=>expect(traitStance(5,1,0.5)).toBe('leans_away'));

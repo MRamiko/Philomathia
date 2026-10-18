@@ -68,6 +68,7 @@
  --neutral-50:var(--cream); --neutral-100:color-mix(in oklch,var(--night) 8%,var(--cream)); --neutral-200:color-mix(in oklch,var(--night) 16%,var(--cream)); --neutral-300:color-mix(in oklch,var(--night) 24%,var(--cream)); --neutral-400:color-mix(in oklch,var(--night) 36%,var(--cream)); --neutral-500:color-mix(in oklch,var(--night) 48%,var(--cream)); --neutral-600:color-mix(in oklch,var(--night) 60%,var(--cream)); --neutral-700:color-mix(in oklch,var(--night) 72%,var(--cream)); --neutral-800:color-mix(in oklch,var(--night) 84%,var(--cream)); --neutral-900:color-mix(in oklch,var(--night) 92%,var(--cream)); --neutral-950:var(--night);
  --surface-1:var(--green-900); --surface-2:var(--green-800); --surface-3:var(--green-700); --border-subtle:var(--neutral-600); --border-strong:var(--neutral-400); --text-primary:var(--cream); --text-secondary:var(--neutral-300); --text-tertiary:var(--neutral-400); --accent-strong:var(--warm-300); --on-accent:var(--night); --positive:var(--green-300); --negative:var(--rust); --overlay:color-mix(in srgb,var(--night) 85%,transparent); --state-hover:color-mix(in srgb,var(--cream) 8%,transparent); --state-pressed:color-mix(in srgb,var(--cream) 12%,transparent); --state-focus:color-mix(in srgb,var(--cream) 16%,transparent); --poster-fade:linear-gradient(to top,var(--night),color-mix(in srgb,var(--night) 95%,transparent) 24%,color-mix(in srgb,var(--night) 70%,transparent) 55%,transparent); --header-tint:linear-gradient(to bottom,var(--surface-3),var(--surface-1));
  --trait-visual:var(--warm-300); --trait-pace:var(--green-200); --trait-tone:var(--warm-200); --trait-themes:var(--green-300); --trait-era:var(--neutral-200); --trait-origin:var(--warm-400); --trait-form:var(--green-100);
+ --border-subtle:var(--neutral-500); --text-tertiary:var(--neutral-300);
  --radius: 8px; --background:var(--neutral-950); --foreground:var(--text-primary); --card:var(--surface-1); --card-foreground:var(--foreground); --popover:var(--surface-2); --popover-foreground:var(--foreground); --primary:var(--warm-400); --primary-foreground:var(--on-accent); --secondary:var(--surface-3); --secondary-foreground:var(--foreground); --muted:var(--card); --muted-foreground:var(--text-secondary); --accent:var(--tan); --accent-foreground:var(--night); --destructive:var(--negative); --destructive-foreground:var(--foreground); --border:var(--border-subtle); --input:var(--border-strong); --ring:var(--foreground);
 }
 
@@ -335,6 +336,7 @@ button.chip.chip-active::before { animation: fade-in var(--motion-standard) var(
 .app{padding-bottom:calc(104px + env(safe-area-inset-bottom));overscroll-behavior:none}
 button,a,input,select{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .topbar,.nav,.media-switch{user-select:none}
+.discover-tools{margin-left:auto}.topbar{justify-content:space-between}
 .phi-ring{stroke:var(--accent)}.phi-bar{stroke:var(--cream)}
 .nav a{position:relative;z-index:1;border:0;min-height:48px;height:62px}
 .nav-indicator{top:11px;width:20%;height:40px;background:none;display:grid;place-items:center;z-index:0}

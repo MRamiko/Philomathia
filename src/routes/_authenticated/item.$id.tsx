@@ -7,6 +7,7 @@ import { deleteLog, descOf, titleOf, lengthOf, saveLog, useItems, useMe, useRefr
 import type { Item } from "@/lib/recommend";
 import { Presence } from '@/components/motion';
 import {WhereToWatch} from '@/components/where-to-watch';
+import {EditTraits} from '@/components/edit-traits';
 
 export const Route = createFileRoute("/_authenticated/item/$id")({
   head: () => ({ meta: [{ title: "Title · Philomathia" }, { name: "description", content: "Details, your diary entry and where to buy." }, { property: "og:title", content: "Title · Philomathia" }, { property: "og:description", content: "Details, your diary entry and where to buy." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -42,7 +43,6 @@ function ItemPage() {
 
   const title = titleOf(item, lang);
   const desc = descOf(item, lang);
-  const fellBack = lang === "ka" && (!item.title_ka?.trim() || !item.description_ka?.trim());
   const footer = `${t("Source")}: ${item.source}${item.source==='seed'?' · '+t('Sample data for demo'):''}`;
 
   async function save() {
@@ -64,7 +64,7 @@ function ItemPage() {
         {item.isbn && <div className="muted small">ISBN {item.isbn}</div>}
         {item.image_source==='openlibrary' && item.openlibrary_key && <a className="muted small" href={`https://openlibrary.org${item.openlibrary_key}`} target="_blank" rel="noreferrer">{t('Cover: Open Library')}</a>}
         <p>{desc || t("No description available.")}</p>
-        {fellBack && <p className="muted small">{t('No Georgian text stored yet; showing English.')}</p>}
+        {me.data.roles.includes('admin')&&<EditTraits itemId={item.id}/>}
         <Chips tags={item.genres} />
         <Chips tags={item.mood_tags} />
 

@@ -1,0 +1,12 @@
+import {useState} from 'react';
+import {useQuery,useQueryClient} from '@tanstack/react-query';
+import {supabase} from '@/integrations/supabase/client';
+import {FACETS,facetLabel} from '@/lib/facets';
+import {Button} from './auth-form';
+import {Presence} from './motion';
+export function EditTraits({itemId}:{itemId:string}){
+ const qc=useQueryClient();const [open,setOpen]=useState(false);const [facet,setFacet]=useState<keyof typeof FACETS>('visual');const [value,setValue]=useState<string>(FACETS.visual[0]);const [error,setError]=useState('');const [busy,setBusy]=useState(false);
+ const query=useQuery({queryKey:['item-facets',itemId],enabled:open,queryFn:async()=>{const r=await supabase.from('item_facets').select('*').eq('item_id',itemId);if(r.error)throw r.error;return r.data;}});
+ async function save(){setBusy(true);setError('');try{const r=await supabase.from('item_facets').upsert({item_id:itemId,facet,value,confidence:1,source:'admin'});if(r.error)throw r.error;await qc.invalidateQueries({queryKey:['item-facets',itemId]});window.dispatchEvent(new Event('phi-taste-changed'));}catch{setError('Could not save this trait. Please retry.');}finally{setBusy(false);}}
+ return <><Button onClick={()=>setOpen(true)}>Edit traits</Button>{open&&<Presence historyEntry className="drawer-bg" onExit={()=>setOpen(false)}>{close=><><div className="drawer-dismiss" onClick={close}/><div className="drawer stack" role="dialog" aria-modal="true" aria-label="Edit traits"><div className="between"><h2 className="h2">Edit traits</h2><Button onClick={close}>Close</Button></div>{(error||query.error)&&<p className="error" role="alert">{error||'Could not load traits.'}</p>}<div className="row">{query.data?.map(row=><span className="chip trait-chip" data-facet={row.facet} key={row.facet+row.value}>{facetLabel(row.value)} · {row.source}</span>)}</div><label className="field">Trait group<select className="input" value={facet} onChange={e=>{const next=e.target.value as keyof typeof FACETS;setFacet(next);setValue(FACETS[next][0]);}}>{Object.keys(FACETS).map(f=><option key={f} value={f}>{facetLabel(f)}</option>)}</select></label><label className="field">Value<select className="input" value={value} onChange={e=>setValue(e.target.value)}>{FACETS[facet].map(v=><option key={v} value={v}>{facetLabel(v)}</option>)}</select></label><Button className="btn-primary" disabled={busy} onClick={save}>Save correction</Button></div></>}</Presence>}</>;
+}

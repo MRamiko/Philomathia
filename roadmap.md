@@ -1,12 +1,15 @@
 # October 18 taste and mobile update
-- [ ] Part 1: timings, cached independent tabs, optimistic record_swipe, eight-card SQL queue and indexes
-- [ ] Part 2: controlled facets, exposure learning, portraits, overrides, preference and onboarding
-- [ ] Part 3: resumable rule/AI trait enrichment and admin editing
-- [ ] Part 4: semantic tonal ramps, geometry logo/icons, native navigation/media switch
-- [ ] Part 5: Discover, Library, Profile and remaining screen refresh; English-only interface
-- [ ] Part 6: query-first Ask Phi with validated intent and relevant SQL results
-- [ ] Part 7: authenticated seven-day GE watch-provider cache and details display
-- [ ] Part 8: mobile, security, learning, timing and integration checks; honest final report
+- [x] Timings, cached independent tabs, optimistic record_swipe, eight-card SQL queue and indexes implemented
+- [x] Controlled facets, exposure learning, portraits, overrides, preference and onboarding implemented
+- [x] Resumable rule/AI trait enrichment and admin editing implemented; rule pass complete, AI paused after 20 items
+- [x] Semantic tonal ramps, geometry logo/icons, native navigation/media switch implemented
+- [x] Discover, Library, Profile and English-only interface refreshed
+- [x] Query-first Ask Phi with validated intent and relevant SQL results; romantic comedy flow verified
+- [x] Authenticated seven-day GE watch-provider cache and details display; cached reopen observed at 29ms
+- [x] 77 tests passed; Discover/Profile/Undo checked at 360/390/430; one visible nav, no overflow or page errors
+- [ ] Final tab-cache timing and post-edit verification blocked by sandbox commands repeatedly timing out
+- [ ] Slow-4G and 5,000-item budgets, complete multi-genre learning/probe scenarios and physical Android verification remain unverified
+- [ ] Full AI coverage waits for an explicit administrator Resume; 801 / 873 items have six or more traits
 
 # Earlier corrective update
 - [x] Administrator/TMDB access verified through a real import; commands queue instead of being discarded, paused progress survived refresh; 10 targeted tests passed
