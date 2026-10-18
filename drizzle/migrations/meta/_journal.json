@@ -141,6 +141,13 @@
       "when": 1792306418460,
       "tag": "0019_watch_availability_server_only",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1792306868425,
+      "tag": "0020_shops_georgian_fields",
+      "breakpoints": true
     }
   ]
 }
