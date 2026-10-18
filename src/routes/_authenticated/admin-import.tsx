@@ -11,17 +11,18 @@ import {importBatch,importProgress} from '@/lib/import.functions';
 import {checkKeys,filmSearch,filmCommit,bookSearch,bookCommit,wikidataSearch,wikidataCommit} from '@/lib/admin-import.functions';
 import {PASSES} from '@/lib/import-rules';
 import {queueImportCommand,type ImportCommand} from '@/lib/import-controls';
+import {TraitsTab} from '@/components/traits-tab';
 export const Route=createFileRoute('/_authenticated/admin-import')({head:()=>({meta:[{title:'Catalog imports · Philomathia'},{name:'description',content:'Manage official catalog imports and coverage in Philomathia.'},{property:'og:title',content:'Catalog imports · Philomathia'},{property:'og:description',content:'Administrator catalog imports and coverage.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary'}]}),component:AdminImport});
 type Summary={imported:number;updated:number;skipped:number;failed:{label:string;reason:string}[]};
 function AdminImport(){
  const {t}=useLocale();const me=useMe();const qc=useQueryClient();
- const [tab,setTab]=useState<'status'|'films'|'books'|'georgian'|'bulk'>('status');
+ const [tab,setTab]=useState<'status'|'films'|'books'|'georgian'|'bulk'|'traits'>('status');
  const admin=me.data?.roles.includes('admin')??false;
  const check=useServerFn(checkKeys);
  const keys=useQuery({queryKey:['check-keys'],queryFn:()=>check(),enabled:admin});
  if(!me.data)return <Shell><Loading/></Shell>;
  if(!admin)return <Shell><p className="error">{t('Not allowed.')}</p></Shell>;
- const tabs=[['status',t('Status')],['films',t('Films')],['books',t('Books')],['georgian',t('Georgian works')],['bulk',t('Bulk')]] as const;
+ const tabs=[['status',t('Status')],['films',t('Films')],['books',t('Books')],['georgian',t('Georgian works')],['bulk',t('Bulk')],['traits','Traits']] as const;
  return <Shell><h1 className="h1">{t('Admin Import')}</h1>
  <div className="row" role="tablist">{tabs.map(([id,label])=><button key={id} role="tab" aria-selected={tab===id} className={`chip ${tab===id?'chip-active':''}`} onClick={()=>setTab(id)}>{label}</button>)}</div>
  {tab==='status'&&<StatusTab t={t} keys={keys}/>}
@@ -29,6 +30,7 @@ function AdminImport(){
  {tab==='books'&&<BooksTab t={t}/>}
  {tab==='georgian'&&<GeorgianTab t={t}/>}
  {tab==='bulk'&&<BulkTab t={t} qc={qc}/>}
+ {tab==='traits'&&<TraitsTab/>}
  <p className="small muted">{t('This product uses the TMDB API but is not endorsed or certified by TMDB.')}</p></Shell>;
 }
 function StatusTab({t,keys}:{t:(k:string,params?:Record<string,string|number>)=>string;keys:any}){

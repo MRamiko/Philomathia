@@ -12,6 +12,7 @@ import { descOf, lengthOf, titleOf, twoSentences, yearOf } from "@/lib/data";
 import { Presence, MotionList } from '@/components/motion';
 import { Icon, PhiLogo, type IconName } from './icons';
 import { haptic } from '@/lib/timings';
+import {WhereToWatch} from './where-to-watch';
 
 const TABS = [
   { to: "/discover", label: "Discover" },
@@ -27,18 +28,13 @@ export function Shell({ children, footer }: { children: ReactNode; footer?: Reac
   useEffect(()=>{const update=()=>setOffline(!navigator.onLine);update();window.addEventListener("online",update);window.addEventListener("offline",update);return()=>{window.removeEventListener("online",update);window.removeEventListener("offline",update);};},[]);
   const path = useRouterState({ select: (s) => s.location.pathname });
   useEffect(()=>{rememberTab(path);},[path]);
-  useEffect(()=>{
-   if(path==='/discover'||!['/search','/library','/ask','/profile'].includes(path))return;
-   // A cold launch on another tab must retain Discover beneath it in history.
-   if(window.history.length<=2){history.replaceState({...history.state},'', '/discover');history.pushState({...history.state},'',path);}
-  },[path]);
   return (
     <>
       <div className="app">
         {offline && <p role="alert" className="offline">{t("You are offline")}</p>}
         <header className="topbar"><PhiLogo /></header>
         {children}
-        <div className="footer">{footer ?? t("Sample data for demo")}</div>
+        {footer&&<div className="footer">{footer}</div>}
       </div>
       <nav className="nav">
         <div className="nav-inner">
@@ -198,6 +194,8 @@ export function SwipeCard({ item, lang, reason, onLike, onPass, onTap, disabled,
 
 export function ItemDrawer({ item, items, lang, reason, onClose }: { item: Item; items: Item[]; lang: string; reason: string; onClose: () => void }) {
   const { t, lang: appLang } = useLocale();
+  const detail=useQuery({queryKey:['item',item.id],staleTime:60000,queryFn:async()=>{const r=await supabase.from('items').select('*').eq('id',item.id).single();if(r.error)throw r.error;return r.data;}});
+  const full=detail.data??item;
   return (
     <Presence historyEntry className="drawer-bg" onExit={onClose}>{close => <>
       <div className="drawer-dismiss" onClick={close} />
@@ -207,12 +205,15 @@ export function ItemDrawer({ item, items, lang, reason, onClose }: { item: Item;
           <strong className="h2 clamp2" style={{ flex: 1 }}>{titleOf(item, lang)}</strong>
           <button className="btn icon-btn" aria-label={t('Close')} onClick={close}>✕</button>
         </div>
-        <p>{descOf(item, lang)||t("No description available.")}</p>
+        {item.title_ka&&<p lang="ka" className="small muted">{item.title_ka}</p>}
+        <p>{detail.isPending?'Loading description…':descOf(full, lang)||t("No description available.")}</p>
+        {detail.error&&<Button onClick={()=>detail.refetch()}>Retry description</Button>}
         <Chips tags={item.mood_tags} />
         <p className="reason">{t("Why you’re seeing this")}: <b>{reason}</b></p>
         <div className="h2">{t('Similar titles')}</div>
         <MotionList scope={`similar-${item.id}`}>{similar(item, items).map((s) => <ItemRow key={s.id} item={s} lang={lang} />)}</MotionList>
         {item.media_type === "book" && <WhereToBuy itemId={item.id} />}
+        {item.media_type === "film" && <WhereToWatch itemId={item.id} />}
         <Link to="/item/$id" params={{ id: item.id }} className="btn btn-block">{t('Open full page')}</Link>
       </div>
     </>}</Presence>
