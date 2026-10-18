@@ -1,0 +1,1 @@
+ALTER TABLE public.shops ADD COLUMN IF NOT EXISTS name_ka text, ADD COLUMN IF NOT EXISTS address_ka text, ADD COLUMN IF NOT EXISTS city_ka text;

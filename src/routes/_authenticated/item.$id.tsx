@@ -95,6 +95,7 @@ function ItemPage() {
         </div>
         {item.media_type === "book" && <WhereToBuy itemId={item.id} />}
         {item.media_type === "film" && <WhereToWatch itemId={item.id} />}
+        <Link className="btn" to="/where-to-watch">{t('Where to watch and buy')}</Link>
       </div>
     </Shell>
   );

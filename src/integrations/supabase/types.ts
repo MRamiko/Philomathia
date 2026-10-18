@@ -300,30 +300,39 @@ export type Database = {
       shops: {
         Row: {
           address: string
+          address_ka: string | null
           city: string
+          city_ka: string | null
           id: string
           is_sample: boolean
           lat: number | null
           lng: number | null
           name: string
+          name_ka: string | null
         }
         Insert: {
           address: string
+          address_ka?: string | null
           city: string
+          city_ka?: string | null
           id?: string
           is_sample?: boolean
           lat?: number | null
           lng?: number | null
           name: string
+          name_ka?: string | null
         }
         Update: {
           address?: string
+          address_ka?: string | null
           city?: string
+          city_ka?: string | null
           id?: string
           is_sample?: boolean
           lat?: number | null
           lng?: number | null
           name?: string
+          name_ka?: string | null
         }
         Relationships: []
       }
