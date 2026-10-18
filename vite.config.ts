@@ -7,6 +7,13 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
+  vite: {
+    resolve: {
+      // Keep navigation hooks on one module instance across linked dependencies.
+      // The shared config already deduplicates React and React DOM.
+      dedupe: ["@tanstack/react-router", "@tanstack/react-store"],
+    },
+  },
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
