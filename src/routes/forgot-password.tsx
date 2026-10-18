@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useLocale } from '@/lib/locale';
 import { Button, useEmailDraft, keepFocusedFieldVisible } from '@/components/auth-form';
+import {PhiLogo} from '@/components/icons';
 
 export const Route = createFileRoute('/forgot-password')({
   head: () => ({ meta: [{ title: 'Forgot password · Philomathia' }, { name: 'description', content: 'Request a link to choose a new Philomathia password.' }, { property: 'og:title', content: 'Forgot password · Philomathia' }, { property: 'og:description', content: 'Request a link to choose a new Philomathia password.' }, { property: 'og:type', content: 'website' }, { name: 'twitter:card', content: 'summary' }] }),
@@ -37,7 +38,7 @@ function ForgotPassword() {
     finally { setBusy(false); }
   }
   return <main className="app auth-app login-app" onFocusCapture={keepFocusedFieldVisible}>
-    <header className="topbar"><Link className="btn icon-btn" to="/login" aria-label={t('Back to Login')}>←</Link><span className="brand" aria-hidden="true">Φ</span></header>
+    <header className="topbar"><Link className="btn icon-btn" to="/login" aria-label={t('Back to Login')}>←</Link><PhiLogo/></header>
     <div className="login-content">
       {sent ? <section className="box stack" role="status">
         <p>{t("If an account exists for that email, we've sent a link. Check your inbox and spam folder.")}</p>
