@@ -5,3 +5,5 @@ it('recognizes a similar title without inventing genres',()=>{const i=parseInten
 it('romantic comedy stays in comedy and romance',()=>{expect(parseIntent('cozy romantic comedy for tonight').genres).toEqual(['comedy','romance']);});
 it('under 90 minutes excludes 90',()=>{expect(parseIntent('film under 90 minutes').max_minutes).toBe(89);});
 it('invalid AI trait values are dropped',()=>{expect(validateIntent({traits:[{facet:'visual',value:'invented'}]},'film')?.traits).toEqual([]);});
+it('normalizes romantic comedy from AI to existing genres',()=>{expect(validateIntent({genres:['romantic comedy']},'cozy romantic comedy')?.genres.sort()).toEqual(['comedy','romance']);});
+it('AI cannot erase an explicit monochrome constraint',()=>{expect(validateIntent({traits:[]},'black-and-white film')?.traits).toContainEqual({facet:'visual',value:'black_and_white'});});

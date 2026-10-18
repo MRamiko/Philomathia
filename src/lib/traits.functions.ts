@@ -31,7 +31,7 @@ export const traitsBatch=createServerFn({method:'POST'}).middleware([requireSupa
   const {enrichTraits}=await import('./traits.server');aiRows=await enrichTraits(items);
  }
  for(const item of items){
-  const facets=data.mode==='rules'?ruleFacets(item):(aiRows.find(row=>row.id===item.id)?.facets??[]).filter(f=>validFacet(f.facet,f.value)&&f.confidence>=0.6&&f.confidence<=1).map(f=>({...f,source:'ai' as const}));
+  const facets=(aiRows.find(row=>row.id===item.id)?.facets??[]).filter(f=>validFacet(f.facet,f.value)&&f.confidence>=0.6&&f.confidence<=1).map(f=>({...f,source:'ai' as const}));
   const existing=await db.from('item_facets').select('facet,value,source').eq('item_id',item.id);if(existing.error)throw existing.error;
   const safe=facets.filter(f=>!existing.data.some(old=>old.facet===f.facet&&(old.source==='admin'||old.source==='keyword'||old.value===f.value)));
   if(safe.length){const written=await db.from('item_facets').upsert(safe.map(f=>({...f,item_id:item.id})),{onConflict:'item_id,facet,value',ignoreDuplicates:true});if(written.error)throw written.error;}
