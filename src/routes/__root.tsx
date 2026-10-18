@@ -13,7 +13,6 @@ import {
 import { useEffect, type ReactNode } from "react";
 import { AuthDraftProvider } from '@/components/auth-form';
 import { ScreenMotion } from '@/components/motion';
-import {checkThemeContrast} from '@/lib/contrast';
 import { StartupAuthProvider } from '@/lib/startup-auth';
 import { BootDiagnostics } from '@/components/startup-recovery';
 import { initializeDiagnostics } from '@/lib/startup-diagnostics';
@@ -76,7 +75,7 @@ function RootComponent() {
   const { t, lang: appLang } = useLocale();
   const { queryClient } = Route.useRouteContext();
 
-  useEffect(() => { initializeDiagnostics(); initializePwa(); if(import.meta.env.DEV) checkThemeContrast(); }, []);
+  useEffect(() => { initializeDiagnostics(); initializePwa(); if(import.meta.env.DEV) void import('@/lib/contrast').then(m=>m.checkThemeContrast()); }, []);
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}

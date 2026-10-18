@@ -1,7 +1,7 @@
 import { Component, Suspense, lazy, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Outlet, useRouterState } from '@tanstack/react-router';
 import { Button } from './auth-form';
-import { Shell, Loading } from './phi';
+import { Shell } from './app-shell';
 import { recordTiming } from '@/lib/timings';
 import { StartupContent } from './startup-recovery';
 import { captureError, renderCounter } from '@/lib/startup-diagnostics';

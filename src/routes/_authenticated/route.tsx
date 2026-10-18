@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from 'react';
 import { TabWorkspace } from '@/components/tab-workspace';
-import { Shell } from '@/components/phi';
+import { Shell } from '@/components/app-shell';
 import { StartupContent, StartupRecovery } from '@/components/startup-recovery';
 import { useStartupAuth } from '@/lib/startup-auth';
 
