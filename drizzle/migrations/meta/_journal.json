@@ -64,6 +64,27 @@
       "when": 1792276571068,
       "tag": "0008_taste_functions_security_definer",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792291040090,
+      "tag": "0009_facet_learning_and_fast_discover",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792291372092,
+      "tag": "0010_taste_reset_onboarding_and_watch_cache",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1792291514779,
+      "tag": "0011_query_first_ask_search",
+      "breakpoints": true
     }
   ]
 }

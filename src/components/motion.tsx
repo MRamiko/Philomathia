@@ -2,6 +2,7 @@ import { Children, isValidElement, useEffect, useLayoutEffect, useRef, useState,
 import { useBlocker, useRouterState } from '@tanstack/react-router';
 import { Button } from './auth-form';
 import { useLocale } from '@/lib/locale';
+import {PhiLogo} from './icons';
 export function motionWait() {
   const duration = getComputedStyle(document.documentElement).getPropertyValue(window.matchMedia('(prefers-reduced-motion: reduce)').matches ? '--motion-fast' : '--motion-standard');
   return new Promise<void>(resolve => window.setTimeout(resolve, parseFloat(duration)));
@@ -30,8 +31,8 @@ export function ScreenMotion({ children }: { children: ReactNode }) {
     return () => window.clearTimeout(timer);
   }, []);
   return <>
-    {intro && <div className="launch-mark" aria-hidden="true">Φ</div>}
-    <div key={location.href} className={`screen-motion screen-${direction}`}>{children}</div>
+    {intro && <div className="launch-mark"><PhiLogo size={96}/></div>}
+    <div className={`screen-motion screen-${direction}`}>{children}</div>
   </>;
 }
 

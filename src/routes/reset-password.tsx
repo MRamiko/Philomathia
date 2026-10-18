@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useLocale } from '@/lib/locale';
 import { signupValidity } from '@/lib/auth-form';
 import { Button, PasswordField, useEmailDraft, keepFocusedFieldVisible } from '@/components/auth-form';
+import {PhiLogo} from '@/components/icons';
 
 export const Route = createFileRoute('/reset-password')({
   head: () => ({ meta: [{ title: 'Choose a new password · Philomathia' }, { name: 'description', content: 'Set a new Philomathia password from your reset link.' }, { property: 'og:title', content: 'Choose a new password · Philomathia' }, { property: 'og:description', content: 'Set a new Philomathia password from your reset link.' }, { property: 'og:type', content: 'website' }, { name: 'twitter:card', content: 'summary' }] }),
@@ -67,14 +68,14 @@ function ResetPassword() {
   }
   if (phase === 'checking') return <main className="app auth-app login-app"><div className="login-content"><p className="lede">{t('Loading…')}</p></div></main>;
   if (phase === 'invalid') return <main className="app auth-app login-app">
-    <header className="topbar"><Link className="btn icon-btn" to="/login" aria-label={t('Back to Login')}>←</Link><span className="brand" aria-hidden="true">Φ</span></header>
+    <header className="topbar"><Link className="btn icon-btn" to="/login" aria-label={t('Back to Login')}>←</Link><PhiLogo/></header>
     <div className="login-content stack">
       <header className="stack center login-heading"><h1 className="h1">{t('Forgot your password?')}</h1></header>
       <section className="box stack" role="alert"><p className="error">{t('This link is invalid or has expired.')}</p><Link className="btn btn-primary" to="/forgot-password">{t('Request a new link')}</Link></section>
     </div>
   </main>;
   return <main className="app auth-app signup-app" onFocusCapture={keepFocusedFieldVisible}>
-    <header className="topbar"><Link className="btn icon-btn" to="/login" aria-label={t('Back to Login')}>←</Link><span className="brand" aria-hidden="true">Φ</span></header>
+    <header className="topbar"><Link className="btn icon-btn" to="/login" aria-label={t('Back to Login')}>←</Link><PhiLogo/></header>
     <div className="signup-content stack">
       <header className="stack"><h1 className="h1">{t('Choose a new password')}</h1></header>
       <form className="stack auth-fields" noValidate onSubmit={submit} aria-busy={busy}>

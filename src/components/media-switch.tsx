@@ -1,0 +1,4 @@
+import { Button } from './auth-form';
+import { Icon } from './icons';
+import { haptic } from '@/lib/timings';
+export function MediaSwitch({value,onChange}:{value:'film'|'book';onChange:(value:'film'|'book')=>void}){return <div className="media-switch" role="radiogroup" aria-label="Media type"><span className={`media-thumb ${value==='book'?'book-selected':''}`}/>{(['film','book'] as const).map(media=><Button key={media} role="radio" aria-checked={value===media} title={media==='film'?'Films':'Books'} aria-label={media==='film'?'Films':'Books'} className={value===media?'selected':''} onClick={()=>{haptic();onChange(media);}}><Icon name={media}/></Button>)}</div>;}

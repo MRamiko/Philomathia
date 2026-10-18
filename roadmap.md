@@ -1,4 +1,14 @@
-# Corrective update
+# October 18 taste and mobile update
+- [ ] Part 1: timings, cached independent tabs, optimistic record_swipe, eight-card SQL queue and indexes
+- [ ] Part 2: controlled facets, exposure learning, portraits, overrides, preference and onboarding
+- [ ] Part 3: resumable rule/AI trait enrichment and admin editing
+- [ ] Part 4: semantic tonal ramps, geometry logo/icons, native navigation/media switch
+- [ ] Part 5: Discover, Library, Profile and remaining screen refresh; English-only interface
+- [ ] Part 6: query-first Ask Phi with validated intent and relevant SQL results
+- [ ] Part 7: authenticated seven-day GE watch-provider cache and details display
+- [ ] Part 8: mobile, security, learning, timing and integration checks; honest final report
+
+# Earlier corrective update
 - [x] Administrator/TMDB access verified through a real import; commands queue instead of being discarded, paused progress survived refresh; 10 targeted tests passed
 - [ ] Night background, forest surfaces and install branding
 - [ ] Catalog image/popularity fields, indexes and admin-only resumable import jobs

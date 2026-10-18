@@ -1,0 +1,8 @@
+import { expect,it } from 'vitest';
+import { ruleFacets,validFacet,TASTE_CONFIG } from './facets';
+const base={media_type:'film',year:1950,runtime_minutes:85,page_count:null,is_georgian:true,genres:['drama'],keywords:['black and white'],mood_tags:[],creator:'Director'};
+it('uses verified keyword evidence for monochrome across genres',()=>{for(const genre of ['drama','thriller','comedy'])expect(ruleFacets({...base,genres:[genre]})).toContainEqual({facet:'visual',value:'black_and_white',source:'keyword',confidence:1});});
+it('derives era and short length from actual metadata',()=>{const f=ruleFacets(base);expect(f.find(v=>v.facet==='era')?.value).toBe('classic_1945_1969');expect(f.find(v=>v.facet==='length')?.value).toBe('short');});
+it('does not invent visual evidence from genre',()=>{expect(ruleFacets({...base,keywords:[]})).not.toContainEqual(expect.objectContaining({facet:'visual'}));});
+it('rejects values outside controlled vocabularies',()=>{expect(validFacet('visual','black_and_white')).toBe(true);expect(validFacet('visual','made_up')).toBe(false);});
+it('sets the requested learning and country shares',()=>{expect(TASTE_CONFIG.halfLife).toBe(40);expect(TASTE_CONFIG.earlySwipes).toBe(15);expect(TASTE_CONFIG.earlyMultiplier).toBe(1.5);expect(TASTE_CONFIG.georgianEvery).toEqual({less:12,balanced:6,more:3});expect(TASTE_CONFIG.locked).toBe(2);expect(TASTE_CONFIG.queue).toBe(8);});

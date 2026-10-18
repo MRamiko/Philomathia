@@ -4,7 +4,7 @@ import { recommend, type Item } from "./recommend";
 const mk = (id: string, p: Partial<Item>): Item => ({
   id, media_type: "film", title_en: id, title_ka: null, original_title: null, creator: "X", year: 2000, description_en: "", description_ka: null,
   genres: [], mood_tags: [], keywords: [], is_georgian: false, isbn: null, runtime_minutes: 100, page_count: null, trailer_key: null,
-  poster_url: null, image_source:null,image_ref:null,popularity:0,tmdb_id: null, openlibrary_key: null, wikidata_id: null, source: "seed", created_at: "", ...p,
+  poster_url: null, image_source:null,image_ref:null,popularity:0,facets_status:'none',search_document:null,tmdb_id: null, openlibrary_key: null, wikidata_id: null, source: "seed", created_at: "", ...p,
 });
 const items = [
   mk("memento", { genres: ["thriller", "psychological thriller"], mood_tags: ["mind-bending", "mysterious"], keywords: ["memory"], creator: "Christopher Nolan" }),

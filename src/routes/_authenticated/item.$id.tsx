@@ -6,6 +6,7 @@ import { Chips, Loading, Poster, Shell, WhereToBuy } from "@/components/phi";
 import { deleteLog, descOf, titleOf, lengthOf, saveLog, useItems, useMe, useRefresh, yearOf } from "@/lib/data";
 import type { Item } from "@/lib/recommend";
 import { Presence } from '@/components/motion';
+import {WhereToWatch} from '@/components/where-to-watch';
 
 export const Route = createFileRoute("/_authenticated/item/$id")({
   head: () => ({ meta: [{ title: "Title · Philomathia" }, { name: "description", content: "Details, your diary entry and where to buy." }, { property: "og:title", content: "Title · Philomathia" }, { property: "og:description", content: "Details, your diary entry and where to buy." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -57,6 +58,7 @@ function ItemPage() {
         {action.error&&<p role="alert" className="error">{action.error}</p>}
         <Poster item={item} size="lg" />
         <h1 className="h1">{title}</h1>
+        {item.title_ka?.trim()&&<p className="small muted" lang="ka">{item.title_ka}</p>}
         {item.original_title && item.original_title !== title && <div className="muted small">{item.original_title}</div>}
         <div className="muted small">{yearOf(item.year)} · {item.creator} · {t(item.media_type)} · {lengthOf(item, appLang)}{item.is_georgian ? ` · ${t("Georgia")}` : ""}</div>
         {item.isbn && <div className="muted small">ISBN {item.isbn}</div>}
@@ -92,6 +94,7 @@ function ItemPage() {
           </div>
         </div>
         {item.media_type === "book" && <WhereToBuy itemId={item.id} />}
+        {item.media_type === "film" && <WhereToWatch itemId={item.id} />}
       </div>
     </Shell>
   );

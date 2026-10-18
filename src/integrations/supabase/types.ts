@@ -56,12 +56,45 @@ export type Database = {
         }
         Relationships: []
       }
+      item_facets: {
+        Row: {
+          confidence: number
+          facet: string
+          item_id: string
+          source: string
+          value: string
+        }
+        Insert: {
+          confidence?: number
+          facet: string
+          item_id: string
+          source: string
+          value: string
+        }
+        Update: {
+          confidence?: number
+          facet?: string
+          item_id?: string
+          source?: string
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "item_facets_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       items: {
         Row: {
           created_at: string
           creator: string
           description_en: string
           description_ka: string | null
+          facets_status: string
           genres: string[]
           id: string
           image_ref: string | null
@@ -77,6 +110,7 @@ export type Database = {
           popularity: number | null
           poster_url: string | null
           runtime_minutes: number | null
+          search_document: unknown
           source: string
           title_en: string
           title_ka: string | null
@@ -90,6 +124,7 @@ export type Database = {
           creator?: string
           description_en?: string
           description_ka?: string | null
+          facets_status?: string
           genres?: string[]
           id?: string
           image_ref?: string | null
@@ -105,6 +140,7 @@ export type Database = {
           popularity?: number | null
           poster_url?: string | null
           runtime_minutes?: number | null
+          search_document?: unknown
           source?: string
           title_en: string
           title_ka?: string | null
@@ -118,6 +154,7 @@ export type Database = {
           creator?: string
           description_en?: string
           description_ka?: string | null
+          facets_status?: string
           genres?: string[]
           id?: string
           image_ref?: string | null
@@ -133,6 +170,7 @@ export type Database = {
           popularity?: number | null
           poster_url?: string | null
           runtime_minutes?: number | null
+          search_document?: unknown
           source?: string
           title_en?: string
           title_ka?: string | null
@@ -186,27 +224,33 @@ export type Database = {
           avoided_genres: string[]
           created_at: string
           display_name: string | null
+          georgian_preference: string
           id: string
           onboarded: boolean
           preferred_language: string
+          swipe_no: number
           taste_baseline: Json | null
         }
         Insert: {
           avoided_genres?: string[]
           created_at?: string
           display_name?: string | null
+          georgian_preference?: string
           id: string
           onboarded?: boolean
           preferred_language?: string
+          swipe_no?: number
           taste_baseline?: Json | null
         }
         Update: {
           avoided_genres?: string[]
           created_at?: string
           display_name?: string | null
+          georgian_preference?: string
           id?: string
           onboarded?: boolean
           preferred_language?: string
+          swipe_no?: number
           taste_baseline?: Json | null
         }
         Relationships: []
@@ -282,6 +326,47 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      swipe_receipts: {
+        Row: {
+          before_stats: Json
+          before_tags: Json
+          dwell_ms: number
+          item_id: string
+          opened_details: boolean
+          previous_no: number
+          swipe_no: number
+          user_id: string
+        }
+        Insert: {
+          before_stats: Json
+          before_tags: Json
+          dwell_ms?: number
+          item_id: string
+          opened_details?: boolean
+          previous_no: number
+          swipe_no: number
+          user_id: string
+        }
+        Update: {
+          before_stats?: Json
+          before_tags?: Json
+          dwell_ms?: number
+          item_id?: string
+          opened_details?: boolean
+          previous_no?: number
+          swipe_no?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "swipe_receipts_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       swipes: {
         Row: {
@@ -383,6 +468,42 @@ export type Database = {
           },
         ]
       }
+      user_facet_stats: {
+        Row: {
+          exposures_ew: number
+          facet: string
+          last_swipe_no: number
+          likes_ew: number
+          media_type: string
+          passes_ew: number
+          strong_ew: number
+          user_id: string
+          value: string
+        }
+        Insert: {
+          exposures_ew?: number
+          facet: string
+          last_swipe_no?: number
+          likes_ew?: number
+          media_type: string
+          passes_ew?: number
+          strong_ew?: number
+          user_id: string
+          value: string
+        }
+        Update: {
+          exposures_ew?: number
+          facet?: string
+          last_swipe_no?: number
+          likes_ew?: number
+          media_type?: string
+          passes_ew?: number
+          strong_ew?: number
+          user_id?: string
+          value?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -404,11 +525,128 @@ export type Database = {
         }
         Relationships: []
       }
+      user_taste: {
+        Row: {
+          confidence_level: string
+          defining: boolean
+          facet: string
+          importance: number
+          media_type: string
+          stance: string
+          updated_at: string
+          user_id: string
+          value: string
+        }
+        Insert: {
+          confidence_level: string
+          defining?: boolean
+          facet: string
+          importance?: number
+          media_type: string
+          stance: string
+          updated_at?: string
+          user_id: string
+          value: string
+        }
+        Update: {
+          confidence_level?: string
+          defining?: boolean
+          facet?: string
+          importance?: number
+          media_type?: string
+          stance?: string
+          updated_at?: string
+          user_id?: string
+          value?: string
+        }
+        Relationships: []
+      }
+      user_taste_overrides: {
+        Row: {
+          facet: string
+          stance: string
+          user_id: string
+          value: string
+        }
+        Insert: {
+          facet: string
+          stance: string
+          user_id: string
+          value: string
+        }
+        Update: {
+          facet?: string
+          stance?: string
+          user_id?: string
+          value?: string
+        }
+        Relationships: []
+      }
+      user_taste_portrait: {
+        Row: {
+          archetype: string
+          source: string
+          summary: string
+          swipe_no: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          archetype: string
+          source?: string
+          summary: string
+          swipe_no?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          archetype?: string
+          source?: string
+          summary?: string
+          swipe_no?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      watch_availability: {
+        Row: {
+          fetched_at: string
+          item_id: string
+          link: string | null
+          providers: Json
+          region: string
+        }
+        Insert: {
+          fetched_at?: string
+          item_id: string
+          link?: string | null
+          providers?: Json
+          region?: string
+        }
+        Update: {
+          fetched_at?: string
+          item_id?: string
+          link?: string | null
+          providers?: Json
+          region?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "watch_availability_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      ask_rank: { Args: { intent: Json }; Returns: Json }
       bump_tags: {
         Args: { _delta: number; _tags: string[] }
         Returns: undefined
@@ -429,6 +667,7 @@ export type Database = {
           creator: string
           description_en: string
           description_ka: string | null
+          facets_status: string
           genres: string[]
           id: string
           image_ref: string | null
@@ -444,6 +683,7 @@ export type Database = {
           popularity: number | null
           poster_url: string | null
           runtime_minutes: number | null
+          search_document: unknown
           source: string
           title_en: string
           title_ka: string | null
@@ -469,6 +709,16 @@ export type Database = {
         Returns: Json
       }
       clean_display_name: { Args: { value: string }; Returns: string }
+      get_discover_queue: {
+        Args: {
+          exclude_ids?: string[]
+          filters?: Json
+          limit?: number
+          media_type?: string
+          seed?: string
+        }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -476,13 +726,26 @@ export type Database = {
         }
         Returns: boolean
       }
+      record_swipe: {
+        Args: {
+          action: string
+          dwell_ms?: number
+          item_id: string
+          opened_details?: boolean
+        }
+        Returns: boolean
+      }
+      refresh_taste: { Args: { user_id?: string }; Returns: undefined }
       replay_taste: { Args: never; Returns: undefined }
+      reset_facet_taste: { Args: never; Returns: undefined }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
+      starting_taste: { Args: { answers: Json }; Returns: undefined }
       taste_action: {
         Args: { _item: string; _kind: string; _rules: Json; _value: Json }
         Returns: boolean
       }
+      undo_record_swipe: { Args: { item_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "user" | "shop" | "admin"

@@ -5,6 +5,7 @@ import { useLocale } from '@/lib/locale';
 import { signupValidity } from '@/lib/auth-form';
 import { cleanDisplayName } from '@/lib/display-name';
 import { Button, PasswordField, useEmailDraft, keepFocusedFieldVisible } from '@/components/auth-form';
+import { PhiLogo } from '@/components/icons';
 
 export const Route = createFileRoute('/signup')({
   head: () => ({ meta: [{ title: 'Create your account · Philomathia' }, { name: 'description', content: 'Join Philomathia and begin your private film and book diary.' }, { property: 'og:title', content: 'Create your account · Philomathia' }, { property: 'og:description', content: 'Start discovering films and books with a diary that learns your taste.' }, { property: 'og:type', content: 'website' }, { name: 'twitter:card', content: 'summary' }] }),
@@ -44,7 +45,7 @@ function Signup() {
   }
   const checklist = (met: boolean, text: string) => <p key={`${text}-${met}`} className={`small checklist ${met ? 'check-met' : ''}`}><span aria-hidden="true">{met ? '✓' : '✕'}</span>{t(text)}</p>;
   return <main className="app auth-app signup-app" onFocusCapture={keepFocusedFieldVisible}>
-    <header className="topbar"><Link className="btn icon-btn" to="/login" aria-label={t('Back to Login')}>←</Link><span className="brand" aria-hidden="true">Φ</span></header>
+    <header className="topbar"><Link className="btn icon-btn" to="/login" aria-label={t('Back to Login')}>←</Link><PhiLogo size={96}/></header>
     <div className="signup-content stack">
       <header className="stack"><h1 className="h1">{t('Create your account')}</h1><p className="lede">{t('Log what you watch and read, and get recommendations that learn from you.')}</p></header>
       <div className="box signup-benefits">{['Swipe to discover films and books', 'Keep a private diary', 'Georgian titles included'].map(line => <p key={line}><span className="check-met" aria-hidden="true">✓</span> {t(line)}</p>)}</div>
