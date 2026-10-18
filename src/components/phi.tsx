@@ -10,6 +10,8 @@ import { imageUrl } from '@/lib/images';
 import { similar, type Item } from "@/lib/recommend";
 import { descOf, lengthOf, titleOf, twoSentences, yearOf } from "@/lib/data";
 import { Presence, MotionList } from '@/components/motion';
+import { Icon, PhiLogo, type IconName } from './icons';
+import { haptic } from '@/lib/timings';
 
 const TABS = [
   { to: "/discover", label: "Discover" },
@@ -34,7 +36,7 @@ export function Shell({ children, footer }: { children: ReactNode; footer?: Reac
     <>
       <div className="app">
         {offline && <p role="alert" className="offline">{t("You are offline")}</p>}
-        <header className="topbar"><span className="brand" aria-hidden="true">Φ</span></header>
+        <header className="topbar"><PhiLogo /></header>
         {children}
         <div className="footer">{footer ?? t("Sample data for demo")}</div>
       </div>
@@ -42,8 +44,8 @@ export function Shell({ children, footer }: { children: ReactNode; footer?: Reac
         <div className="nav-inner">
           <span className="nav-indicator" style={{ transform: `translateX(${Math.max(0, TABS.findIndex(tab => path.startsWith(tab.to))) * 100}%)` }} />
           {TABS.map((tab) => (
-            <Link key={tab.to} to={tab.to} className={path.startsWith(tab.to) ? "active" : ""}>
-              {t(tab.label)}
+            <Link key={tab.to} to={tab.to} aria-label={tab.label} title={tab.label} onClick={()=>{sessionStorage.setItem('phi-tab-start',String(performance.now()));haptic();}} className={path.startsWith(tab.to) ? "active" : ""}>
+              <Icon name={(tab.to.slice(1)==='ask'?'ask':tab.to.slice(1)) as IconName}/>
             </Link>
           ))}
         </div>
@@ -73,6 +75,7 @@ export function ItemRow({ item, lang, right }: { item: Item; lang: string; right
         <Poster item={item} size="sm" />
         <div className="stack">
           <strong className="clamp2">{titleOf(item, lang)}</strong>
+          {item.title_ka?.trim()&&item.title_ka!==item.title_en&&<span className="muted small" lang="ka">{item.title_ka}</span>}
           <span className="muted small">
             {yearOf(item.year)} · {item.creator} · {t(item.media_type)}
           </span>
@@ -176,15 +179,17 @@ export function SwipeCard({ item, lang, reason, onLike, onPass, onTap, disabled,
       {dx >= 40 && <span className="stamp stamp-like" style={{ opacity: Math.min(1, (dx - 20) / 80) }}>{t("LIKE")}</span>}
       {dx <= -40 && <span className="stamp stamp-pass" style={{ opacity: Math.min(1, (-dx - 20) / 80) }}>{t("PASS")}</span>}
       <div className={arrival ? `swipe-undo-${arrival === 'like' ? 'right' : 'left'}` : 'swipe-arrival'}>
-      <div className="stack">
+      <div className="stack swipe-content">
       <Poster item={item} size="lg" eager />
+      <div className="swipe-caption">
       <h2 className="clamp2">{titleOf(item, lang)}</h2>
+      {item.title_ka?.trim()&&item.title_ka!==item.title_en&&<span className="small" lang="ka">{item.title_ka}</span>}
       <div className="muted small">
         {yearOf(item.year)} · {item.creator} · {lengthOf(item, appLang)}
       </div>
-      <Chips tags={item.genres.slice(0, 3)} />
-      <p>{twoSentences(descOf(item, lang))||t("No description available.")}</p>
-      <p className="reason">{t("Why you’re seeing this")}: <b>{reason}</b></p>
+      <Chips tags={item.genres.slice(0, 2)} />
+      <p className="reason"><Icon name="spark"/><b>{reason}</b></p>
+      </div>
       </div>
       </div>
     </div>
