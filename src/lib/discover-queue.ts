@@ -7,7 +7,7 @@ export async function discoverQueue(media: 'film' | 'book', filters: Record<stri
   try {
     const result = await supabase.rpc('get_discover_queue', { media_type: media, filters: filters as never, exclude_ids: excludes, seed, limit: 8 }).abortSignal(AbortSignal.timeout(8000));
     if (result.error) throw result.error;
-    return (result.data as unknown as QueueCard[]).map(card => ({ ...card, item: { description_en: '', description_ka: null, ...card.item } }));
+    return (result.data as unknown as QueueCard[]).map(card => ({ ...card, item: { ...card.item, description_en: card.item.description_en ?? '', description_ka: card.item.description_ka ?? null } }));
   } finally { finish(); }
 }
 export async function recordSwipe(item: Item, action: 'like' | 'pass', dwell: number, opened: boolean) {

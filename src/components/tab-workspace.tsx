@@ -11,9 +11,9 @@ const screens = {
   '/profile': lazy(() => import('@/routes/_authenticated/profile').then(m => ({ default: m.Profile }))),
 };
 class TabBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
-  state = { failed: false };
+  override state = { failed: false };
   static getDerivedStateFromError() { return { failed: true }; }
-  render() { return this.state.failed ? <Shell><p role="alert" className="error">This tab could not load.</p><Button onClick={() => this.setState({ failed: false })}>Retry</Button></Shell> : this.props.children; }
+  override render() { return this.state.failed ? <Shell><p role="alert" className="error">This tab could not load.</p><Button onClick={() => this.setState({ failed: false })}>Retry</Button></Shell> : this.props.children; }
 }
 export function TabWorkspace() {
   const path = useRouterState({ select: state => state.location.pathname });
