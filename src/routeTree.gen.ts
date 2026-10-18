@@ -26,6 +26,7 @@ import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedSearchRouteImport } from './routes/_authenticated/search'
 import { Route as AuthenticatedShopStockRouteImport } from './routes/_authenticated/shop-stock'
 import { Route as AuthenticatedShopsRouteImport } from './routes/_authenticated/shops'
+import { Route as AuthenticatedWhereToWatchRouteImport } from './routes/_authenticated/where-to-watch'
 import { Route as AuthenticatedItemIdRouteImport } from './routes/_authenticated/item.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -113,6 +114,12 @@ const AuthenticatedShopsRoute = AuthenticatedShopsRouteImport.update({
   path: '/shops',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedWhereToWatchRoute =
+  AuthenticatedWhereToWatchRouteImport.update({
+    id: '/where-to-watch',
+    path: '/where-to-watch',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedItemIdRoute = AuthenticatedItemIdRouteImport.update({
   id: '/item/$id',
   path: '/item/$id',
@@ -136,6 +143,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof AuthenticatedSearchRoute
   '/shop-stock': typeof AuthenticatedShopStockRoute
   '/shops': typeof AuthenticatedShopsRoute
+  '/where-to-watch': typeof AuthenticatedWhereToWatchRoute
   '/item/$id': typeof AuthenticatedItemIdRoute
 }
 export interface FileRoutesByTo {
@@ -155,6 +163,7 @@ export interface FileRoutesByTo {
   '/search': typeof AuthenticatedSearchRoute
   '/shop-stock': typeof AuthenticatedShopStockRoute
   '/shops': typeof AuthenticatedShopsRoute
+  '/where-to-watch': typeof AuthenticatedWhereToWatchRoute
   '/item/$id': typeof AuthenticatedItemIdRoute
 }
 export interface FileRoutesById {
@@ -176,6 +185,7 @@ export interface FileRoutesById {
   '/_authenticated/search': typeof AuthenticatedSearchRoute
   '/_authenticated/shop-stock': typeof AuthenticatedShopStockRoute
   '/_authenticated/shops': typeof AuthenticatedShopsRoute
+  '/_authenticated/where-to-watch': typeof AuthenticatedWhereToWatchRoute
   '/_authenticated/item/$id': typeof AuthenticatedItemIdRoute
 }
 export interface FileRouteTypes {
@@ -197,6 +207,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/shop-stock'
     | '/shops'
+    | '/where-to-watch'
     | '/item/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -216,6 +227,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/shop-stock'
     | '/shops'
+    | '/where-to-watch'
     | '/item/$id'
   id:
     | '__root__'
@@ -236,6 +248,7 @@ export interface FileRouteTypes {
     | '/_authenticated/search'
     | '/_authenticated/shop-stock'
     | '/_authenticated/shops'
+    | '/_authenticated/where-to-watch'
     | '/_authenticated/item/$id'
   fileRoutesById: FileRoutesById
 }
@@ -370,6 +383,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedShopsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/where-to-watch': {
+      id: '/_authenticated/where-to-watch'
+      path: '/where-to-watch'
+      fullPath: '/where-to-watch'
+      preLoaderRoute: typeof AuthenticatedWhereToWatchRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/item/$id': {
       id: '/_authenticated/item/$id'
       path: '/item/$id'
@@ -391,6 +411,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSearchRoute: typeof AuthenticatedSearchRoute
   AuthenticatedShopStockRoute: typeof AuthenticatedShopStockRoute
   AuthenticatedShopsRoute: typeof AuthenticatedShopsRoute
+  AuthenticatedWhereToWatchRoute: typeof AuthenticatedWhereToWatchRoute
   AuthenticatedItemIdRoute: typeof AuthenticatedItemIdRoute
 }
 
@@ -405,6 +426,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSearchRoute: AuthenticatedSearchRoute,
   AuthenticatedShopStockRoute: AuthenticatedShopStockRoute,
   AuthenticatedShopsRoute: AuthenticatedShopsRoute,
+  AuthenticatedWhereToWatchRoute: AuthenticatedWhereToWatchRoute,
   AuthenticatedItemIdRoute: AuthenticatedItemIdRoute,
 }
 

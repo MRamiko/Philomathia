@@ -57,7 +57,7 @@ function Dashboard() {
         {traits.length ? (
           <div className="row">
             {traits.slice(0, 20).map(trait => (
-              <span key={trait.facet + trait.value + trait.media_type} className={`chip trait-chip ${trait.stance === 'exploring' ? 'exploring' : ''}`}>{facetLabel(trait.value)}</span>
+              <span key={trait.facet + trait.value + trait.media_type} className={`chip trait-chip ${trait.stance === 'exploring' ? 'exploring' : ''}`}>{t(facetLabel(trait.value))}</span>
             ))}
           </div>
         ) : (

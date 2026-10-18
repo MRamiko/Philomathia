@@ -374,6 +374,7 @@ button:hover{background-color:var(--surface-3)}.btn-primary:hover{background:var
  .library-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
  .nav{max-width:560px}
  .drawer{max-width:560px}
+ .swipe-content{width:auto;max-width:100%;aspect-ratio:2/3;margin-inline:auto}
 }
 
 /* Desktop: persistent left sidebar, centered content */
