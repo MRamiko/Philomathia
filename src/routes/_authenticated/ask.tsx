@@ -1,123 +1,31 @@
-import { MotionList } from '@/components/motion';
-import { useAction } from "@/lib/use-action";
-import { rulesParse } from "@/lib/ask-parser";
-import { useLocale } from "@/lib/locale";
-import { createFileRoute } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
-import { ItemRow, Loading, Shell } from "@/components/phi";
-import { ASK_MOODS } from "@/lib/config";
-import { parseQuery } from "@/lib/ask.functions";
-import { swipe, useItems, useMe, useRefresh } from "@/lib/data";
-import { localizedReason } from "@/lib/reasons";
-import { recommend, type Rec } from "@/lib/recommend";
-import {candidateItems} from '@/lib/catalog';
-
+import {createFileRoute} from '@tanstack/react-router';
+import {useServerFn} from '@tanstack/react-start';
+import {useEffect,useState} from 'react';
+import {Shell,Loading,ItemRow} from '@/components/phi';
+import {Button} from '@/components/auth-form';
+import {parseQuery} from '@/lib/ask.functions';
+import {parseIntent,type Intent} from '@/lib/ask-intent';
+import {facetLabel} from '@/lib/facets';
+import {supabase} from '@/integrations/supabase/client';
+import {swipe,useMe,useRefresh} from '@/lib/data';
+import type {Item} from '@/lib/recommend';
+import {startTiming} from '@/lib/timings';
 export const Route = createFileRoute("/_authenticated/ask")({
   head: () => ({ meta: [{ title: "Ask Phi · Philomathia" }, { name: "description", content: "Find your next film or book by mood and time." }, { property: "og:title", content: "Ask Phi · Philomathia" }, { property: "og:description", content: "Find your next film or book by mood and time." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: () => null,
 });
 
-const FILM_TIME = { "Under 90 min": [null, 89], "90 to 120 min": [90, 120], "2+ hours": [120, null] } as const;
-const BOOK_TIME = { "Under 200 pages": [null, 199], "200 to 400 pages": [200, 400], "400+ pages": [400, null] } as const;
-const MOODS = Object.keys(ASK_MOODS);
-
-export function Ask() {
-  const { t, lang: appLang } = useLocale();
-  const action=useAction();
-  const items = useItems();
-  const me = useMe();
-  const refresh = useRefresh();
-  const parse = useServerFn(parseQuery);
-
-  const [media, setMedia] = useState<"film" | "book" | "either">("either");
-  const [moods, setMoods] = useState<string[]>([]);
-  const [time, setTime] = useState<string>("");
-  const [text, setText] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [res, setRes] = useState<{ recs: Rec[]; ai: boolean; note: string } | null>(null);
-  const [done, setDone] = useState<Record<string, string>>({});
-
-  if (items.error || me.error) return <Shell><p role="alert" className="error">{t("Could not load.")}</p><button className="btn" onClick={()=>{items.refetch();me.refetch();}}>{t("Retry")}</button></Shell>;
-  if (!items.data || !me.data) return <Shell><Loading /></Shell>;
-  const lang = appLang;
-
-  async function find() {
-    setBusy(true); setDone({});
-    let f = { media_type: media, max_minutes: null as number | null, moods: [] as string[], georgian_only: false, keywords: [] as string[] };
-    let ai = false;
-    if (text.trim()) {
-      const r = await parse({ data: { text } }).catch(() => null);
-      if (r?.filters) { f = r.filters; ai = true; } else f = rulesParse(text);
-      if (media !== "either" && f.media_type === "either") f.media_type = media;
-    }
-    const mediaType = media !== "either" ? media : f.media_type;
-    const allMoods = Array.from(new Set([...moods, ...f.moods])).flatMap((m) => ASK_MOODS[m] ?? []);
-    let minM: number | undefined, maxM: number | undefined, minP: number | undefined, maxP: number | undefined;
-    const ft = (FILM_TIME as any)[time]; const bt = (BOOK_TIME as any)[time];
-    if (ft) { minM = ft[0] ?? undefined; maxM = ft[1] ?? undefined; }
-    if (bt) { minP = bt[0] ?? undefined; maxP = bt[1] ?? undefined; }
-    if (f.max_minutes) maxM = Math.min(maxM ?? 9999, f.max_minutes);
-    const d = me.data; if (!d) { setBusy(false); return; }
-    let candidates;
-    try{candidates=await candidateItems({mediaType,georgianOnly:f.georgian_only,avoidedGenres:d.profile.avoided_genres,minMinutes:minM,maxMinutes:maxM,minPages:minP,maxPages:maxP},!d.swipes.length);}catch{setBusy(false);setRes({recs:[],ai,note:t('Could not load.')});return;}
-    const base = {
-      items: candidates, historyItems:items.data??[], weights: d.weights, swipes: d.swipes,
-      excludedIds: new Set([...d.swipes.map((s) => s.item_id), ...d.logs.filter((l) => l.status === "seen").map((l) => l.item_id)]),
-      likedIds: new Set(d.swipes.filter((s) => s.action === "like").map((s) => s.item_id)),
-      avoidedGenres: d.profile.avoided_genres, mediaType: mediaType, georgianOnly: f.georgian_only,
-      moods: allMoods, keywords: f.keywords,
-    };
-    let recs = recommend({ ...base, minMinutes: minM, maxMinutes: maxM, minPages: minP, maxPages: maxP }, 5);
-    let note = "";
-    setRes({ recs, ai, note });
-    setBusy(false);
-  }
-
-  const translateTime = t;
-  const timeOpts = media === "book" ? Object.keys(BOOK_TIME) : media === "film" ? Object.keys(FILM_TIME) : [];
-  return (
-    <Shell>
-      {action.error&&<p className="error" role="alert">{action.error}</p>}
-      <h1 className="h1">{t('Ask Phi')}</h1>
-      <div className="stack">
-        <div className="toggle" style={{ '--selected': ['film','book','either'].indexOf(media), '--segments': 3 } as React.CSSProperties}>
-          {(["film", "book", "either"] as const).map((m) => (
-            <button key={m} className={media === m ? "on" : ""} onClick={() => { setMedia(m); setTime(""); }}>{m === "film" ? t('Film') : m === "book" ? t('Book') : t('Either')}</button>
-          ))}
-        </div>
-        <div className="row">
-          {MOODS.map((m) => (
-            <button key={m} className={`chip ${moods.includes(m) ? "chip-active" : ""}`} onClick={() => {setMoods(moods.includes(m) ? moods.filter((x) => x !== m) : [...moods, m]);setRes(null);refresh();}}>{t(m)}</button>
-          ))}
-        </div>
-        {timeOpts.length > 0 && (
-          <div className="row">
-            {timeOpts.map((t) => <button key={t} className={`chip ${time === t ? "chip-active" : ""}`} onClick={() => setTime(time === t ? "" : t)}>{translateTime(t)}</button>)}
-          </div>
-        )}
-        <input className="input" placeholder={t('a 90-minute thriller for a rainy evening')} value={text} onChange={(e) => setText(e.target.value)} />
-        <button className="btn btn-primary" disabled={busy} onClick={find}>{busy ? t('Finding…') : t('Find')}</button>
-      </div>
-      {busy && <Loading />}
-      {res && (
-        <div style={{ marginTop: 16 }}>
-          <span className="chip muted">{res.ai ? t('AI used') : t('Rules only')}</span>
-          {res.note && <p className="muted small">{res.note}</p>}
-          {res.recs.length === 0 && <p className="muted">{t('No matches. Try fewer filters.')}</p>}
-          <MotionList scope="ask-results" setKey={res.recs.map(r=>r.item.id).join('-')}>{res.recs.map((r) => (
-            <div key={r.item.id}>
-              <ItemRow item={r.item} lang={lang} right={done[r.item.id] ? <span className="small ok">{done[r.item.id]}</span> : (
-                <>
-                  <button className="btn btn-sm btn-primary" disabled={action.busy} onClick={() => action.run(async()=>{await swipe(me.data?.uid??"",r.item,"like");await refresh();},()=>setDone(d=>({...d,[r.item.id]:t("Liked")})),()=>setDone(d=>{const next={...d};delete next[r.item.id];return next;}))}>{t('Like')}</button>
-                  <button className="btn btn-sm" disabled={action.busy} onClick={() => action.run(async()=>{await swipe(me.data?.uid??"",r.item,"pass");await refresh();},()=>setDone(d=>({...d,[r.item.id]:t("Passed")})),()=>setDone(d=>{const next={...d};delete next[r.item.id];return next;}))}>{t('Pass')}</button>
-                </>
-              )} />
-              <p className="small ok" style={{ margin: "8px 0" }}>{localizedReason(r, appLang)}</p>
-            </div>
-          ))}</MotionList>
-        </div>
-      )}
-    </Shell>
-  );
+type Result={item:Item;reason:string;score:number};
+export function Ask(){
+ const parse=useServerFn(parseQuery);const me=useMe();const refresh=useRefresh();
+ const [text,setText]=useState('');const [media,setMedia]=useState<'either'|'film'|'book'>('either');const [intent,setIntent]=useState<Intent|null>(null);const [results,setResults]=useState<Result[]|null>(null);const [recent,setRecent]=useState<string[]>([]);const [busy,setBusy]=useState(false);const [error,setError]=useState('');const [ai,setAi]=useState(false);const [done,setDone]=useState<string[]>([]);
+ useEffect(()=>{try{setRecent(JSON.parse(sessionStorage.getItem('phi-recent-asks')??'[]'));}catch{}},[]);
+ async function rank(value:Intent){const finish=startTiming('query time');try{const r=await supabase.rpc('ask_rank',{intent:value as never}).abortSignal(AbortSignal.timeout(8000));if(r.error)throw r.error;setResults(r.data as unknown as Result[]);}finally{finish();}}
+ async function find(query=text){if(!query.trim()||busy)return;setText(query);setBusy(true);setError('');setDone([]);let value=parseIntent(query);setAi(false);
+ try{const response=await Promise.race([parse({data:{text:query}}),new Promise<null>(resolve=>setTimeout(()=>resolve(null),8000))]);if(response){value=response.intent;setAi(response.aiUsed);if(response.error)setError(response.error);}if(media!=='either')value.media_type=media;setIntent(value);await rank(value);const history=[query,...recent.filter(q=>q!==query)].slice(0,5);setRecent(history);sessionStorage.setItem('phi-recent-asks',JSON.stringify(history));}catch{setError('Could not search. Please retry.');}finally{setBusy(false);}}
+ async function remove(kind:keyof Intent,index?:number){if(!intent)return;const value={...intent};if(Array.isArray(value[kind]))(value as any)[kind]=(value[kind] as unknown[]).filter((_,n)=>n!==index);else if(kind==='georgian_only')value.georgian_only=false;else if(kind==='media_type')value.media_type='either';else (value as any)[kind]=null;setIntent(value);setBusy(true);try{await rank(value);}catch{setError('Could not search. Please retry.');}finally{setBusy(false);}}
+ return <Shell><div className="section"><h1 className="h1">Ask Phi</h1><textarea className="input" rows={3} value={text} onChange={e=>setText(e.target.value)} placeholder="Describe what you want..."/><div className="toggle">{(['either','film','book'] as const).map(value=><Button key={value} className={media===value?'on':''} onClick={()=>setMedia(value)}>{value==='either'?'Any':value==='film'?'Films':'Books'}</Button>)}</div><div className="row">{['A short black-and-white drama','Something like Memento','Cozy romantic comedy for tonight','A Georgian book about family'].map(q=><Button className="chip" key={q} onClick={()=>find(q)}>{q}</Button>)}</div><Button className="btn-primary" disabled={busy||!text.trim()} onClick={()=>find()}>Find something</Button>{recent.length>0&&<div className="row">{recent.map(q=><Button className="chip" key={q} onClick={()=>find(q)}>{q}</Button>)}</div>{error&&<p className="error" role="alert">{error}</p>}
+ {intent&&<><strong>Understood as:</strong><div className="row">{intent.media_type!=='either'&&<Button className="chip" onClick={()=>remove('media_type')}>{intent.media_type} ×</Button>}{intent.genres.map((v,n)=><Button className="chip" key={v} onClick={()=>remove('genres',n)}>{v} ×</Button>)}{intent.traits.map((v,n)=><Button className="chip trait-chip" data-facet={v.facet} key={v.facet+v.value} onClick={()=>remove('traits',n)}>{facetLabel(v.value)} ×</Button>)}{intent.similar_to.map((v,n)=><Button className="chip" key={v} onClick={()=>remove('similar_to',n)}>Like {v} ×</Button>)}{intent.max_minutes!=null&&<Button className="chip" onClick={()=>remove('max_minutes')}>Up to {intent.max_minutes} min ×</Button>}{intent.max_pages!=null&&<Button className="chip" onClick={()=>remove('max_pages')}>Up to {intent.max_pages} pages ×</Button>}{intent.georgian_only&&<Button className="chip" onClick={()=>remove('georgian_only')}>Georgian only ×</Button>}</div><span className="small muted">{ai?'AI used':'Rules only'}</span></>}
+ {busy?<Loading/>:results&&<>{results.length===0?<p>No titles match that request yet. Try fewer constraints.</p>:results.map(result=><div className="stack" key={result.item.id}><ItemRow item={result.item} lang="en"/><p className="reason small">{result.reason}</p><div className="row"><Button disabled={done.includes(result.item.id)} onClick={async()=>{if(!me.data)return;try{await swipe(me.data.uid,result.item,'like');setDone(old=>[...old,result.item.id]);void refresh();}catch{setError('Could not save. Please retry.');}}}>Like</Button><Button disabled={done.includes(result.item.id)} onClick={async()=>{if(!me.data)return;try{await swipe(me.data.uid,result.item,'pass');setDone(old=>[...old,result.item.id]);void refresh();}catch{setError('Could not save. Please retry.');}}}>Pass</Button></div></div>)}</>}
+ </div></Shell>;
 }
