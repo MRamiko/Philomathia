@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useLocale } from '@/lib/locale';
 import { Presence } from '@/components/motion';
 import { Button, PasswordField, useEmailDraft, keepFocusedFieldVisible } from '@/components/auth-form';
+import { PhiLogo } from '@/components/icons';
 
 export const Route = createFileRoute('/login')({
   head: () => ({ meta: [{ title: 'Welcome back · Philomathia' }, { name: 'description', content: 'Sign in to your private Philomathia film and book diary.' }, { property: 'og:title', content: 'Welcome back · Philomathia' }, { property: 'og:description', content: 'Continue your film and book diary and personal discoveries.' }, { property: 'og:type', content: 'website' }, { name: 'twitter:card', content: 'summary' }] }),
@@ -36,7 +37,7 @@ function Login() {
   }
   return <main className="app auth-app login-app" onFocusCapture={keepFocusedFieldVisible}>
     <div className="login-content">
-      <div className="login-mark" aria-hidden="true">Φ</div>
+      <div className="login-mark"><PhiLogo size={96}/></div>
       <header className="stack center login-heading"><h1 className="h1">{t('Welcome back.')}</h1><p className="lede">{t('Sign in to continue.')}</p></header>
       <form className="stack auth-fields" noValidate onSubmit={submit} aria-busy={busy}>
         <div key={`email-${attempt}`} className={`field stack${error ? ' field-error' : ''}`}><label htmlFor="login-email">{t('Email')}</label><input id="login-email" className="input" name="email" type="email" inputMode="email" autoComplete="email" required value={email} onChange={e => setEmail(e.target.value)} aria-invalid={error} aria-describedby={error ? 'login-error' : undefined} /></div>
