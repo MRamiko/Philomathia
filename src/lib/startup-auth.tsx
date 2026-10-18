@@ -15,7 +15,8 @@ export function StartupAuthProvider({ children }: { children: ReactNode }) {
     let version = 0;
     bootMark('[AUTH] session check started');
     try {
-      const cached=localStorage.getItem(supabase.auth.storageKey);
+      const host=new URL(import.meta.env['VITE_SUPABASE_URL']).hostname.split('.')[0];
+      const cached=localStorage.getItem(`sb-${host}-auth-token`);
       if(cached){const session=JSON.parse(cached) as Session;if(session.access_token&&session.user&&session.expires_at&&session.expires_at>Date.now()/1000)setState({status:'checking',session});}
     } catch { /* Session restoration below is authoritative when storage is unavailable. */ }
     const timer = window.setTimeout(() => { if (alive) setState(old => old.status === 'checking' ? { ...old, status: 'error' } : old); }, 8000);
