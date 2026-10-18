@@ -5,7 +5,8 @@ import type {Item} from './recommend';
 export const traitsProgress=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).handler(async({context})=>{
  const role=await context.supabase.rpc('has_role',{_user_id:context.userId,_role:'admin'});if(role.error||!role.data)throw new Error('Forbidden');
  const [total,none,rules,ai,jobs]=await Promise.all([context.supabase.from('items').select('id',{count:'exact',head:true}),context.supabase.from('items').select('id',{count:'exact',head:true}).eq('facets_status','none'),context.supabase.from('items').select('id',{count:'exact',head:true}).eq('facets_status','rules'),context.supabase.from('items').select('id',{count:'exact',head:true}).eq('facets_status','ai'),context.supabase.from('import_jobs').select('*').eq('provider','traits').order('updated_at',{ascending:false})]);
- for(const result of [total,none,rules,ai,jobs])if(result.error)throw result.error;return {total:total.count??0,none:none.count??0,rules:rules.count??0,ai:ai.count??0,jobs:jobs.data??[]};
+ const coverage=await context.supabase.rpc('trait_coverage');if(coverage.error)throw coverage.error;
+ for(const result of [total,none,rules,ai,jobs])if(result.error)throw result.error;return {total:total.count??0,six:Number(coverage.data),none:none.count??0,rules:rules.count??0,ai:ai.count??0,jobs:jobs.data??[]};
 });
 export const traitsBatch=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((data:{mode:'rules'|'ai';command:'start'|'pause'|'resume'|'next'})=>data).handler(async({context,data})=>{
  const role=await context.supabase.rpc('has_role',{_user_id:context.userId,_role:'admin'});if(role.error||!role.data)throw new Error('Forbidden');
