@@ -50,6 +50,9 @@ export function initializeDiagnostics() {
   const nativeFetch = window.fetch.bind(window);
   // The generated client delegates to global fetch; keep that generated client untouched.
   window.fetch = async (input, init) => {
+    const raw = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+    // Leave app streaming, static assets and unrelated browser requests untouched.
+    if(!/\/(rest\/v1|auth\/v1|storage\/v1|_serverFn|_server-fn|server-fn)\b/.test(raw))return nativeFetch(input,init);
     const name = endpointName(input);
     const method = (init?.method ?? (input instanceof Request ? input.method : 'GET')).toUpperCase();
     const parent = init?.signal ?? (input instanceof Request ? input.signal : undefined);

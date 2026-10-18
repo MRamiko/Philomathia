@@ -1,9 +1,10 @@
-import { createContext, useContext, useState, type ReactNode, type ComponentProps } from 'react';
+import { createContext, useContext, useEffect, useState, type ReactNode, type ComponentProps } from 'react';
 import { useLocale } from '@/lib/locale';
 
 const EmailDraft = createContext({ email: '', setEmail: (_email: string) => {} });
 export function AuthDraftProvider({ children }: { children: ReactNode }) {
-  const [email, setEmailState] = useState(() => (typeof window === 'undefined' ? '' : sessionStorage.getItem('phi-email-draft') ?? ''));
+  const [email, setEmailState] = useState('');
+  useEffect(()=>{try{setEmailState(sessionStorage.getItem('phi-email-draft')??'');}catch{/* Storage is optional. */}},[]);
   const setEmail = (next: string) => { setEmailState(next); try { sessionStorage.setItem('phi-email-draft', next); } catch { /* private mode */ } };
   return <EmailDraft.Provider value={{ email, setEmail }}>{children}</EmailDraft.Provider>;
 }

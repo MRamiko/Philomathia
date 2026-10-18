@@ -19,14 +19,10 @@ export function ScreenMotion({ children }: { children: ReactNode }) {
   const direction = backward || path === '/login' && from === '/signup' ? 'back' : ['/signup', '/shops'].includes(path) || path.startsWith('/item/') ? 'push' : 'tab';
   useEffect(() => { previous.current = path; previousIndex.current = location.state.__TSR_index ?? 0; }, [path, location.state.__TSR_index]);
   useEffect(() => {
-    if (!(window as Window & { phiMotionLogged?: boolean }).phiMotionLogged) {
-      console.info(`Philomathia prefers-reduced-motion: ${window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'active' : 'inactive'}`);
-      (window as Window & { phiMotionLogged?: boolean }).phiMotionLogged = true;
-    }
-    if (sessionStorage.getItem('phi-launched')) return;
-    sessionStorage.setItem('phi-launched', '1');
+    try{if (sessionStorage.getItem('phi-launched')) return;
+    sessionStorage.setItem('phi-launched', '1');}catch{return;}
     setIntro(true);
-    const duration = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--motion-slow'));
+    const duration = Math.min(600,parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--motion-slow'))||200);
     const timer = window.setTimeout(() => setIntro(false), duration);
     return () => window.clearTimeout(timer);
   }, []);
