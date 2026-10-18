@@ -91,6 +91,7 @@ export function TasteCard() {
           <div className="learning-meter" role="img" aria-label={`${t(stage.label)} · ${count} ${t('swipes')}`}>
             {STAGES.map(s => <span key={s.at} className={count >= s.at ? 'complete' : ''} />)}
           </div>
+          <Link className="btn" to="/where-to-watch">{t('Where to watch and buy')}</Link>
           {groups.map(([label, match]) => {
             const values = traits.filter(match).slice(0, 6);
             return values.length ? (

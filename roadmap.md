@@ -47,3 +47,10 @@
 - [x] Delete my data removes the auth account server-side
 - [ ] Verify as a non-admin account (blocked: only one account exists)
 - [ ] Real Android device feel (unverified)
+
+# Oct 18 covers, Georgian dashboard, where to watch
+- [x] Desktop/tablet Discover cover keeps 2:3 frame instead of cropping
+- [x] Georgian for dashboard traits, stage, shop and streaming sections
+- [x] Where to watch and buy page (liked films → streaming, liked books → shop price/stock), linked from taste card
+- [ ] Walk Discover → Where to watch in browser
+- [ ] Branded confirmation sender — blocked: needs a domain the user owns
