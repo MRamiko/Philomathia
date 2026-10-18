@@ -11,15 +11,18 @@ import { Loading, Shell } from "@/components/phi";
 import { supabase } from "@/integrations/supabase/client";
 import { useItems, useMe, useRefresh, tasteAction } from "@/lib/data";
 import { deleteAccount } from "@/lib/account.functions";
+import { TasteCard } from '@/components/taste-card';
+import { useTimings } from '@/lib/timings';
 
 export const Route = createFileRoute("/_authenticated/profile")({
-  head: () => ({ meta: [{ title: "Profile · Philomathia" }, { name: "description", content: "Language, avoided genres and your data." }, { property: "og:title", content: "Profile · Philomathia" }, { property: "og:description", content: "Language, avoided genres and your data." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
+  head: () => ({ meta: [{ title: "Profile · Philomathia" }, { name: "description", content: "Your taste portrait, preferences and private diary settings." }, { property: "og:title", content: "Profile · Philomathia" }, { property: "og:description", content: "Your taste portrait, preferences and private diary settings." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: () => null,
 });
 
 export function Profile() {
   const { t } = useLocale();
   const action=useAction();
+  const timings=useTimings();
   const me = useMe();
   const items = useItems();
   const refresh = useRefresh();
@@ -46,7 +49,7 @@ export function Profile() {
   if (!me.data || !items.data) return <Shell><Loading /></Shell>;
   const p = me.data.profile;
   const genres = Array.from(new Set(items.data.flatMap((i) => i.genres))).sort();
-  const update = async (patch: { preferred_language?: string; avoided_genres?: string[] }) => { const {error}=await supabase.from("profiles").update(patch).eq("id", me.data?.uid??"");if(error)throw error;await refresh(); };
+  const update = async (patch: { georgian_preference?: string; avoided_genres?: string[] }) => { const {error}=await supabase.from("profiles").update(patch).eq("id", me.data?.uid??"");if(error)throw error;await refresh(); };
 
   async function reset() {
     await tasteAction(null, "reset");
@@ -72,6 +75,8 @@ export function Profile() {
       {editing ? <div className="stack"><label className="field">{t('Display name')}<input className="input" autoFocus value={draft} onChange={e => setDraft(e.target.value)} aria-invalid={Boolean(nameError)} disabled={saving}/></label><div className="row"><Button className="btn-primary" disabled={saving} onClick={saveName}>{t(nameError ? 'Retry' : 'Save')}</Button><Button disabled={saving} onClick={() => { setEditing(false); setNameError(''); }}>{t('Cancel')}</Button></div></div> : <Button onClick={() => { setDraft(displayName(p.display_name,me.data?.email ?? '')); setEditing(true); setSaved(false); }}>{t('Display name')}</Button>}
       {nameError && <p className="error" role="alert">{nameError}</p>}
       {saved && <Presence autoClose={2000} className="snackbar" onExit={() => setSaved(false)}>{() => <span role="status">{t('Saved ✓')}</span>}</Presence>}
+      <TasteCard/>
+      <h2 className="h2">Taste preferences</h2><strong>Georgian content</strong><p className="small muted">How often Georgian stories appear in your picks.</p><div className="toggle">{['less','balanced','more'].map(value=><Button key={value} className={p.georgian_preference===value?'on':''} onClick={()=>action.run(()=>update({georgian_preference:value}))}>{value[0]?.toUpperCase()}{value.slice(1)}</Button>)}</div>
       {confirmation && <ConfirmDialog message={t(confirmation === 'reset' ? 'Reset your taste profile? This clears your swipes and taste weights.' : 'Delete all your data? Swipes, diary, taste weights and profile settings will be removed.')} onClose={() => setConfirmation(null)} onConfirm={() => action.run(confirmation === 'reset' ? reset : wipe)} />}
       <div className="h2">{t('Avoided genres')}</div>
       <MotionList scope="avoided-genres" className="row">
@@ -80,12 +85,11 @@ export function Profile() {
           return <button key={g} className={`chip ${on ? "chip-active" : ""}`} disabled={action.busy} onClick={() => action.run(()=>update({ avoided_genres: on ? p.avoided_genres.filter((x) => x !== g) : [...p.avoided_genres, g] }))}>{t(g)}</button>;
         })}
       </MotionList>
-      <div className="h2">{t('How recommendations work')}</div>
       <div className="box stack"><h2 className="h2">{t('Credits')}</h2><p className="small">{t('Films and posters by TMDB')}</p><p className="small">{t('Books and covers by Open Library and Google Books')}</p><p className="small">{t('Georgian titles from Wikidata')}</p><p className="small">{t('This product uses the TMDB API but is not endorsed or certified by TMDB.')}</p></div>
       {me.data.roles.includes('admin')&&<Link to="/admin-import" className="btn">{t('Admin Import')}</Link>}
-      <p className="small">{t('Every like adds points to the genres, moods, keywords and creator of that title, and every pass takes some away. Each new title is scored mostly by how well its tags match those points, plus its creator, your chosen mood and a little novelty. About one card in five is a deliberate step outside your usual taste, and every reason shown is built from the tags that actually matched.')}</p>
       {me.data.roles.includes("admin") && <div className="stack">
         <h2 className="h2">{t('Taste debug')}</h2>
+        {timings.map((timing,index)=><span className="small" key={index}>{timing.name}: {timing.ms} ms</span>)}
         {Object.entries(me.data.weights).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([tag,weight])=><span key={tag}>{tag}: {weight.toFixed(3)}</span>)}
         <strong>{t('Recent likes')}</strong>
         {me.data.swipes.filter(s=>s.action==="like").slice(0,5).map(s=><span key={s.item_id}>{items.data?.find(i=>i.id===s.item_id)?.title_en}</span>)}

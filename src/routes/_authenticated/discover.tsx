@@ -12,7 +12,7 @@ import { MediaSwitch } from '@/components/media-switch';
 import { Icon } from '@/components/icons';
 import { Presence } from '@/components/motion';
 export const Route = createFileRoute("/_authenticated/discover")({
-  validateSearch: (s: Record<string, unknown>): { tag?: string | undefined } => ({ tag: typeof s['tag'] === "string" ? (s['tag'] as string) : undefined }),
+  validateSearch: (s: Record<string, unknown>): { tag?: string | undefined; facet?:string|undefined; value?:string|undefined } => ({ tag: typeof s['tag'] === "string" ? s['tag'] : undefined,facet:typeof s['facet']==='string'?s['facet']:undefined,value:typeof s['value']==='string'?s['value']:undefined }),
   head: () => ({ meta: [{ title: "Discover · Philomathia" }, { name: "description", content: "Swipe through films and books picked for your taste." }, { property: "og:title", content: "Discover · Philomathia" }, { property: "og:description", content: "Swipe through films and books picked for your taste." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: () => null,
 });
@@ -30,6 +30,7 @@ export function Discover() {
  const shownAt = useRef(performance.now()); const opened = useRef(false);
  const queueRef = useRef(queue); queueRef.current=queue;
  const excluded = useRef(new Set<string>()); const saved = useRef(new Map<string,Promise<boolean>>());
+ const writes = useRef<Promise<unknown>>(Promise.resolve());
  const generation = useRef(0); const refilling = useRef(false); const swipeCount = useRef(0);
  const current = queue[0];
  useEffect(()=>{ const choice=localStorage.getItem('phi-media');if(choice==='film'||choice==='book')setMedia(choice); },[]);
@@ -58,11 +59,12 @@ export function Discover() {
   requestAnimationFrame(()=>recordTiming('swipe to next card',performance.now()-start));
   const dwell=performance.now()-shownAt.current;
   qc.setQueryData<Me>(['me'],old=>old?{...old,swipes:[{item_id:card.item.id,action,created_at:new Date().toISOString()},...old.swipes]}:old);
-  const write=recordSwipe(card.item,action,dwell,opened.current).then(()=>true).catch(()=>{
+  const detailOpened=opened.current;
+  const write=writes.current.then(()=>recordSwipe(card.item,action,dwell,detailOpened)).then(ok=>{if(!ok)throw new Error('Not saved');return true;}).catch(()=>{
    excluded.current.delete(card.item.id);setQueue(old=>[card,...old.filter(c=>c.item.id!==card.item.id)].slice(0,8));
    qc.setQueryData<Me>(['me'],old=>old?{...old,swipes:old.swipes.filter(s=>s.item_id!==card.item.id)}:old);
    setError('Could not save that choice. The card is back so you can retry.');return false;
-  }).finally(()=>setPending(n=>n-1)); saved.current.set(card.item.id,write);
+  }).finally(()=>setPending(n=>n-1)); saved.current.set(card.item.id,write);writes.current=write;
   swipeCount.current++;
   void write.then(ok=>{if(!ok)return;if(swipeCount.current%5===0)void supabaseRefresh();if(queueRef.current.length<=3||swipeCount.current%2===0)void refill();});
  }
