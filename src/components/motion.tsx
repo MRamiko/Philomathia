@@ -48,6 +48,7 @@ export function usePresence(onExit: () => void) {
 export function Presence({ children, onExit, className = '', historyEntry = false, autoClose }: { children: (close: () => void) => ReactNode; onExit: () => void; className?: string; historyEntry?: boolean; autoClose?: number }) {
   const { state, close, finish } = usePresence(onExit);
   const root = useRef<HTMLDivElement>(null);
+  const dragStart=useRef<{y:number;target:HTMLElement}|null>(null);
   useBlocker({ shouldBlockFn: async ({ action }) => {
     if (!historyEntry) return false;
     close();
@@ -71,7 +72,7 @@ export function Presence({ children, onExit, className = '', historyEntry = fals
     return () => { window.removeEventListener('keydown', key); if (opener?.isConnected) opener.focus(); };
   }, []);
   if (state === 'closed') return null;
-  return <div ref={root} className={`${className}${state === 'closing' ? ' exiting' : ''}`} data-presence={state} onAnimationEnd={e => { if (state === 'closing' && e.target === e.currentTarget) finish(); }}>{children(close)}</div>;
+  return <div ref={root} className={`${className}${state === 'closing' ? ' exiting' : ''}`} data-presence={state} onPointerDown={e=>{if(!(e.target instanceof HTMLElement))return;const drawer=e.target.closest<HTMLElement>('.drawer');if(!drawer||e.target.closest('button,input,select,textarea,a')||e.clientY-drawer.getBoundingClientRect().top>80)return;dragStart.current={y:e.clientY,target:drawer};}} onPointerUp={e=>{const start=dragStart.current;dragStart.current=null;if(start&&e.clientY-start.y>100)close();}} onAnimationEnd={e => { if (state === 'closing' && e.target === e.currentTarget) finish(); }}>{children(close)}</div>;
 }
 export function ConfirmDialog({ message, onClose, onConfirm }: { message: string; onClose: () => void; onConfirm: () => void }) {
   const { t } = useLocale(); const accepted = useRef(false);
