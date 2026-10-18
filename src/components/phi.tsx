@@ -14,42 +14,10 @@ import { Icon, PhiLogo, type IconName } from './icons';
 import { haptic } from '@/lib/timings';
 import {WhereToWatch} from './where-to-watch';
 import {Button} from './auth-form';
+import { bootMark } from '@/lib/startup-diagnostics';
+import { StartupContent } from './startup-recovery';
 
-const TABS = [
-  { to: "/discover", label: "Discover" },
-  { to: "/search", label: "Search" },
-  { to: "/library", label: "Library" },
-  { to: "/ask", label: "Ask Phi" },
-  { to: "/profile", label: "Profile" },
-] as const;
-
-export function Shell({ children, footer, header }: { children: ReactNode; footer?: ReactNode; header?:ReactNode }) {
-  const { t, lang: appLang } = useLocale();
-  const [offline,setOffline]=useState(false);
-  useEffect(()=>{const update=()=>setOffline(!navigator.onLine);update();window.addEventListener("online",update);window.addEventListener("offline",update);return()=>{window.removeEventListener("online",update);window.removeEventListener("offline",update);};},[]);
-  const path = useRouterState({ select: (s) => s.location.pathname });
-  useEffect(()=>{rememberTab(path);},[path]);
-  return (
-    <>
-      <div className="app">
-        {offline && <p role="alert" className="offline">{t("You are offline")}</p>}
-        <header className="topbar"><PhiLogo />{header}</header>
-        {children}
-        {footer&&<div className="footer">{footer}</div>}
-      </div>
-      <nav className="nav">
-        <div className="nav-inner">
-          <span className="nav-indicator" style={{ transform: `translateX(${Math.max(0, TABS.findIndex(tab => path.startsWith(tab.to))) * 100}%)` }} />
-          {TABS.map((tab) => (
-            <Link key={tab.to} to={tab.to} aria-label={tab.label} title={tab.label} onClick={()=>{sessionStorage.setItem('phi-tab-start',String(performance.now()));haptic();}} className={path.startsWith(tab.to) ? "active" : ""}>
-              <Icon name={(tab.to.slice(1)==='ask'?'ask':tab.to.slice(1)) as IconName}/>
-            </Link>
-          ))}
-        </div>
-      </nav>
-    </>
-  );
-}
+export { Shell } from './app-shell';
 
 export function Poster({ item, size, eager = false }: { item: Item; size: "sm" | "lg"; eager?: boolean }) {
   const { t, lang: appLang } = useLocale();
@@ -59,7 +27,7 @@ export function Poster({ item, size, eager = false }: { item: Item; size: "sm" |
   return (
     <div className={`poster poster-${size}`}>
       {loaded!==url || !url || failed===url ? <span>{t(item.media_type === "book" ? "Book" : "Film")}</span>:null}
-      {url && failed!==url && <img key={url} src={url} alt={titleOf(item,appLang)} width={size==='sm'?100:200} height={size==='sm'?150:300} loading={eager?'eager':'lazy'} decoding="async" className={loaded===url?'loaded':'pending'} onLoad={()=>setLoaded(url)} onError={()=>setFailed(url)}/>}
+      {url && failed!==url && <img key={url} src={url} alt={titleOf(item,appLang)} width={size==='sm'?100:200} height={size==='sm'?150:300} loading={eager?'eager':'lazy'} decoding="async" className={loaded===url?'loaded':'pending'} onLoad={()=>{setLoaded(url);if(eager)bootMark('first image loaded');}} onError={()=>setFailed(url)}/>}
     </div>
   );
 }
@@ -222,6 +190,5 @@ export function ItemDrawer({ item, items, lang, reason, onClose }: { item: Item;
 }
 
 export function Loading() {
-  const { t, lang: appLang } = useLocale();
-  return <div className="loading-indicator stack" role="status"><p className="muted center">{t('Loading…')}<span className="loading-dots" aria-hidden="true"><span>·</span><span>·</span><span>·</span></span></p><div className="loading-surfaces" aria-hidden="true"><div className="loading-surface"/><div className="loading-surface"/></div></div>;
+  return <StartupContent/>;
 }

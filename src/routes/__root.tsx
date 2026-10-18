@@ -1,13 +1,11 @@
 import { useLocale } from "@/lib/locale";
 import { initializePwa } from "@/lib/pwa";
 import { LocaleProvider } from "@/lib/locale";
-import { supabase } from "@/integrations/supabase/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
   createRootRouteWithContext,
-  useRouter,
   HeadContent,
   Scripts,
   type ErrorComponentProps,
@@ -15,7 +13,9 @@ import {
 import { useEffect, type ReactNode } from "react";
 import { AuthDraftProvider } from '@/components/auth-form';
 import { ScreenMotion } from '@/components/motion';
-import {checkThemeContrast} from '@/lib/contrast';
+import { StartupAuthProvider } from '@/lib/startup-auth';
+import { BootDiagnostics } from '@/components/startup-recovery';
+import { initializeDiagnostics } from '@/lib/startup-diagnostics';
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -75,13 +75,11 @@ function RootComponent() {
   const { t, lang: appLang } = useLocale();
   const { queryClient } = Route.useRouteContext();
 
-  const router = useRouter();
-  useEffect(() => { initializePwa();checkThemeContrast(); }, []);
-  useEffect(() => { const { data } = supabase.auth.onAuthStateChange((event) => { if (!["SIGNED_IN","SIGNED_OUT","USER_UPDATED"].includes(event)) return; router.invalidate(); if(event!=="SIGNED_OUT") queryClient.invalidateQueries(); }); return () => data.subscription.unsubscribe(); }, [router,queryClient]);
+  useEffect(() => { initializeDiagnostics(); initializePwa(); if(import.meta.env.DEV) void import('@/lib/contrast').then(m=>m.checkThemeContrast()); }, []);
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <LocaleProvider><AuthDraftProvider><ScreenMotion><Outlet /></ScreenMotion></AuthDraftProvider></LocaleProvider>
+      <LocaleProvider><AuthDraftProvider><StartupAuthProvider><ScreenMotion><Outlet /></ScreenMotion><BootDiagnostics/></StartupAuthProvider></AuthDraftProvider></LocaleProvider>
     </QueryClientProvider>
   );
 }

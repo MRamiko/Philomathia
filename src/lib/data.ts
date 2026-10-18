@@ -4,6 +4,7 @@ import { REC } from "./config";
 import { translate, type Locale } from "./strings";
 import { allTagsOf, type Item } from "./recommend";
 import { cleanDisplayName, displayName, validDisplayName } from './display-name';
+import { bootMark } from './startup-diagnostics';
 
 export type Log = { id: string; item_id: string; status: string; rating: number | null; review: string | null; logged_at: string };
 export type Swipe = { item_id: string; action: string; created_at: string };
@@ -13,13 +14,13 @@ export function useItems(itemId?:string) {
   return useQuery({
     queryKey: ["items",itemId],
     queryFn: async () => {
-      const { data, error } = await supabase.from("items").select("*").order("popularity",{ascending:false}).limit(300);
+      const { data, error } = await supabase.from("items").select("*").order("popularity",{ascending:false}).limit(20);
       if (error) throw error;
       const session=await supabase.auth.getSession();
       const ids=new Set<string>(itemId?[itemId]:[]);
       const cached=qc.getQueryData<Me>(['me']);
       if(cached){for(const row of [...cached.swipes,...cached.logs])ids.add(row.item_id);}
-      else if(session.data.session?.user){for(const table of ['swipes','logs'] as const){let offset=0;while(true){const r=await supabase.from(table).select('item_id').range(offset,offset+999);if(r.error)throw r.error;for(const row of r.data??[])ids.add(row.item_id);if((r.data?.length??0)<1000)break;offset+=1000;}}}
+      else if(session.data.session?.user){const me=await qc.ensureQueryData(meOptions());for(const row of [...me.swipes,...me.logs])ids.add(row.item_id);}
       const merged=new Map((data??[]).map(i=>[i.id,i]));const wanted=[...ids].filter(id=>!merged.has(id));
       for(let n=0;n<wanted.length;n+=100){const r=await supabase.from('items').select('*').in('id',wanted.slice(n,n+100));if(r.error)throw r.error;for(const i of r.data??[])merged.set(i.id,i);}
       return [...merged.values()] as Item[];
@@ -29,20 +30,27 @@ export function useItems(itemId?:string) {
 }
 
 export function useMe() {
-  return useQuery({
+  return useQuery(meOptions());
+}
+function meOptions() {
+  return {
     queryKey: ["me"],
     queryFn: async () => {
       const { data: session } = await supabase.auth.getSession();
       const u = { user: session.session?.user };
       const uid = u.user?.id;
       if (!uid) throw new Error("Not signed in");
-      const [p, s, l, t, r] = await Promise.all([
+      bootMark('[DB] profile fetch start'); bootMark('[DB] taste and swipe data fetch start');
+      const results = await Promise.allSettled([
         supabase.from("profiles").select("*").eq("id", uid).maybeSingle(),
         supabase.from("swipes").select("item_id,action,created_at").order("created_at", { ascending: false }),
         supabase.from("logs").select("id,item_id,status,rating,review,logged_at").order("logged_at", { ascending: false }),
         supabase.from("tag_weights").select("tag,weight"),
         supabase.from("user_roles").select("role,shop_id"),
       ]);
+      bootMark('[DB] profile fetch finish'); bootMark('[DB] taste and swipe data fetch finish');
+      const unwrap=<T,>(result:PromiseSettledResult<T>):T=>{if(result.status==='rejected')throw result.reason;return result.value;};
+      const p=unwrap(results[0]),s=unwrap(results[1]),l=unwrap(results[2]),t=unwrap(results[3]),r=unwrap(results[4]);
       for (const result of [p,s,l,t,r]) if (result.error) throw result.error;
       let profile = p.data;
       if (!profile) {
@@ -68,7 +76,7 @@ export function useMe() {
     },
     staleTime: 60_000,
     refetchOnMount: true,
-  });
+  };
 }
 export type Me = NonNullable<ReturnType<typeof useMe>["data"]>;
 
