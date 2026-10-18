@@ -21,7 +21,7 @@ export const Route = createFileRoute("/_authenticated/profile")({
 });
 
 export function Profile() {
-  const { t } = useLocale();
+  const { t, lang, setLang } = useLocale();
   const action=useAction();
   const timings=useTimings();
   const me = useMe();
@@ -53,9 +53,10 @@ export function Profile() {
   const update = async (patch: { georgian_preference?: string; avoided_genres?: string[] }) => { const {error}=await supabase.from("profiles").update(patch).eq("id", me.data?.uid??"");if(error)throw error;await refresh();window.dispatchEvent(new Event('phi-taste-changed')); };
 
   async function reset() {
-    const result=await supabase.rpc('reset_facet_taste');if(result.error)throw result.error;
+    const result=await supabase.rpc('reset_taste');if(result.error)throw result.error;
     await qc.invalidateQueries({queryKey:['taste']});
     await refresh();window.dispatchEvent(new Event('phi-taste-changed'));
+    nav({ to: "/onboarding" });
   }
   async function wipe() {
     await deleteAccount();
@@ -80,7 +81,8 @@ export function Profile() {
       <TasteCard/>
       <InstallApp/>
       <h2 className="h2">{t('Taste preferences')}</h2><strong>{t('Georgian content')}</strong><p className="small muted">{t('How often Georgian stories appear in your picks.')}</p><div className="toggle" role="group" aria-label={t('Georgian content')}>{(['less','balanced','more'] as const).map(value=><Button key={value} className={(p.georgian_preference??'balanced')===value?'on':''} aria-pressed={(p.georgian_preference??'balanced')===value} onClick={()=>action.run(()=>update({georgian_preference:value}))}>{t(value[0]?.toUpperCase()+value.slice(1))}</Button>)}</div>
-      {confirmation && <ConfirmDialog message={t(confirmation === 'reset' ? 'Reset your taste profile? This clears your swipes and taste weights.' : 'Delete all your data? Swipes, diary, taste weights and profile settings will be removed.')} onClose={() => setConfirmation(null)} onConfirm={() => action.run(confirmation === 'reset' ? reset : wipe)} />}
+      <h2 className="h2">{t('Language')}</h2><div className="toggle" role="group" aria-label={t('Language')}>{(['en','ka'] as const).map(value=><Button key={value} className={lang===value?'on':''} aria-pressed={lang===value} onClick={()=>action.run(()=>setLang(value))}>{value==='en'?'English':'ქართული'}</Button>)}</div>
+      {confirmation && <ConfirmDialog message={t(confirmation === 'reset' ? 'Reset your taste profile? This clears your swipes and taste weights, and starts onboarding again.' : 'Delete all your data? Swipes, diary, taste weights and profile settings will be removed.')} onClose={() => setConfirmation(null)} onConfirm={() => action.run(confirmation === 'reset' ? reset : wipe)} />}
       <div className="h2">{t('Avoided genres')}</div>
       <MotionList scope="avoided-genres" className="row">
         {genres.map((g) => {
@@ -99,6 +101,7 @@ export function Profile() {
         <pre>{JSON.stringify(recommend({items:items.data,weights:me.data.weights,swipes:me.data.swipes,excludedIds:new Set([...me.data.swipes.map(s=>s.item_id),...me.data.logs.filter(l=>l.status==="seen").map(l=>l.item_id)]),likedIds:new Set(me.data.swipes.filter(s=>s.action==="like").map(s=>s.item_id)),avoidedGenres:p.avoided_genres,mediaType:"film"},1)[0]?.parts,null,2)}</pre>
       </div>}
       <div className="stack" style={{ marginTop: 16 }}>
+        <Link to="/dashboard" className="btn" style={{ textAlign: "center", textDecoration: "none" }}>{t('Dashboard')}</Link>
         <Link to="/shops" className="btn" style={{ textAlign: "center", textDecoration: "none" }}>{t('Bookshops')}</Link>
         {(me.data.roles.includes('shop')||me.data.roles.includes('admin'))&&<Link to="/shop-stock" className="btn" style={{ textAlign: "center", textDecoration: "none" }}>{t('Shop stock')}</Link>}
         <button className="btn" disabled={action.busy} onClick={()=>setConfirmation("reset")}>{t('Reset my taste profile')}</button>
