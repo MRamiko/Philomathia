@@ -4,6 +4,7 @@ import { REC } from "./config";
 import { translate, type Locale } from "./strings";
 import { allTagsOf, type Item } from "./recommend";
 import { cleanDisplayName, displayName, validDisplayName } from './display-name';
+import { setLocaleLang } from './locale';
 import { bootMark } from './startup-diagnostics';
 
 export type Log = { id: string; item_id: string; status: string; rating: number | null; review: string | null; logged_at: string };
@@ -64,6 +65,7 @@ function meOptions() {
       }
       const weights: Record<string, number> = {};
       for (const row of t.data ?? []) weights[row.tag] = Number(row.weight);
+      setLocaleLang(profile.preferred_language);
       return {
         uid,
         email: u.user?.email ?? "",
@@ -96,13 +98,15 @@ export async function saveLog(_uid: string, item: Item, _prev: Log | undefined, 
 export async function deleteLog(item: Item, _prev: Log) { await tasteAction(item.id, "remove_log"); }
 
 export function titleOf(i: Item, lang: string) {
+  if (lang === 'ka') return i.title_ka?.trim() || i.title_en || i.original_title || 'Untitled';
   return i.title_en || i.title_ka || i.original_title || 'Untitled';
 }
 export function descOf(i: Item, lang: string) {
+  if (lang === 'ka') return i.description_ka?.trim() || i.description_en || '';
   return i.description_en || i.description_ka || '';
 }
 export function lengthOf(i: Item, lang: string="en") {
-  const t=(k:string)=>translate('en',k);
+  const t=(k:string)=>translate(lang,k);
   return i.media_type === "film" ? (i.runtime_minutes ? `${i.runtime_minutes} ${t("min")}` : "") : i.page_count ? `${i.page_count} ${t("pages")}` : "";
 }
 export function twoSentences(s: string) {

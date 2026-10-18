@@ -127,6 +127,13 @@
       "when": 1792304137817,
       "tag": "0017_refresh_taste_no_default_portrait",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1792305280437,
+      "tag": "0018_reset_taste_starter",
+      "breakpoints": true
     }
   ]
 }

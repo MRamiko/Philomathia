@@ -8,6 +8,7 @@ import { discoverQueue, recordSwipe, type QueueCard } from '@/lib/discover-queue
 import { imageUrl } from '@/lib/images';
 import { SHOW_IMAGES } from '@/lib/config';
 import { haptic, recordTiming } from '@/lib/timings';
+import { useLocale } from '@/lib/locale';
 import { MediaSwitch } from '@/components/media-switch';
 import { Icon } from '@/components/icons';
 import { Presence } from '@/components/motion';
@@ -22,7 +23,7 @@ export function Discover() {
  renderCounter('Discover');
  const location = useRouterState({ select: s => s.location });
  const search = location.search as { tag?: string; facet?: string; value?: string };
- const me = useMe(); const qc = useQueryClient();
+ const me = useMe(); const qc = useQueryClient(); const { t, lang } = useLocale();
  const [media,setMedia] = useState<'film'|'book'>('film');
  const [geo,setGeo] = useState(false); const [open,setOpen] = useState(false);
  const [filterOpen,setFilterOpen] = useState(false);
@@ -79,12 +80,12 @@ export function Discover() {
  async function supabaseRefresh(){try{const {supabase}=await import('@/integrations/supabase/client');const result=await supabase.rpc('refresh_taste',{});if(result.error)setError('Could not refresh your taste. Please retry.');}catch{setError('Could not refresh your taste. Please retry.');}}
  async function undo(){if(!last||undoing)return;setUndoing(true);try{const ok=await saved.current.get(last.item.id);if(ok===false)return;await undoSwipe(last.item,'');excluded.current.delete(last.item.id);setQueue(old=>[last,...old.filter(c=>c.item.id!==last.item.id)].slice(0,8));qc.setQueryData<Me>(['me'],old=>old?{...old,swipes:old.swipes.filter(s=>s.item_id!==last.item.id)}:old);setLast(null);}catch{setError('Could not undo. Please retry.');}finally{setUndoing(false);}}
  return <Shell header={<div className="row discover-tools"><Button className="icon-btn" title="Filters" aria-label="Filters" onClick={()=>setFilterOpen(true)}><Icon name="filter"/></Button><MediaSwitch value={media} onChange={choice=>{setMedia(choice);localStorage.setItem('phi-media',choice);}}/></div>}><div className="section">
-  <div className="between"><h1 className="h1">Discover</h1><span className="small muted">{(me.data?.swipes.length??0)<15?'Getting to know you':(me.data?.swipes.length??0)<40?'Learning your taste':'Taste tuned'}</span></div>
-  {filterOpen&&<Presence historyEntry className="drawer-bg" onExit={()=>setFilterOpen(false)}>{close=><><div className="drawer-dismiss" onClick={close}/><div className="drawer stack" role="dialog" aria-modal="true" aria-label="Filters"><div className="between"><h2 className="h2">Filters</h2><Button className="icon-btn" aria-label="Close" onClick={close}><Icon name="close"/></Button></div><label className="row"><input type="checkbox" checked={geo} onChange={e=>setGeo(e.target.checked)}/>Georgian only</label>{search.facet&&<p>Trait: {search.value?.replaceAll('_',' ')}</p>}</div></>}</Presence>}
+  <div className="between"><h1 className="h1">{t('Discover')}</h1><span className="small muted">{t((me.data?.swipes.length??0)<15?'Getting to know you':(me.data?.swipes.length??0)<40?'Learning your taste':'Taste tuned')}</span></div>
+  {filterOpen&&<Presence historyEntry className="drawer-bg" onExit={()=>setFilterOpen(false)}>{close=><><div className="drawer-dismiss" onClick={close}/><div className="drawer stack" role="dialog" aria-modal="true" aria-label="Filters"><div className="between"><h2 className="h2">Filters</h2><Button className="icon-btn" aria-label="Close" onClick={close}><Icon name="close"/></Button></div><label className="row"><input type="checkbox" checked={geo} onChange={e=>setGeo(e.target.checked)}/>{t('Georgian only')}</label>{search.facet&&<p>Trait: {search.value?.replaceAll('_',' ')}</p>}</div></>}</Presence>}
   {error&&<p role="alert" className="error">{error}<Button onClick={()=>void refill()}>Retry</Button></p>}
-  {loading&&!current?<Loading/>:current?<SwipeCard key={current.item.id} item={current.item} lang="en" reason={current.reason} onLike={()=>act('like')} onPass={()=>act('pass')} onTap={()=>{opened.current=true;setOpen(true);}} disabled={undoing}/>:!error&&<div className="stack"><h2 className="h2">All caught up.</h2><p className="muted">Try another type of story, change your filters, or undo your last choice.</p><Button onClick={()=>void refill(true)}>Find more picks</Button></div>}
+  {loading&&!current?<Loading/>:current?<SwipeCard key={current.item.id} item={current.item} lang={lang} reason={current.reason} onLike={()=>act('like')} onPass={()=>act('pass')} onTap={()=>{opened.current=true;setOpen(true);}} disabled={undoing}/>:!error&&<div className="stack"><h2 className="h2">All caught up.</h2><p className="muted">Try another type of story, change your filters, or undo your last choice.</p><Button onClick={()=>void refill(true)}>Find more picks</Button></div>}
   <div className="swipe-actions"><Button className="btn-danger" title="Pass" aria-label="Pass" disabled={!current||undoing} onClick={()=>act('pass')}><Icon name="close"/></Button><Button className="info-action" title="Info" aria-label="Info" disabled={!current} onClick={()=>{opened.current=true;setOpen(true);}}><Icon name="info"/></Button><Button className="btn-primary" title="Like" aria-label="Like" disabled={!current||undoing} onClick={()=>act('like')}><Icon name="heart"/></Button><Button className="info-action" title="Undo last swipe" aria-label="Undo last swipe" disabled={!last||undoing} onClick={undo}><Icon name="undo"/></Button></div>
   {!me.data?.profile.onboarded&&<Link to="/onboarding" className="btn btn-text">Set up my taste</Link>}
   <span className="small muted" role="status">{pending>0?'Saving your choices…':''}</span>
- </div>{open&&current&&<ItemDrawer item={current.item} items={queue.map(c=>c.item)} lang="en" reason={current.reason} onClose={()=>setOpen(false)}/>}</Shell>;
+ </div>{open&&current&&<ItemDrawer item={current.item} items={queue.map(c=>c.item)} lang={lang} reason={current.reason} onClose={()=>setOpen(false)}/>}</Shell>;
 }
