@@ -1,8 +1,8 @@
 # Startup freeze repair
-- [ ] Instrument opt-in scrubbed diagnostics, request lifetimes and boot stages
-- [ ] Measure startup and trace auth, data, tabs and service-worker failures
-- [ ] Repair blocking stages, isolated recovery, watchdog and offline/update handling
-- [ ] Verify phone widths, throttled startup, failures, navigation and report actual results
+- [x] Instrument opt-in scrubbed diagnostics, bounded backend requests, render counters and recovery controls
+- [x] Remove awaited route auth, consolidate queue initialization, isolate shell imports and preserve security
+- [x] Verify real startup and five tabs at 360/390/430, delayed queue, denied profile, signed-out route and report copying; 84 tests pass
+- [ ] Validate published cold-start and installed Android/PWA upgrade; blocked by no published deployment or physical device. Development slow-4G script loading still exceeds target; do not claim the speed budget passed.
 
 # October 18 taste and mobile update
 - [x] Timings, cached independent tabs, optimistic record_swipe, eight-card SQL queue and indexes implemented
@@ -13,7 +13,7 @@
 - [x] Query-first Ask Phi with validated intent and relevant SQL results; romantic comedy flow verified
 - [x] Authenticated seven-day GE watch-provider cache and details display; cached reopen observed at 29ms
 - [x] 77 tests passed; Discover/Profile/Undo checked at 360/390/430; one visible nav, no overflow or page errors
-- [ ] Final tab-cache timing and post-edit verification blocked by sandbox commands repeatedly timing out
+- [x] Post-edit five-tab navigation and one shared profile fetch verified at 360/390/430
 - [ ] Slow-4G and 5,000-item budgets, complete multi-genre learning/probe scenarios and physical Android verification remain unverified
 - [ ] Full AI coverage waits for an explicit administrator Resume; 801 / 873 items have six or more traits
 

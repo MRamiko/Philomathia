@@ -45,7 +45,7 @@ export function initializeDiagnostics() {
   if (installed || typeof window === 'undefined') return;
   installed = true;
   debug = new URLSearchParams(location.search).get('debug') === '1';
-  bootMark('[BOOT] main script executed');
+  bootMark('[BOOT] diagnostics initialized after React commit');
   bootMark('[BOOT] React mounted');
   const nativeFetch = window.fetch.bind(window);
   // The generated client delegates to global fetch; keep that generated client untouched.
@@ -67,7 +67,9 @@ export function initializeDiagnostics() {
         const controller = new AbortController();
         const abort = () => controller.abort(parent?.reason);
         if (parent?.aborted) abort(); else parent?.addEventListener('abort', abort, { once: true });
-        const timer = window.setTimeout(() => controller.abort(new DOMException('Request timed out', 'TimeoutError')), REQUEST_TIMEOUT_MS);
+        const remaining=REQUEST_TIMEOUT_MS-(performance.now()-started);
+        if(remaining<=0)throw new DOMException('Request timed out','TimeoutError');
+        const timer = window.setTimeout(() => controller.abort(new DOMException('Request timed out', 'TimeoutError')), remaining);
         try {
           const response = await nativeFetch(input, { ...init, signal: controller.signal });
           // Read the body within the request deadline, not only the response headers.

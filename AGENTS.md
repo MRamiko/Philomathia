@@ -27,3 +27,4 @@
 - StartupAuthProvider owns the single cleaned-up auth subscription; protected screen data mounts only after a restored session while a data-independent shell renders first, and RLS/server middleware remain authoritative.
 - Opt-in startup diagnostics bound and scrub reports; the browser request wrapper applies deadlines and safe read retries only to backend calls, never HTML/module streams or write retries.
 - Offline navigation falls back only to a generic public document; service-worker caches contain explicit public shell assets and content-hashed application JS/CSS, never private HTML or provider data.
+- The navigation shell is dependency-light in app-shell.tsx; rich item UI imports it, not vice versa, so pending startup does not eagerly load catalog/detail/provider modules.
