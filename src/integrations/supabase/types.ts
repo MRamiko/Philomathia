@@ -738,6 +738,7 @@ export type Database = {
       refresh_taste: { Args: { user_id?: string }; Returns: undefined }
       replay_taste: { Args: never; Returns: undefined }
       reset_facet_taste: { Args: never; Returns: undefined }
+      reset_taste: { Args: never; Returns: undefined }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
       starting_taste: { Args: { answers: Json }; Returns: undefined }
