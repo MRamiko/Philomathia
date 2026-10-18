@@ -745,6 +745,7 @@ export type Database = {
         Args: { _item: string; _kind: string; _rules: Json; _value: Json }
         Returns: boolean
       }
+      trait_coverage: { Args: never; Returns: number }
       undo_record_swipe: { Args: { item_id: string }; Returns: boolean }
     }
     Enums: {

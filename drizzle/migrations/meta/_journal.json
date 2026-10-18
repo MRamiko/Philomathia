@@ -85,6 +85,13 @@
       "when": 1792291514779,
       "tag": "0011_query_first_ask_search",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1792295050259,
+      "tag": "0012_trait_coverage_and_strong_diary_evidence",
+      "breakpoints": true
     }
   ]
 }
