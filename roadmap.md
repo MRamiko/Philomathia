@@ -54,3 +54,7 @@
 - [x] Where to watch and buy page (liked films → streaming, liked books → shop price/stock), linked from taste card
 - [x] Walk Discover → Where to watch verified; source has no Georgia streaming data
 - [ ] Branded confirmation sender — blocked: needs a domain the user owns
+- [x] Region fallback (Georgia → Turkey/Germany/UK/US) with switch; verified in browser
+- [x] Georgian shop names/addresses/prices; Films/Books switch on Where to watch; verified
+- [ ] Real bookshop prices — blocked: only sample shops exist; real shops must upload stock
+- [ ] Own email sender — blocked: user must connect a domain they own
