@@ -23,4 +23,4 @@
 - Watch-provider reads use authenticated server functions and a seven-day GE cache, fetched only in item detail surfaces.
 - Diary facet signals are maintained by a database trigger so Letterboxd, item forms, and library actions use the same learning path.
 - Client route gates read the cached session for navigation; authenticated server functions and database RLS still validate access.
-- Extend the shared Vite React deduplication with Router and React Store so linked dependencies share navigation contexts during development.
+- Use the shared Vite React deduplication unchanged; verify hook crashes in a fresh browser before changing configuration because stale optimizer versions can split React identity in an open preview.
