@@ -12,10 +12,10 @@ import { motionWait, MotionList, Presence } from '@/components/motion';
 
 export const Route = createFileRoute("/_authenticated/library")({
   head: () => ({ meta: [{ title: "Library · Philomathia" }, { name: "description", content: "Your liked, wanted and finished films and books." }, { property: "og:title", content: "Library · Philomathia" }, { property: "og:description", content: "Your liked, wanted and finished films and books." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
-  component: Library,
+  component: () => null,
 });
 
-function Library() {
+export function Library() {
   const { t, lang: appLang } = useLocale();
   const action=useAction(); const [hidden,setHidden]=useState<string[]>([]);
   const [removing, setRemoving] = useState<string | null>(null);

@@ -10,10 +10,10 @@ import { useItems, useMe } from "@/lib/data";
 
 export const Route = createFileRoute("/_authenticated/search")({
   head: () => ({ meta: [{ title: "Search · Philomathia" }, { name: "description", content: "Search films and books in English or Georgian." }, { property: "og:title", content: "Search · Philomathia" }, { property: "og:description", content: "Search films and books in English or Georgian." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
-  component: SearchPage,
+  component: () => null,
 });
 
-function SearchPage() {
+export function SearchPage() {
   const { t, lang: appLang } = useLocale();
   const me = useMe();
   const [page,setPage]=useState(1);

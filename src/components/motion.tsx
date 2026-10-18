@@ -31,7 +31,7 @@ export function ScreenMotion({ children }: { children: ReactNode }) {
   }, []);
   return <>
     {intro && <div className="launch-mark" aria-hidden="true">Φ</div>}
-    <div key={location.href} className={`screen-motion screen-${direction}`}>{children}</div>
+    <div className={`screen-motion screen-${direction}`}>{children}</div>
   </>;
 }
 

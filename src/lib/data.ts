@@ -9,14 +9,17 @@ export type Log = { id: string; item_id: string; status: string; rating: number 
 export type Swipe = { item_id: string; action: string; created_at: string };
 
 export function useItems(itemId?:string) {
+  const qc = useQueryClient();
   return useQuery({
     queryKey: ["items",itemId],
     queryFn: async () => {
       const { data, error } = await supabase.from("items").select("*").order("popularity",{ascending:false}).limit(300);
       if (error) throw error;
-      const user=await supabase.auth.getUser();
+      const session=await supabase.auth.getSession();
       const ids=new Set<string>(itemId?[itemId]:[]);
-      if(user.data.user){for(const table of ['swipes','logs'] as const){let offset=0;while(true){const r=await supabase.from(table).select('item_id').range(offset,offset+999);if(r.error)throw r.error;for(const row of r.data??[])ids.add(row.item_id);if((r.data?.length??0)<1000)break;offset+=1000;}}}
+      const cached=qc.getQueryData<Me>(['me']);
+      if(cached){for(const row of [...cached.swipes,...cached.logs])ids.add(row.item_id);}
+      else if(session.data.session?.user){for(const table of ['swipes','logs'] as const){let offset=0;while(true){const r=await supabase.from(table).select('item_id').range(offset,offset+999);if(r.error)throw r.error;for(const row of r.data??[])ids.add(row.item_id);if((r.data?.length??0)<1000)break;offset+=1000;}}}
       const merged=new Map((data??[]).map(i=>[i.id,i]));const wanted=[...ids].filter(id=>!merged.has(id));
       for(let n=0;n<wanted.length;n+=100){const r=await supabase.from('items').select('*').in('id',wanted.slice(n,n+100));if(r.error)throw r.error;for(const i of r.data??[])merged.set(i.id,i);}
       return [...merged.values()] as Item[];
@@ -29,7 +32,8 @@ export function useMe() {
   return useQuery({
     queryKey: ["me"],
     queryFn: async () => {
-      const { data: u } = await supabase.auth.getUser();
+      const { data: session } = await supabase.auth.getSession();
+      const u = { user: session.session?.user };
       const uid = u.user?.id;
       if (!uid) throw new Error("Not signed in");
       const [p, s, l, t, r] = await Promise.all([
@@ -62,8 +66,8 @@ export function useMe() {
         roles: (r.data ?? []).map((x) => x.role as string),
       };
     },
-    staleTime: 0,
-    refetchOnMount: "always",
+    staleTime: 60_000,
+    refetchOnMount: true,
   });
 }
 export type Me = NonNullable<ReturnType<typeof useMe>["data"]>;
@@ -78,8 +82,8 @@ export async function tasteAction(itemId: string | null, kind: string, value: Re
   if (error) throw error;
 }
 export async function bump(tags: string[], _delta: number) { await tasteAction(null, "onboard", { tags }); }
-export async function swipe(_uid: string, item: Item, action: "like" | "pass") { await tasteAction(item.id, action); }
-export async function undoSwipe(item: Item, _action: string) { await tasteAction(item.id, "undo"); }
+export async function swipe(_uid: string, item: Item, action: "like" | "pass") { const r=await supabase.rpc('record_swipe',{item_id:item.id,action,dwell_ms:0,opened_details:false});if(r.error)throw r.error; }
+export async function undoSwipe(item: Item, _action: string) { const r=await supabase.rpc('undo_record_swipe',{item_id:item.id});if(r.error)throw r.error; }
 export async function saveLog(_uid: string, item: Item, _prev: Log | undefined, value: { status: string; rating: number | null; review: string | null }) { await tasteAction(item.id, "log", value); }
 export async function deleteLog(item: Item, _prev: Log) { await tasteAction(item.id, "remove_log"); }
 

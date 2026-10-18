@@ -15,14 +15,14 @@ import {candidateItems} from '@/lib/catalog';
 
 export const Route = createFileRoute("/_authenticated/ask")({
   head: () => ({ meta: [{ title: "Ask Phi · Philomathia" }, { name: "description", content: "Find your next film or book by mood and time." }, { property: "og:title", content: "Ask Phi · Philomathia" }, { property: "og:description", content: "Find your next film or book by mood and time." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
-  component: Ask,
+  component: () => null,
 });
 
 const FILM_TIME = { "Under 90 min": [null, 89], "90 to 120 min": [90, 120], "2+ hours": [120, null] } as const;
 const BOOK_TIME = { "Under 200 pages": [null, 199], "200 to 400 pages": [200, 400], "400+ pages": [400, null] } as const;
 const MOODS = Object.keys(ASK_MOODS);
 
-function Ask() {
+export function Ask() {
   const { t, lang: appLang } = useLocale();
   const action=useAction();
   const items = useItems();
