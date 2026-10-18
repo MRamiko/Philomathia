@@ -36,8 +36,8 @@ function WhereToWatchPage() {
       <h1 className="h1">{t('Where to watch and buy')}</h1>
       <p className="small muted">{t('Streaming options for films and shop prices and stock for books you liked.')}</p>
       <div className="toggle" role="group" aria-label={t('Films') + ' / ' + t('Books')}>
-        <button className={tab === 'film' ? 'active' : ''} aria-pressed={tab === 'film'} onClick={() => { setTab('film'); setPage(0); }}>{t('Films')}</button>
-        <button className={tab === 'book' ? 'active' : ''} aria-pressed={tab === 'book'} onClick={() => { setTab('book'); setPage(0); }}>{t('Books')}</button>
+        <button className={tab === 'film' ? 'on' : ''} aria-pressed={tab === 'film'} onClick={() => { setTab('film'); setPage(0); }}>{t('Films')}</button>
+        <button className={tab === 'book' ? 'on' : ''} aria-pressed={tab === 'book'} onClick={() => { setTab('book'); setPage(0); }}>{t('Books')}</button>
       </div>
       {!list.length ? <p className="muted">{t('Like titles in Discover to see where to watch or buy them.')}</p> : slice.map(item => (
         <section key={item.id} className="box stack" data-testid="wtw-item">

@@ -10,7 +10,7 @@ export const watchProviders=createServerFn({method:'POST'}).middleware([requireS
  const cached=await supabaseAdmin.from('watch_availability').select('*').eq('item_id',data.itemId).in('region',regions);if(cached.error)throw new Error('Could not read streaming options');
  const fresh=new Map((cached.data??[]).filter(r=>Date.now()-Date.parse(r.fetched_at)<7*86400000).map(r=>[r.region,r]));
  const done=(row:any,fallback:boolean)=>({...row,requested:data.region??'GE',fallback});
- if(regions.every(r=>fresh.has(r))){const hit=regions.map(r=>fresh.get(r)).find(r=>!empty(r!.providers))??fresh.get(regions[0]);return done(hit,hit!.region!==regions[0]);}
+ if(regions.every(r=>fresh.has(r))){const hit=regions.map(r=>fresh.get(r)).find(r=>!empty(r!.providers))??fresh.get(regions[0]!);return done(hit,hit!.region!==regions[0]);}
  if(!item.data.tmdb_id)return done({item_id:data.itemId,region:regions[0],providers:{},link:null,fetched_at:new Date().toISOString()},false);
  const key=process.env['TMDB_API_KEY'];if(!key)throw new Error('Streaming data is not configured');
  const url=new URL(`https://api.themoviedb.org/3/movie/${item.data.tmdb_id}/watch/providers`);url.searchParams.set('api_key',key);
