@@ -15,6 +15,7 @@ class TabBoundary extends Component<{ children: ReactNode }, { failed: boolean }
   static getDerivedStateFromError() { return { failed: true }; }
   override render() { return this.state.failed ? <Shell><p role="alert" className="error">This tab could not load.</p><Button onClick={() => this.setState({ failed: false })}>Retry</Button></Shell> : this.props.children; }
 }
+function TabFallback(){const [timeout,setTimeoutState]=useState(false);useEffect(()=>{const timer=window.setTimeout(()=>setTimeoutState(true),8000);return()=>clearTimeout(timer);},[]);return <Shell>{timeout?<><p className="error" role="alert">This tab is taking too long to load.</p><Button onClick={()=>window.location.reload()}>Retry</Button></>:<Loading/>}</Shell>;}
 export function TabWorkspace() {
   const path = useRouterState({ select: state => state.location.pathname });
   const [visited, setVisited] = useState<string[]>([]);
@@ -33,6 +34,6 @@ export function TabWorkspace() {
   }, [path]);
   return <>{mounted.map(key => {
     const Screen = screens[key as keyof typeof screens];
-    return <div key={key} hidden={path !== key} aria-hidden={path !== key}><TabBoundary><Suspense fallback={<Shell><Loading /></Shell>}><Screen /></Suspense></TabBoundary></div>;
+    return <div key={key} hidden={path !== key} aria-hidden={path !== key}><TabBoundary><Suspense fallback={<TabFallback/>}><Screen /></Suspense></TabBoundary></div>;
   })}{!isTab && <Outlet />}</>;
 }
