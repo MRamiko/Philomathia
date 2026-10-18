@@ -18,6 +18,14 @@ export const traitsBatch=createServerFn({method:'POST'}).middleware([requireSupa
  const selection=await db.from('items').select('*').eq('facets_status',data.mode==='rules'?'none':'rules').order('popularity',{ascending:false}).limit(data.mode==='rules'?40:10);if(selection.error)throw selection.error;
  const items=selection.data as Item[];if(!items.length){await db.from('import_jobs').update({status:'done'}).eq('id',job.id);return {done:true,status:'done',processed:job.imported_count};}
  try{
+ if(data.mode==='rules'){
+  const ids=items.map(item=>item.id);
+  const existing=await db.from('item_facets').select('item_id,facet,value,source').in('item_id',ids);if(existing.error)throw existing.error;
+  const rows=items.flatMap(item=>ruleFacets(item).filter(f=>!existing.data.some(old=>old.item_id===item.id&&old.facet===f.facet&&(old.source==='admin'||old.source==='keyword'||old.value===f.value))).map(f=>({...f,item_id:item.id})));
+  if(rows.length){const written=await db.from('item_facets').upsert(rows,{onConflict:'item_id,facet,value',ignoreDuplicates:true});if(written.error)throw written.error;}
+  const updated=await db.from('items').update({facets_status:'rules'}).in('id',ids);if(updated.error)throw updated.error;
+  const processed=job.imported_count+items.length;await db.from('import_jobs').update({imported_count:processed,cursor:{last_ids:ids},updated_at:new Date().toISOString()}).eq('id',job.id);return {done:false,status:'running',processed};
+ }
  let aiRows:{id:string;facets:{facet:string;value:string;confidence:number}[]}[]=[];
  if(data.mode==='ai'){
   const {enrichTraits}=await import('./traits.server');aiRows=await enrichTraits(items);
