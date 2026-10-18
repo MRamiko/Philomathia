@@ -52,5 +52,5 @@
 - [x] Desktop/tablet Discover cover keeps 2:3 frame instead of cropping
 - [x] Georgian for dashboard traits, stage, shop and streaming sections
 - [x] Where to watch and buy page (liked films → streaming, liked books → shop price/stock), linked from taste card
-- [ ] Walk Discover → Where to watch in browser
+- [x] Walk Discover → Where to watch verified; source has no Georgia streaming data
 - [ ] Branded confirmation sender — blocked: needs a domain the user owns
