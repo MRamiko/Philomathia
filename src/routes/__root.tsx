@@ -1,13 +1,11 @@
 import { useLocale } from "@/lib/locale";
 import { initializePwa } from "@/lib/pwa";
 import { LocaleProvider } from "@/lib/locale";
-import { supabase } from "@/integrations/supabase/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
   createRootRouteWithContext,
-  useRouter,
   HeadContent,
   Scripts,
   type ErrorComponentProps,
@@ -78,7 +76,6 @@ function RootComponent() {
   const { t, lang: appLang } = useLocale();
   const { queryClient } = Route.useRouteContext();
 
-  const router = useRouter();
   useEffect(() => { initializeDiagnostics(); initializePwa(); if(import.meta.env.DEV) checkThemeContrast(); }, []);
   return (
     <QueryClientProvider client={queryClient}>

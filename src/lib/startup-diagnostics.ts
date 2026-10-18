@@ -33,7 +33,12 @@ export function bootMark(name: string, kind = 'timeline', duration?: number, sta
 }
 export function firstInteractive() { interactive = true; bootMark('[UI] first screen interactive'); }
 export function isInteractive() { return interactive; }
-export function captureError(error: unknown) { bootMark(error instanceof Error ? error.message : String(error), 'error'); }
+export function captureError(error: unknown) {
+  if(typeof window==='undefined')return;
+  const name=scrub(error instanceof Error ? error.message : String(error));
+  if(debug)bootMark(name,'error');
+  else entries=[...entries,{kind:'error',name,at:Math.round(performance.now())}].slice(-20);
+}
 export function useBootEntries() { return useSyncExternalStore(cb => { listeners.add(cb); return () => { listeners.delete(cb); }; }, () => entries, () => empty); }
 
 export function initializeDiagnostics() {
@@ -49,9 +54,9 @@ export function initializeDiagnostics() {
     const method = (init?.method ?? (input instanceof Request ? input.method : 'GET')).toUpperCase();
     const parent = init?.signal ?? (input instanceof Request ? input.signal : undefined);
     const started = performance.now();
-    const times = [...(counts.get(name) ?? []).filter(at => started - at < 5000), started];
+    if(debug){const times = [...(counts.get(name) ?? []).filter(at => started - at < 5000), started].slice(-30);
     counts.set(name, times);
-    if (times.length > 5) bootMark(`${name}: more than 5 calls in 5 seconds`, 'warning');
+    if (times.length > 5) bootMark(`${name}: more than 5 calls in 5 seconds`, 'warning');}
     bootMark(name, 'request-start');
     let status: number | string = 'network error';
     try {
