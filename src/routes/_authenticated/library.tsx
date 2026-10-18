@@ -3,11 +3,13 @@ import { REC } from "@/lib/config";
 import { useAction } from "@/lib/use-action";
 import { useLocale } from "@/lib/locale";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ItemRow, Loading, Shell } from "@/components/phi";
 import { supabase } from "@/integrations/supabase/client";
 import { saveLog, undoSwipe, useItems, useMe, useRefresh, type Log } from "@/lib/data";
 import type { Item } from "@/lib/recommend";
+import { MediaSwitch } from '@/components/media-switch';
+import { Poster } from '@/components/phi';
 import { motionWait, MotionList, Presence } from '@/components/motion';
 
 export const Route = createFileRoute("/_authenticated/library")({
@@ -17,6 +19,8 @@ export const Route = createFileRoute("/_authenticated/library")({
 
 export function Library() {
   const { t, lang: appLang } = useLocale();
+  const [media,setMedia]=useState<'film'|'book'>('film');
+  useEffect(()=>{const value=localStorage.getItem('phi-library-media');if(value==='film'||value==='book')setMedia(value);},[]);
   const action=useAction(); const [hidden,setHidden]=useState<string[]>([]);
   const [removing, setRemoving] = useState<string | null>(null);
   const items = useItems();
@@ -26,48 +30,33 @@ export function Library() {
   if (!items.data || !me.data) return <Shell><Loading /></Shell>;
   const d = me.data;
   const lang = appLang;
-  const byId = new Map(items.data.map((i) => [i.id, i]));
+  const byId = new Map(items.data.filter(i=>i.media_type===media).map((i) => [i.id, i]));
   const logged = (s: string) => d.logs.filter((l) => l.status === s).map((l) => ({ l, i: byId.get(l.item_id) })).filter((x):x is {l:Log;i:Item} => !!x.i);
   const liked = d.swipes.filter((s) => s.action === "like").map((s) => byId.get(s.item_id)).filter((i):i is Item=>!!i);
   const passed = d.swipes.filter((s) => s.action === "pass" && !hidden.includes(s.item_id)).map((s) => byId.get(s.item_id)).filter((i):i is Item=>!!i);
 
-  const positive = Object.entries(d.weights).filter(([, w]) => w > 0).sort((a, b) => b[1] - a[1]);
-  const total = positive.reduce((s, [, w]) => s + w, 0);
-  const cloud = positive.slice(0, 12);
-
   return (
     <Shell>
       {action.error&&<p role="alert" className="error">{action.error}</p>}
-      <h1 className="h1">{t('Library')}</h1>
-      <div className="box">
-        <strong>{t('Taste Cloud')}</strong>
-        {cloud.length === 0 ? <p className="muted small">{t('Like a few titles to grow your taste cloud.')}</p> : (
-          <MotionList scope="taste-cloud" className="tag-cloud">
-            {cloud.map(([tag, w]) => (
-              <Link key={tag} to="/discover" search={{ tag }}>
-                {tag.startsWith("creator:") ? tag.slice(8) : t(tag)} <span className="muted">{Math.round((w / total) * 100)}%</span>
-              </Link>
-            ))}
-          </MotionList>
-        )}
-      </div>
-
-      <Section title={t('Liked')} empty={t('Nothing liked yet.')}>{liked.map((i) => <ItemRow key={i.id} item={i} lang={lang} />)}</Section>
+      <div className="between"><h1 className="h1">Library</h1><MediaSwitch value={media} onChange={value=>{setMedia(value);localStorage.setItem('phi-library-media',value);}}/></div>
+      <Section title={t('Liked')} empty={t('Nothing liked yet.')}>{liked.map((i) => <LibraryTile key={i.id} item={i} />)}</Section>
       {(["want", "in_progress"] as const).map((s) => (
         <Section key={s} title={s === "want" ? t('Want to watch or read') : t('In progress')} empty={t('Empty.')}>
-          {logged(s).map(({ l, i }) => <ItemRow key={i.id} item={i} lang={lang} right={<MarkDone uid={d.uid} item={i} prev={l} onDone={refresh} />} />)}
+          {logged(s).map(({ l, i }) => <LibraryTile key={i.id} item={i} right={<MarkDone uid={d.uid} item={i} prev={l} onDone={refresh} />} />)}
         </Section>
       ))}
       <Section title={t('Done')} empty={t('Nothing finished yet.')}>
-        {logged("seen").map(({ l, i }) => <ItemRow key={i.id} item={i} lang={lang} right={<span className="small">{l.rating ? `${l.rating} / 5` : <span className="muted">{t('No rating')}</span>}</span>} />)}
+        {logged("seen").map(({ l, i }) => <LibraryTile key={i.id} item={i} right={<span className="small">{l.rating ? `${l.rating} / 5` : <span className="muted">{t('No rating')}</span>}</span>} />)}
       </Section>
       <Section title={t('Passed')} empty={t('No passes.')}>
-        {passed.map((i) => <div key={i.id} className={removing === i.id ? 'row-removing' : ''}><ItemRow item={i} lang={lang} right={<button className="btn btn-sm" disabled={action.busy} onClick={()=>action.run(async()=>{await Promise.all([undoSwipe(i,"pass"),motionWait()]);setHidden(h=>[...h,i.id]);await refresh();setRemoving(null);},()=>setRemoving(i.id),()=>{setRemoving(null);setHidden(h=>h.filter(id=>id!==i.id));})}>{t('Undo')}</button>} /></div>)}
+        {passed.map((i) => <div key={i.id} className={removing === i.id ? 'row-removing' : ''}><LibraryTile item={i} right={<button className="btn btn-sm" disabled={action.busy} onClick={()=>action.run(async()=>{await Promise.all([undoSwipe(i,"pass"),motionWait()]);setHidden(h=>[...h,i.id]);await refresh();setRemoving(null);},()=>setRemoving(i.id),()=>{setRemoving(null);setHidden(h=>h.filter(id=>id!==i.id));})}>{t('Undo')}</button>} /></div>)}
       </Section>
       <LetterboxdImport items={items.data} uid={d.uid} logs={d.logs} onDone={refresh} />
     </Shell>
   );
 }
+
+function LibraryTile({item,right}:{item:Item;right?:React.ReactNode}){return <div className="library-tile"><Link to="/item/$id" params={{id:item.id}}><Poster item={item} size="sm"/><span className="clamp2">{item.title_en}</span></Link>{right}</div>;}
 
 function Section({ title, empty, children }: { title: string; empty: string; children: React.ReactNode[] | React.ReactNode }) {
   const { t, lang: appLang } = useLocale();
@@ -76,8 +65,8 @@ function Section({ title, empty, children }: { title: string; empty: string; chi
   const has = Array.isArray(children) ? children.length > 0 : !!children;
   return (
     <>
-      <div className="h2">{title}</div>
-      {<MotionList scope={`library-${title}`} setKey={String(page)} stagger={page === 1} empty={<p className="muted small">{empty}</p>}>{entries.slice((page-1)*REC.PAGE_SIZE,page*REC.PAGE_SIZE)}</MotionList>}
+      <div className="h2">{title} <span className="small muted">{entries.filter(Boolean).length}</span></div>
+      {<MotionList className="library-grid" scope={`library-${title}`} setKey={String(page)} stagger={page === 1} empty={<p className="muted small">{empty}</p>}>{entries.slice((page-1)*REC.PAGE_SIZE,page*REC.PAGE_SIZE)}</MotionList>}
       <Pagination page={page} total={entries.filter(Boolean).length} onChange={setPage}/>
     </>
   );

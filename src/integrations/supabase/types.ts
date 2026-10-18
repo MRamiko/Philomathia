@@ -606,6 +606,38 @@ export type Database = {
         }
         Relationships: []
       }
+      watch_availability: {
+        Row: {
+          fetched_at: string
+          item_id: string
+          link: string | null
+          providers: Json
+          region: string
+        }
+        Insert: {
+          fetched_at?: string
+          item_id: string
+          link?: string | null
+          providers?: Json
+          region?: string
+        }
+        Update: {
+          fetched_at?: string
+          item_id?: string
+          link?: string | null
+          providers?: Json
+          region?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "watch_availability_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -700,8 +732,10 @@ export type Database = {
       }
       refresh_taste: { Args: { user_id?: string }; Returns: undefined }
       replay_taste: { Args: never; Returns: undefined }
+      reset_facet_taste: { Args: never; Returns: undefined }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
+      starting_taste: { Args: { answers: Json }; Returns: undefined }
       taste_action: {
         Args: { _item: string; _kind: string; _rules: Json; _value: Json }
         Returns: boolean
