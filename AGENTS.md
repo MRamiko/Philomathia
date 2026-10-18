@@ -24,3 +24,6 @@
 - Diary facet signals are maintained by a database trigger so Letterboxd, item forms, and library actions use the same learning path.
 - Client route gates read the cached session for navigation; authenticated server functions and database RLS still validate access.
 - Use the shared Vite React deduplication unchanged; verify hook crashes in a fresh browser before changing configuration because stale optimizer versions can split React identity in an open preview.
+- StartupAuthProvider owns the single cleaned-up auth subscription; protected screen data mounts only after a restored session while a data-independent shell renders first, and RLS/server middleware remain authoritative.
+- Opt-in startup diagnostics bound and scrub reports; the browser request wrapper applies deadlines and safe read retries only to backend calls, never HTML/module streams or write retries.
+- Offline navigation falls back only to a generic public document; service-worker caches contain explicit public shell assets and content-hashed application JS/CSS, never private HTML or provider data.
