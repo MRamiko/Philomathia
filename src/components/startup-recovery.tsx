@@ -10,7 +10,7 @@ export function StartupRecovery({ retry }: { retry: () => void }) {
 }
 export function StartupContent({ checking = false, retry }: { checking?: boolean; retry?: () => void }) {
   const [slow, setSlow] = useState(false); const [watchdog, setWatchdog] = useState(false);
-  useEffect(() => { const hint = window.setTimeout(() => setSlow(true), 3000); const timer = window.setTimeout(() => setWatchdog(true), 8000); return () => { clearTimeout(hint); clearTimeout(timer); }; }, []);
+  useEffect(() => { const hint = window.setTimeout(() => setSlow(true), 10000); const timer = window.setTimeout(() => setWatchdog(true), 30000); return () => { clearTimeout(hint); clearTimeout(timer); }; }, []);
   return <div className="startup-content">{watchdog ? <StartupRecovery retry={retry ?? (() => location.reload())}/> : <><span className="boot-pulse" role="status" aria-label={t('Loading…')}><PhiLogo size={48}/></span>{checking && slow && <p className="small muted">{t('Checking sign-in...')}</p>}</>}</div>;
 }
 export function BootDiagnostics() {
@@ -18,7 +18,7 @@ export function BootDiagnostics() {
   const [stalled, setStalled] = useState(false); const [copied, setCopied] = useState(false);
   useEffect(() => {
     const debug = new URLSearchParams(location.search).get('debug') === '1';setEnabled(debug);
-    const timer = window.setTimeout(() => { if (!isInteractive()) setStalled(true); }, 8000);
+    const timer = window.setTimeout(() => { if (!isInteractive()) setStalled(true); }, 30000);
     if(!debug)return()=>clearTimeout(timer);
     void Promise.allSettled(['serviceWorker' in navigator ? navigator.serviceWorker.getRegistrations() : Promise.resolve([]), 'caches' in window ? caches.keys() : Promise.resolve([])]).then(results => {
       const workers = results[0].status === 'fulfilled' ? results[0].value.length : 'unavailable';
