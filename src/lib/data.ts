@@ -65,6 +65,7 @@ function meOptions() {
       }
       const weights: Record<string, number> = {};
       for (const row of t.data ?? []) weights[row.tag] = Number(row.weight);
+      setLocaleLang(profile.preferred_language);
       return {
         uid,
         email: u.user?.email ?? "",
