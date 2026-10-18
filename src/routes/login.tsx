@@ -31,7 +31,11 @@ function Login() {
     try {
       const result = await supabase.auth.signInWithPassword({ email, password });
       if (result.error) { setError(true); setAttempt(n => n + 1); form.querySelector<HTMLInputElement>('#login-email')?.focus(); }
-      else await nav({ to: '/discover' });
+      else {
+        const userId = result.data.user?.id;
+        const { data: profile } = userId ? await supabase.from('profiles').select('onboarded').eq('id', userId).maybeSingle() : { data: null };
+        await nav({ to: profile && !profile.onboarded ? '/onboarding' : '/discover' });
+      }
     } catch { setError(true); setAttempt(n => n + 1); form.querySelector<HTMLInputElement>('#login-email')?.focus(); }
     finally { setBusy(false); }
   }
