@@ -13,6 +13,7 @@ import { Presence, MotionList } from '@/components/motion';
 import { Icon, PhiLogo, type IconName } from './icons';
 import { haptic } from '@/lib/timings';
 import {WhereToWatch} from './where-to-watch';
+import {Button} from './auth-form';
 
 const TABS = [
   { to: "/discover", label: "Discover" },
