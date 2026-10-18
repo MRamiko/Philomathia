@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react';
 
 export const REQUEST_TIMEOUT_MS = 8000;
 export const MAX_READ_RETRIES = 2;
-type Entry = { kind: string; name: string; at: number; duration?: number; status?: number | string };
+type Entry = { kind: string; name: string; at: number; duration?: number | undefined; status?: number | string | undefined };
 let entries: Entry[] = [];
 const listeners = new Set<() => void>();
 const empty: Entry[] = [];

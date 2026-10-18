@@ -226,6 +226,5 @@ export function ItemDrawer({ item, items, lang, reason, onClose }: { item: Item;
 }
 
 export function Loading() {
-  const { t, lang: appLang } = useLocale();
-  return <div className="loading-indicator stack" role="status"><p className="muted center">{t('Loading…')}<span className="loading-dots" aria-hidden="true"><span>·</span><span>·</span><span>·</span></span></p><div className="loading-surfaces" aria-hidden="true"><div className="loading-surface"/><div className="loading-surface"/></div></div>;
+  return <StartupContent/>;
 }

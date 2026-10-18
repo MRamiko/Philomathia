@@ -3,6 +3,8 @@ import { Outlet, useRouterState } from '@tanstack/react-router';
 import { Button } from './auth-form';
 import { Shell, Loading } from './phi';
 import { recordTiming } from '@/lib/timings';
+import { StartupContent } from './startup-recovery';
+import { captureError, renderCounter } from '@/lib/startup-diagnostics';
 const screens = {
   '/discover': lazy(() => import('@/routes/_authenticated/discover').then(m => ({ default: m.Discover }))),
   '/search': lazy(() => import('@/routes/_authenticated/search').then(m => ({ default: m.SearchPage }))),
@@ -13,10 +15,12 @@ const screens = {
 class TabBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
   override state = { failed: false };
   static getDerivedStateFromError() { return { failed: true }; }
-  override render() { return this.state.failed ? <Shell><p role="alert" className="error">This tab could not load.</p><Button onClick={() => this.setState({ failed: false })}>Retry</Button></Shell> : this.props.children; }
+  override componentDidCatch(error: Error) { captureError(error); }
+  override render() { return this.state.failed ? <Shell><p role="alert" className="error">Something went wrong</p><Button onClick={() => this.setState({ failed: false })}>Retry</Button><Button onClick={() => location.reload()}>Reload</Button></Shell> : this.props.children; }
 }
-function TabFallback(){const [timeout,setTimeoutState]=useState(false);useEffect(()=>{const timer=window.setTimeout(()=>setTimeoutState(true),8000);return()=>clearTimeout(timer);},[]);return <Shell>{timeout?<><p className="error" role="alert">This tab is taking too long to load.</p><Button onClick={()=>window.location.reload()}>Retry</Button></>:<Loading/>}</Shell>;}
+function TabFallback(){return <Shell><StartupContent/></Shell>;}
 export function TabWorkspace() {
+  renderCounter('TabWorkspace');
   const path = useRouterState({ select: state => state.location.pathname });
   const [visited, setVisited] = useState<string[]>([]);
   const scroll = useRef(new Map<string, number>());

@@ -361,3 +361,9 @@ button,a,input,select{touch-action:manipulation;-webkit-tap-highlight-color:tran
 .item-header{background:var(--header-tint);border-radius:24px;padding:16px}
 button:hover{background-color:var(--surface-3)}.btn-primary:hover{background:var(--accent-strong)}
 @media(prefers-reduced-motion:reduce){.media-thumb{transition:none}}
+.startup-content{min-height:240px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:16px}
+.boot-pulse{color:var(--accent);animation:boot-pulse 1200ms ease-in-out infinite}
+@keyframes boot-pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.boot-diagnostics{position:fixed;inset:auto 8px 104px;max-height:55dvh;overflow:auto;z-index:100;background:var(--surface-2);border:1px solid var(--border-strong);border-radius:8px;padding:16px}
+.boot-diagnostics pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;line-height:16px}
+@media(prefers-reduced-motion:reduce){.boot-pulse{animation:none}}
