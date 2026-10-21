@@ -92,7 +92,3 @@ Browser test: `python3 scripts/starter-taste-card.browser.py` checks that a bran
 - Streaming data lists services only, without prices; Georgia often has no listings, so nearby regions are shown.
 - Confirmation emails use the default sender until a custom domain is connected.
 - Slow-network startup speed and offline startup are not yet fully verified.
-
-## Development with Lovable
-
-Built with [Lovable](https://lovable.dev/projects/f68c7dd5-2b49-488c-b3a3-7885bcb9cb85). Changes made in Lovable are committed to this repository, and pushes to the main branch sync back.
